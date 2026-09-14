@@ -1,29 +1,18 @@
-import { getCatalog, type Catalog } from "@/lib/catalog/get-catalog";
-
-interface CatalogPreviewProps {
-  catalog: Catalog;
-  deliveryFeeArs: number;
-}
-
-// Placeholder entry point for WU2 (catalog read path). It exists to prove
-// the server-side getCatalog() wiring end-to-end -- the real menu /
-// order-builder UI (WU3) replaces this component; nothing here is meant to
-// survive that phase.
-function CatalogPreview({ catalog, deliveryFeeArs }: CatalogPreviewProps) {
-  const summary = {
-    burgers: catalog.burgers.length,
-    extras: catalog.extras.length,
-    combos: catalog.combos.length,
-    deliveryFeeArs,
-  };
-
-  console.log("[WU2 catalog preview]", summary);
-
-  return <pre>{JSON.stringify(summary, null, 2)}</pre>;
-}
+import { getCatalog } from "@/lib/catalog/get-catalog";
+import { Hero } from "@/components/landing/hero";
+import { MenuSection } from "@/components/landing/menu-section";
+import { InfoTabs } from "@/components/landing/info-tabs";
+import { WhatsappCta } from "@/components/landing/whatsapp-cta";
 
 export default async function HomePage() {
   const catalog = await getCatalog();
 
-  return <CatalogPreview catalog={catalog} deliveryFeeArs={catalog.deliveryFeeArs} />;
+  return (
+    <main>
+      <Hero />
+      <MenuSection catalog={catalog} deliveryFeeArs={catalog.deliveryFeeArs} />
+      <InfoTabs />
+      <WhatsappCta />
+    </main>
+  );
 }

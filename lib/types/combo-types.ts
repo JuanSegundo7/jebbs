@@ -1,10 +1,14 @@
 // ============================================
 // COMBO TYPES - Catalog subset ported from jebbs-dashboard's
-// lib/types/combo-types.ts. Only the shapes get-catalog.ts needs to read and
-// parse combos/slots/rules -- the order-building types (SelectedBurger,
-// SelectedCombo, CreateComboPayload, etc.) belong to WU3/WU4 and are not
-// ported here yet.
+// lib/types/combo-types.ts. WU2 ported only the catalog-read shapes; WU3
+// (order builder) adds back the order-building types (SelectedBurger,
+// SelectedComboSlot, SelectedCombo) that the selection hooks and
+// OrderPriceCalculator/OrderDataTransformer need. CreateComboPayload and
+// isValidSlotType still belong to the dashboard's admin combo-management UI
+// and are not ported here.
 // ============================================
+
+import type { Burger, Extra } from ".";
 
 export interface Combo {
   id: string;
@@ -48,4 +52,61 @@ export interface ComboSlotWithRules extends ComboSlot {
 
 export interface ComboWithSlots extends Combo {
   slots: ComboSlotWithRules[];
+}
+
+// ============================================
+// ORDER-BUILDING TYPES (WU3) - selection state built by
+// hooks/use-burger-selection.ts and hooks/use-combo-selection.ts, consumed
+// by lib/order/price-calculator.ts and lib/order/data-transformer.ts.
+// ============================================
+
+export interface SelectedBurger {
+  id: string;
+  burger: Burger;
+  quantity: number;
+  meatCount: number;
+  friesQuantity: number;
+  referenceFriesQuantity?: number; // Override for combos without fries: avoids a discount when pricing
+  isVeggie?: boolean; // true = veggie patties instead of meat
+  removedIngredients: string[];
+  selectedExtras: Array<{
+    extra: Extra;
+    quantity: number;
+  }>;
+  meatPriceAdjustment: number;
+}
+
+/**
+ * SelectedComboSlot - SHARED TYPE
+ * Represents a slot inside a selected combo.
+ */
+export interface SelectedComboSlot {
+  slotId: string;
+  slotType: "burger" | "drink" | "side";
+  defaultMeatCount?: number;
+  maxQuantity: number;
+  minQuantity: number;
+  rules: {
+    min_quantity: number;
+    max_quantity: number;
+    allowed_meat_count?: number[];
+    // Not present on jebbs-dashboard's own SelectedComboSlot type (a
+    // pre-existing gap there, tolerated by its 33-error tsc baseline) --
+    // added here because hooks/use-combo-selection.ts:103,106 reads
+    // slot.rules?.no_fries at runtime and this repo's gate requires 0 errors.
+    no_fries?: boolean;
+  };
+  burgers: SelectedBurger[];
+  selectedExtras: Extra[];
+}
+
+/**
+ * SelectedCombo - SHARED TYPE
+ * Represents a full combo selected in the order builder.
+ */
+export interface SelectedCombo {
+  id: string;
+  combo: ComboWithSlots;
+  quantity: number;
+  slots: SelectedComboSlot[];
 }
