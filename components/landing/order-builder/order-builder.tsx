@@ -3,6 +3,7 @@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import type { Catalog } from "@/lib/catalog/get-catalog";
 import { useCart } from "@/hooks/use-cart";
+import { useCheckout } from "@/hooks/use-checkout";
 import { BurgerPicker } from "./burger-picker";
 import { ComboPicker } from "./combo-picker";
 import { SidePicker } from "./side-picker";
@@ -10,21 +11,26 @@ import { CartDrawer } from "./cart-drawer";
 
 interface OrderBuilderProps {
   catalog: Catalog;
-  /** Advisory only -- deliveryType defaults to "pickup" until WU3b adds the
-   * actual checkout toggle, so this fee does not affect the total yet. */
+  /** Display-only source for the fee line; the actual amount applied to
+   * the cart's advisory total depends on the checkout's fulfillment type
+   * (WU3b) -- pickup never adds it, delivery always does. */
   deliveryFeeArs: number;
 }
 
-// Top-level order-builder for the landing (WU3). Owns the cart state
-// (useCart) and renders the three pickers as tabs plus the cart drawer.
-// Checkout (pickup/delivery, address, phone) is WU3b; submitting the order
-// to POST /api/orders and the WhatsApp handoff are WU4/WU5 -- nothing here
-// writes anything, it only builds the in-memory selection.
+// Top-level order-builder for the landing (WU3 + WU3b). Owns both the cart
+// state (useCart) and the checkout state (useCheckout -- fulfillment type,
+// address, phone, notes), and renders the pickers, the cart drawer, and the
+// checkout panel. Submitting the order to POST /api/orders and the
+// WhatsApp handoff are WU4/WU5 -- nothing here writes anything yet, it only
+// builds the in-memory selection and checkout fields.
 export function OrderBuilder({ catalog, deliveryFeeArs }: OrderBuilderProps) {
+  const checkout = useCheckout();
+  const isDelivery = checkout.fulfillmentType === "delivery";
   const cart = useCart({
     meatExtra: catalog.meatExtra,
     friesExtra: catalog.friesExtra,
-    deliveryFee: deliveryFeeArs,
+    deliveryType: checkout.fulfillmentType,
+    deliveryFee: isDelivery ? deliveryFeeArs : 0,
   });
 
   const drinkExtras = catalog.extras.filter((e) => e.category === "drink");
@@ -63,7 +69,7 @@ export function OrderBuilder({ catalog, deliveryFeeArs }: OrderBuilderProps) {
         </TabsContent>
       </Tabs>
 
-      <CartDrawer cart={cart} />
+      <CartDrawer cart={cart} checkout={checkout} deliveryFeeArs={deliveryFeeArs} />
     </div>
   );
 }

@@ -12,18 +12,23 @@ import {
   DrawerTitle,
   DrawerTrigger,
 } from "@/components/ui/drawer";
+import { CheckoutPanel } from "@/components/landing/checkout/checkout-panel";
 import type { useCart } from "@/hooks/use-cart";
+import type { UseCheckoutState } from "@/hooks/use-checkout";
 import { formatArs } from "./currency";
 
 interface CartDrawerProps {
   cart: ReturnType<typeof useCart>;
+  checkout: UseCheckoutState;
+  deliveryFeeArs: number;
 }
 
-// The cart is display-only in this phase (WU3): it lists what's selected and
-// the advisory total. WU3b adds checkout (pickup/delivery, address, phone)
-// and WU5 wires the real "Confirmar pedido" -> WhatsApp handoff. There is no
-// submit action here on purpose.
-export function CartDrawer({ cart }: CartDrawerProps) {
+// The cart lists what's selected, the advisory total, and (WU3b) the
+// checkout panel -- fulfillment toggle, conditional delivery form, fee
+// line, and the "Confirmar pedido" guard. WU5 wires the real submit
+// (POST /api/orders -> WhatsApp handoff), replacing CheckoutPanel's bare
+// button with confirm-button.tsx's single-flight fetch + fallback anchor.
+export function CartDrawer({ cart, checkout, deliveryFeeArs }: CartDrawerProps) {
   const { burgers, combos, sides, itemCount, isEmpty, total } = cart;
 
   return (
@@ -79,6 +84,10 @@ export function CartDrawer({ cart }: CartDrawerProps) {
               </span>
             </div>
           ))}
+        </div>
+
+        <div className="px-4">
+          <CheckoutPanel checkout={checkout} deliveryFeeArs={deliveryFeeArs} />
         </div>
 
         <DrawerFooter>
