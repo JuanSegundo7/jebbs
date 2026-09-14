@@ -1,0 +1,702 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+
+@custom-variant dark (&:is(.dark *));
+
+/* iOS-style Light theme */
+:root {
+  color-scheme: light;
+
+  /* Escalera opaca. Uso directo en regiones sin vidrio, y fallback
+     cuando backdrop-filter no está disponible o no conviene (§14). */
+  --surface-0: #f2f2f7;
+  --surface-1: #ffffff;
+  --surface-2: #f5f5f7;
+  --surface-3: #e9e9ee;
+
+  /* Materiales translúcidos (§12). */
+  --material-thin: rgba(255, 255, 255, 0.72);
+  --material-regular: rgba(255, 255, 255, 0.78);
+  --material-thick: rgba(255, 255, 255, 0.86);
+  --well: rgba(0, 0, 0, 0.04);
+
+  --blur-thin: 14px;
+  --blur-regular: 28px;
+  --blur-thick: 44px;
+  --blur-scrim: 6px;
+  --material-saturate: 165%;
+
+  /* Hairlines y cantos especulares. */
+  --hairline: rgba(60, 60, 67, 0.13);
+  --hairline-strong: rgba(60, 60, 67, 0.22);
+  --specular: rgba(255, 255, 255, 0.6);
+  --specular-strong: rgba(255, 255, 255, 0.85);
+
+  /* Sombras escaladas por profundidad + sombra de contacto. */
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.1);
+  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.15);
+  --shadow-lg: 0 10px 25px rgba(0, 0, 0, 0.2);
+  --shadow-xl: 0 20px 40px rgba(0, 0, 0, 0.25);
+
+  /* Acento — naranja de marca, variante clara (AA sobre blanco). */
+  --jebbs: #ff9500;
+  --accent-brand: #f57c00;
+  --accent-hover: #d96c00;
+  --accent-pressed: #b85c00;
+  --accent-contrast: #ffffff;
+  --accent-tint-08: rgba(245, 124, 0, 0.08);
+  --accent-tint-16: rgba(245, 124, 0, 0.16);
+  --accent-tint-32: rgba(245, 124, 0, 0.32);
+
+  /* Alias semánticos. --card/--popover/--sidebar toman valores de
+     MATERIAL para que los usos de `bg-card` pinten lo mismo que .ios-glass
+     (decisión estructural A). */
+  --background: var(--surface-0);
+  --card: var(--material-thin);
+  --popover: var(--material-thick);
+  --sidebar: var(--material-thick);
+
+  --foreground: #1c1c1e;
+  --card-foreground: var(--foreground);
+  --popover-foreground: var(--foreground);
+  --sidebar-foreground: var(--foreground);
+  --muted: rgba(120, 120, 128, 0.12);
+  --muted-foreground: #6e6e73;
+  --muted-foreground-dim: rgba(60, 60, 67, 0.42);
+  --secondary: rgba(120, 120, 128, 0.16);
+  --secondary-foreground: var(--foreground);
+  --accent: var(--accent-tint-16);
+  --accent-foreground: var(--accent-brand);
+  --border: var(--hairline);
+  --input: rgba(120, 120, 128, 0.12);
+
+  --primary: var(--accent-brand);
+  --primary-foreground: var(--accent-contrast);
+  --ring: var(--accent-brand);
+  --destructive: #ff3b30;
+  --destructive-foreground: #ffffff;
+
+  --sidebar-primary: var(--accent-brand);
+  --sidebar-primary-foreground: var(--accent-contrast);
+  --sidebar-accent: var(--accent-tint-16);
+  --sidebar-accent-foreground: var(--accent-brand);
+  --sidebar-border: var(--hairline);
+  --sidebar-ring: var(--accent-brand);
+
+  /* Lenguaje de estado — variantes iOS light. */
+  --status-new: #007aff;
+  --status-ready: #34c759;
+  --status-paid: #34c759;
+  --status-completed: #8e8e93;
+  --status-canceled: #ff3b30;
+  --status-new-tint: rgba(0, 122, 255, 0.12);
+  --status-ready-tint: rgba(52, 199, 89, 0.12);
+  --status-paid-tint: rgba(52, 199, 89, 0.12);
+  --status-completed-tint: rgba(142, 142, 147, 0.12);
+  --status-canceled-tint: rgba(255, 59, 48, 0.12);
+
+  /* Categorical chart palette — validated with the dataviz skill's
+     validate_palette.js against this surface (#f2f2f7): PASSES the
+     lightness/chroma/CVD-separation/normal-vision floors, with the expected
+     contrast WARN on 4 of 5 (mitigated by direct labels on charts, not
+     color alone). Order is the CVD-safety mechanism — do not reorder. */
+  --chart-1: #2a78d6;
+  --chart-2: #eb6834;
+  --chart-3: #1baf7a;
+  --chart-4: #eda100;
+  --chart-5: #e87ba4;
+
+  --radius: 14px;
+}
+
+/* Dark theme — "Material y luz": casi-negro con vidrio real. */
+.dark {
+  color-scheme: dark;
+
+  /* Escalera opaca. Uso directo en regiones sin vidrio, y fallback
+     cuando backdrop-filter no está disponible o no conviene (§14). */
+  --surface-0: #08090c;   /* el vacío: canvas de la app */
+  --surface-1: #101218;
+  --surface-2: #171a22;
+  --surface-3: #1f232d;
+
+  /* Materiales translúcidos (§12). Misma familia de tono en los tres —
+     igual que el tema claro (blanco al 72/78/86%) — el peso de jerarquía
+     lo da la opacidad, no un tinte distinto por rol. Antes "thin" usaba
+     blanco al 4.8%, tan sutil sobre el canvas casi negro que las cards
+     no se leían como el mismo material que header/sidebar: dependían
+     casi enteramente del hairline para notarse. */
+  --material-thin:    rgba(19, 22, 29, 0.42);      /* contenido elevado */
+  --material-regular: rgba(19, 22, 29, 0.66);      /* chrome flotante   */
+  --material-thick:   rgba(11, 13, 18, 0.82);      /* sidebar, modales  */
+  --well:             rgba(0, 0, 0, 0.30);         /* pozo hundido      */
+
+  --blur-thin: 14px;
+  --blur-regular: 28px;
+  --blur-thick: 44px;
+  --blur-scrim: 6px;
+  --material-saturate: 165%;
+
+  /* Hairlines y cantos especulares: el 1px de luz que hace que una
+     superficie se lea como física (§12). */
+  --hairline:        rgba(255, 255, 255, 0.075);
+  --hairline-strong: rgba(255, 255, 255, 0.14);
+  --specular:        rgba(255, 255, 255, 0.11);
+  --specular-strong: rgba(255, 255, 255, 0.20);
+
+  /* Sombras escaladas por profundidad + sombra de contacto. */
+  --shadow-sm: 0 1px 2px rgba(0,0,0,0.45), 0 1px 1px rgba(0,0,0,0.30);
+  --shadow-md: 0 4px 14px -2px rgba(0,0,0,0.55), 0 2px 6px -2px rgba(0,0,0,0.40);
+  --shadow-lg: 0 16px 40px -8px rgba(0,0,0,0.65), 0 6px 14px -6px rgba(0,0,0,0.50);
+  --shadow-xl: 0 32px 80px -16px rgba(0,0,0,0.75), 0 12px 28px -12px rgba(0,0,0,0.55);
+
+  /* Acento — systemOrange dark. Esto ES la marca. */
+  --jebbs:           #ff9500;   /* marca inmutable, nunca derivada */
+  --accent-brand:    #ff9f0a;
+  --accent-hover:    #ffb340;   /* en canvas oscuro, hover ACLARA */
+  --accent-pressed:  #e08600;
+  --accent-contrast: #180d00;   /* texto SOBRE naranja — nunca blanco */
+  --accent-tint-08:  rgba(255, 159, 10, 0.08);
+  --accent-tint-16:  rgba(255, 159, 10, 0.16);
+  --accent-tint-32:  rgba(255, 159, 10, 0.32);
+
+  /* Alias semánticos. --card/--popover/--sidebar toman valores de
+     MATERIAL para que los `bg-card` pinten lo mismo que .ios-glass
+     y no puedan pisarla (decisión estructural A). */
+  --background: var(--surface-0);
+  --card:       var(--material-thin);
+  --popover:    var(--material-thick);
+  --sidebar:    var(--material-thick);
+
+  --foreground:           #f4f6f9;
+  --card-foreground:      var(--foreground);
+  --popover-foreground:   var(--foreground);
+  --sidebar-foreground:   var(--foreground);
+  --muted:                rgba(255, 255, 255, 0.06);
+  --muted-foreground:     rgba(233, 238, 250, 0.62);  /* ≈8:1 sobre surface-0 */
+  --muted-foreground-dim: rgba(233, 238, 250, 0.42);  /* decorativo, NUNCA body */
+  --secondary:            rgba(255, 255, 255, 0.08);
+  --secondary-foreground: var(--foreground);
+  --accent:               var(--accent-tint-16);
+  --accent-foreground:    var(--accent-brand);
+  --border:               var(--hairline);
+  --input:                rgba(255, 255, 255, 0.05);
+
+  --primary:            var(--accent-brand);
+  --primary-foreground: var(--accent-contrast);
+  --ring:               var(--accent-brand);
+  --destructive:            #ff453a;
+  --destructive-foreground: #ffffff;
+
+  --sidebar-primary:            var(--accent-brand);
+  --sidebar-primary-foreground: var(--accent-contrast);
+  --sidebar-accent:             var(--accent-tint-16);
+  --sidebar-accent-foreground:  var(--accent-brand);
+  --sidebar-border:             var(--hairline);
+  --sidebar-ring:               var(--accent-brand);
+
+  /* Lenguaje de estado. El naranja está DELIBERADAMENTE ausente: ahora
+     pertenece al acento. `ready` pasa de naranja a verde para coincidir
+     con lo que el kanban realmente renderiza. */
+  --status-new:       #0a84ff;
+  --status-ready:     #30d158;
+  --status-paid:      #30d158;
+  --status-completed: #8e8e93;
+  --status-canceled:  #ff453a;
+  --status-new-tint:       rgba(10, 132, 255, 0.13);
+  --status-ready-tint:     rgba(48, 209, 88, 0.13);
+  --status-paid-tint:      rgba(48, 209, 88, 0.13);
+  --status-completed-tint: rgba(142, 142, 147, 0.12);
+  --status-canceled-tint:  rgba(255, 69, 58, 0.13);
+
+  /* Paleta de charts SIN CAMBIOS. Fue validada contra una superficie
+     #18181b; el canvas nuevo es #08090c → re-validar antes de tocar.
+     NO reordenar: el orden es el mecanismo de seguridad CVD. */
+  --chart-1: #3987e5;
+  --chart-2: #d95926;
+  --chart-3: #199e70;
+  --chart-4: #c98500;
+  --chart-5: #d55181;
+
+  --radius: 14px;
+}
+
+@theme inline {
+  --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI Variable", "Segoe UI",
+    system-ui, Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif,
+    "Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji";
+  --font-mono: var(--font-geist-mono), ui-monospace, SFMono-Regular, Menlo,
+    monospace;
+  --font-brand: var(--font-pacifico), cursive;
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-muted-foreground-dim: var(--muted-foreground-dim);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-accent-brand: var(--accent-brand);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-hairline: var(--hairline);
+  --color-hairline-strong: var(--hairline-strong);
+  --color-surface-0: var(--surface-0);
+  --color-surface-1: var(--surface-1);
+  --color-surface-2: var(--surface-2);
+  --color-surface-3: var(--surface-3);
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--sidebar-ring);
+  /* Status colors */
+  --color-status-new: var(--status-new);
+  --color-status-paid: var(--status-paid);
+  --color-status-ready: var(--status-ready);
+  --color-status-completed: var(--status-completed);
+  --color-status-canceled: var(--status-canceled);
+  --color-jebbs: var(--jebbs);
+}
+
+/* Escala tipográfica (§15) — rampa iOS completa (HIG, Large text size).
+   Sizes y leading son los de iOS; el tracking sigue una curva monótona
+   (negativo al crecer, positivo al achicar) en vez de la tabla real de SF,
+   porque fuera de Apple no hay corte óptico Display que la justifique.
+   Pesos normalizados a 400/500/600/700: con -apple-system el navegador
+   ve caras discretas, y font-synthesis-weight:none (abajo) hace que
+   cualquier peso fraccionario snapee sin avisar. Aditiva: text-sm/text-xl/
+   etc. de Tailwind siguen funcionando hasta que se completa el barrido. */
+@theme {
+  /* Large Title 34 */
+  --text-display: 2.125rem;
+  --text-display--line-height: 1.206;
+  --text-display--letter-spacing: -0.022em;
+  --text-display--font-weight: 700;
+
+  /* Title 1 / 28 */
+  --text-title1: 1.75rem;
+  --text-title1--line-height: 1.214;
+  --text-title1--letter-spacing: -0.020em;
+  --text-title1--font-weight: 600;
+
+  /* Title 2 / 22 (antes --text-title) */
+  --text-title2: 1.375rem;
+  --text-title2--line-height: 1.273;
+  --text-title2--letter-spacing: -0.018em;
+  --text-title2--font-weight: 600;
+
+  /* Title 3 / 20 */
+  --text-title3: 1.25rem;
+  --text-title3--line-height: 1.25;
+  --text-title3--letter-spacing: -0.016em;
+  --text-title3--font-weight: 600;
+
+  /* Headline 17 semibold */
+  --text-headline: 1.0625rem;
+  --text-headline--line-height: 1.294;
+  --text-headline--letter-spacing: -0.014em;
+  --text-headline--font-weight: 600;
+
+  /* Body 17 — sin weight: los font-medium/semibold/bold existentes siguen componiendo */
+  --text-body: 1.0625rem;
+  --text-body--line-height: 1.3;
+  --text-body--letter-spacing: -0.011em;
+
+  /* Callout 16 */
+  --text-callout: 1rem;
+  --text-callout--line-height: 1.3125;
+  --text-callout--letter-spacing: -0.009em;
+
+  /* Subheadline 15 — escalón nuevo, destino de los text-sm (caja 20px, igual a hoy) */
+  --text-subheadline: 0.9375rem;
+  --text-subheadline--line-height: 1.3333;
+  --text-subheadline--letter-spacing: -0.006em;
+
+  /* Footnote 13 */
+  --text-footnote: 0.8125rem;
+  --text-footnote--line-height: 1.3846;
+  --text-footnote--letter-spacing: -0.002em;
+
+  /* Caption 1 / 12 — destino de los text-xs (caja 16px, igual a hoy) */
+  --text-caption: 0.75rem;
+  --text-caption--line-height: 1.3333;
+  --text-caption--letter-spacing: 0.002em;
+
+  /* Caption 2 / 11 — escalón nuevo, reemplaza text-[10px]/text-[11px] */
+  --text-caption2: 0.6875rem;
+  --text-caption2--line-height: 1.1818;
+  --text-caption2--letter-spacing: 0.006em;
+
+  /* Overline 11 uppercase — app-specific, no es un text style de iOS */
+  --text-overline: 0.6875rem;
+  --text-overline--line-height: 1.2;
+  --text-overline--letter-spacing: 0.075em;
+  --text-overline--font-weight: 600;
+
+  /* Amount 24 — app-specific: la cifra de dinero */
+  --text-amount: 1.5rem;
+  --text-amount--line-height: 1.1667;
+  --text-amount--letter-spacing: -0.019em;
+  --text-amount--font-weight: 700;
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground text-body;
+    font-optical-sizing: auto;
+    font-synthesis-weight: none;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  /* Custom scrollbars */
+  ::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  ::-webkit-scrollbar-thumb {
+    background-color: var(--hairline-strong);
+    background-clip: padding-box;
+    border: 2px solid transparent;
+    border-radius: 99px;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background-color: var(--muted-foreground-dim);
+  }
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: var(--hairline-strong) transparent;
+  }
+}
+
+/* Materiales reales (§12). Migrados de @layer base a @utility para vivir
+   en la capa `utilities`, donde ya no pierden contra `bg-card`. */
+
+@utility material-regular {
+  background-color: var(--material-regular);
+  backdrop-filter: blur(var(--blur-regular)) saturate(var(--material-saturate));
+  -webkit-backdrop-filter: blur(var(--blur-regular)) saturate(var(--material-saturate));
+  border: 1px solid var(--hairline);
+  border-top-color: var(--specular);
+}
+
+@utility material-thick {
+  background-color: var(--material-thick);
+  backdrop-filter: blur(var(--blur-thick)) saturate(var(--material-saturate));
+  -webkit-backdrop-filter: blur(var(--blur-thick)) saturate(var(--material-saturate));
+  border: 1px solid var(--hairline);
+  border-top-color: var(--specular-strong);
+}
+
+@utility material-thin {
+  background-color: var(--material-thin);
+  backdrop-filter: blur(var(--blur-thin)) saturate(var(--material-saturate));
+  -webkit-backdrop-filter: blur(var(--blur-thin)) saturate(var(--material-saturate));
+  border: 1px solid var(--hairline);
+  border-top-color: var(--specular);
+}
+
+/* Pozo hundido. El contenido va ADENTRO, así que debe ser MÁS OSCURO
+   que lo que contiene (§12). Sin blur: envuelve un scroller largo. */
+@utility material-well {
+  background-color: var(--well);
+  border: 1px solid var(--hairline);
+}
+
+/* Superficie de modal. Una sola definición compartida por dialog,
+   alert-dialog y sheet para que no puedan volver a divergir. */
+@utility modal-surface {
+  background-color: var(--material-thick);
+  backdrop-filter: blur(var(--blur-thick)) saturate(var(--material-saturate));
+  -webkit-backdrop-filter: blur(var(--blur-thick)) saturate(var(--material-saturate));
+  border: 1px solid var(--hairline);
+  border-top-color: var(--specular-strong);
+  box-shadow: var(--shadow-xl);
+}
+
+/* Atenuar para enfocar (§12). Reemplaza a la mal nombrada .ios-blur. */
+@utility scrim {
+  background-color: rgba(0, 0, 0, 0.55);
+  backdrop-filter: blur(var(--blur-scrim)) saturate(120%);
+  -webkit-backdrop-filter: blur(var(--blur-scrim)) saturate(120%);
+}
+
+/* Alias de compatibilidad, mismo cuerpo que scrim. */
+@utility ios-blur {
+  background-color: rgba(0, 0, 0, 0.55);
+  backdrop-filter: blur(var(--blur-scrim)) saturate(120%);
+  -webkit-backdrop-filter: blur(var(--blur-scrim)) saturate(120%);
+}
+
+/* .ios-glass CONSERVA su nombre (58 sitios mejoran gratis) pero cambia
+   de SIGNIFICADO: superficie elevada, translúcida, iluminada, SIN blur.
+   Es el material barato — seguro de repetir cientos de veces.
+   NUNCA combinar con .modal-surface en el mismo elemento: se emite
+   despues en esta hoja de estilos y le gana en background-color/border/
+   border-top-color, dejando el modal a la mitad de su opacidad real
+   (bug real, encontrado en 9 dialogos — el backdrop-filter y el
+   box-shadow de modal-surface sobreviven porque ios-glass no los
+   declara, asi que no se nota a simple vista). DialogContent/
+   AlertDialogContent/SheetContent ya traen modal-surface por su
+   cuenta -- no hace falta agregarle nada acá. */
+@utility ios-glass {
+  background-color: var(--card);
+  border: 1px solid var(--hairline);
+  border-top-color: var(--specular);
+}
+
+/* Escalera de profundidad (components/ui/card.tsx `depth` prop):
+   material-well (−1) < ios-glass/shadow-sm (0, "raised", el default)
+   < hover/shadow-md (+1, "hero" o :hover de una card `interactive`)
+   < drag overlay/shadow-xl + status glow (+2). Badge se queda en 0
+   sombra a propósito (badge.tsx:8 — un chip de 20px no necesita peso). */
+@utility ios-shadow-sm {
+  box-shadow: var(--shadow-sm);
+}
+@utility ios-shadow-md {
+  box-shadow: var(--shadow-md);
+}
+@utility ios-shadow-lg {
+  box-shadow: var(--shadow-lg);
+}
+@utility ios-shadow-xl {
+  box-shadow: var(--shadow-xl);
+}
+
+/* El hook que sidebar.tsx:66 referencia. Cae sobre sidebar-container
+   (el wrapper p-2), así que alcanza al panel interno. */
+@utility ios-sidebar {
+  & [data-slot="sidebar-inner"] {
+    backdrop-filter: blur(var(--blur-thick)) saturate(var(--material-saturate));
+    -webkit-backdrop-filter: blur(var(--blur-thick)) saturate(var(--material-saturate));
+    border: 1px solid var(--hairline) !important;
+    border-top-color: var(--specular-strong) !important;
+    border-radius: var(--radius-xl);
+    box-shadow: var(--shadow-lg);
+  }
+
+  /* Recalcular blur(44px) en cada frame mientras sidebar-container anima
+     su `width` (icon <-> expanded, components/ui/sidebar.tsx:232) es caro
+     — se siente como pocos frames en el toggle. Mientras dure la
+     transición (data-resizing, seteado por onTransitionStart/End en el
+     propio componente), cae a una superficie opaca sin blur; el blur
+     real vuelve solo, en reposo, a ambos lados del gesto. */
+  &[data-resizing="true"] [data-slot="sidebar-inner"] {
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+    background-color: var(--surface-3);
+  }
+}
+
+/* Scroll edge effect (§12): el contenido se desvanece hacia el chrome
+   flotante en vez de cortarse con un divider de 1px. --edge-top default
+   0px = sin efecto en reposo (nada se desvanece si no hay nada scrolleado
+   arriba); el consumidor lo sube con un onScroll. mask-image crea un
+   backdrop-root — nada bajo scroll-edge-y puede usar material-* (mataría
+   cualquier backdrop-filter real de un descendiente). */
+@utility scroll-edge-y {
+  mask-image: linear-gradient(
+    to bottom,
+    transparent 0,
+    black var(--edge-top, 0px),
+    black calc(100% - 20px),
+    transparent 100%
+  );
+}
+
+/* Numérico tabular — cifras de dinero que no bailan al cambiar. */
+@utility numeric {
+  font-variant-numeric: tabular-nums;
+}
+
+/* Vibrancy (§12): sobre material translúcido el texto quiere más contraste,
+   no más peso ni tracking propio. Peso y tracking los pone la rampa, que es
+   size-specific; fijarlos acá los pisaba en los sitios que la combinan (y
+   550 + font-synthesis-weight:none snapeaba a 500 en Apple, dejando texto
+   MÁS LIVIANO que el 700 que text-amount/text-display declaran). */
+@utility vibrant {
+  color: var(--foreground);
+}
+
+/* El estado como luz, no como franja (Encanto §1). Requiere que el
+   consumidor setee --status-color / --status-tint (inline style, un
+   valor por tarjeta) antes de aplicar esta clase. */
+@utility status-edge {
+  position: relative;
+  overflow: hidden;
+  &::before {
+    content: "";
+    position: absolute;
+    inset-block: 0;
+    left: 0;
+    width: 3px;
+    background: var(--status-color);
+    box-shadow: 0 0 16px -2px var(--status-color);
+    transition: width 200ms, background-color 260ms, box-shadow 260ms;
+  }
+  &::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background: radial-gradient(130% 90% at 0% 0%, var(--status-tint), transparent 62%);
+    transition: background 260ms;
+  }
+  /* El borde se ensancha bajo el cursor — la luz reacciona, no es un
+     adorno estático. overflow:hidden de arriba clipea descendientes,
+     nunca el box-shadow propio del elemento, así que el glow escapa igual. */
+  &:hover::before {
+    width: 4px;
+    box-shadow: 0 0 22px -2px var(--status-color);
+  }
+}
+
+/* Glow de drop-target (§13): la cuarta aplicación del mismo vocabulario
+   de "luz en el canto" (status-edge, nav-rail-active). Lee --status-color
+   fijado inline por el consumidor — "transparent" lo apaga. Se usa
+   transition-[box-shadow] en vez de transition-colors porque esta última
+   no cubre box-shadow en Tailwind v4 (el bug que hacía que el ring
+   apareciera/desapareciera de golpe en vez de desvanecerse). */
+@utility drop-glow {
+  box-shadow:
+    inset 0 0 0 1px var(--status-color, transparent),
+    0 0 32px -8px var(--status-color, transparent);
+  transition: box-shadow 400ms ease-out;
+}
+
+/* Mismo vocabulario de "luz en el canto" que status-edge, pero fijo al
+   acento de marca — para el item de nav activo (Slice 4). Una idea, tres
+   lugares (tarjetas de pedido, columna drop-target, riel de nav): eso es
+   lo que hace que se lea como sistema. */
+@utility nav-rail-active {
+  position: relative;
+  &::before {
+    content: "";
+    position: absolute;
+    inset-block: 4px;
+    left: -1px;
+    width: 2px;
+    border-radius: 2px;
+    background: var(--accent-brand);
+    box-shadow: 0 0 10px -1px var(--accent-brand);
+  }
+}
+
+/* Fallbacks de accesibilidad (§14) — sin capa, para ganar siempre
+   por especificidad de aparición contra las utilities de arriba. */
+
+@media (prefers-reduced-transparency: reduce) {
+  .material-thin,
+  .material-regular,
+  .material-thick,
+  .modal-surface,
+  .scrim,
+  .ios-blur {
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+  }
+  .material-thin {
+    background-color: var(--surface-1);
+  }
+  .material-regular {
+    background-color: var(--surface-2);
+  }
+  .material-thick,
+  .modal-surface {
+    background-color: var(--surface-3);
+  }
+  .scrim,
+  .ios-blur {
+    background-color: rgba(0, 0, 0, 0.72);
+  }
+  .ios-sidebar [data-slot="sidebar-inner"] {
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+    background-color: var(--surface-3);
+  }
+  /* .ios-glass no tiene blur que sacar, pero su fondo (--card =
+     --material-thin, alpha 0.42 en oscuro) se queda translucido igual --
+     ~58 sitios lo usan. */
+  .ios-glass {
+    background-color: var(--surface-1);
+  }
+}
+
+@media (prefers-contrast: more) {
+  .dark {
+    --hairline: rgba(255, 255, 255, 0.3);
+    --specular: rgba(255, 255, 255, 0.45);
+    --muted-foreground: rgba(233, 238, 250, 0.9);
+  }
+  :root:not(.dark) {
+    --hairline: rgba(60, 60, 67, 0.36);
+    --specular: rgba(0, 0, 0, 0.16);
+    --muted-foreground: #3c3c43;
+  }
+  .material-thin,
+  .material-regular,
+  .material-thick,
+  .modal-surface {
+    background-color: var(--surface-2);
+  }
+}
+
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  .material-thin,
+  .material-regular,
+  .material-thick,
+  .modal-surface {
+    background-color: var(--surface-2);
+  }
+  .ios-sidebar [data-slot="sidebar-inner"] {
+    background-color: var(--surface-3);
+  }
+  .scrim,
+  .ios-blur {
+    background-color: rgba(0, 0, 0, 0.72);
+  }
+}
+
+/* §14: reduced motion es un equivalente MÁS SUAVE, no ausencia de feedback.
+   Se preservan opacidad y color; se neutraliza transform/spring/overshoot. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    transition-property: opacity, color, background-color, border-color,
+      box-shadow, fill, stroke !important;
+    transition-duration: 160ms !important;
+    animation-duration: 160ms !important;
+    animation-iteration-count: 1 !important;
+    scroll-behavior: auto !important;
+  }
+}
