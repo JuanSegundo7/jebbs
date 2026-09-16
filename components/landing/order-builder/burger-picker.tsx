@@ -60,7 +60,10 @@ export function BurgerPicker({
           {burgers.map((burger) => {
             const count = countFor(burger.id);
             return (
-              <div key={burger.id} className="menu-row last:border-b-0">
+              <div
+                key={burger.id}
+                className={cn("menu-row last:border-b-0", count > 0 && "menu-row-active")}
+              >
                 <div className="diner-thumb">
                   {burger.image_url ? (
                     <Image
@@ -79,40 +82,35 @@ export function BurgerPicker({
 
                 <div className="min-w-0 flex-1">
                   <div className="flex items-baseline">
-                    <span className="font-condensed text-[15px] font-bold tracking-[.04em] text-[var(--cream)] uppercase">
+                    <span className="font-condensed text-[1.22rem] font-bold tracking-[.04em] text-[var(--cream)] uppercase">
                       {burger.name}
                     </span>
                     <span className="menu-leader" aria-hidden />
-                    <span className="numeric shrink-0 font-condensed font-bold text-[var(--cheddar)]">
+                    <span className="numeric shrink-0 font-condensed text-[1.22rem] font-bold text-[var(--cheddar)]">
                       {formatArs(burger.base_price)}
                     </span>
                   </div>
                   {burger.description && (
-                    <p className="mt-1 font-body text-[13px] text-[var(--ash)]">
+                    <p className="mt-1 font-body text-[0.94rem] leading-[1.4] text-[var(--ash)]">
                       {burger.description}
                     </p>
                   )}
                 </div>
 
-                <div className="flex shrink-0 items-center gap-2">
-                  {count > 0 && (
-                    <>
-                      <button
-                        type="button"
-                        className="diner-stepper-btn"
-                        onClick={() => decrementBurger(burger.id)}
-                        aria-label={`Quitar ${burger.name}`}
-                      >
-                        <Minus />
-                      </button>
-                      <span className="numeric w-4 text-center font-condensed text-sm font-bold text-[var(--cream)]">
-                        {count}
-                      </span>
-                    </>
-                  )}
+                <div className="diner-stepper">
                   <button
                     type="button"
-                    className="diner-stepper-btn"
+                    className="diner-st"
+                    onClick={() => decrementBurger(burger.id)}
+                    disabled={count === 0}
+                    aria-label={`Quitar ${burger.name}`}
+                  >
+                    <Minus />
+                  </button>
+                  <output className="diner-qty">{count}</output>
+                  <button
+                    type="button"
+                    className="diner-st"
                     onClick={() => addBurger(burger)}
                     aria-label={`Agregar ${burger.name}`}
                   >

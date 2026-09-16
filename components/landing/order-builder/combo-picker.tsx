@@ -61,47 +61,45 @@ export function ComboPicker({
           {combos.map((combo) => {
             const count = comboCountFor(combo.id);
             return (
-              <div key={combo.id} className="menu-row last:border-b-0">
+              <div
+                key={combo.id}
+                className={cn("menu-row last:border-b-0", count > 0 && "menu-row-active")}
+              >
                 <div className="diner-thumb flex items-center justify-center">
                   <UtensilsCrossed className="size-6 text-[var(--ash-dim)]" strokeWidth={1.25} aria-hidden />
                 </div>
 
                 <div className="min-w-0 flex-1">
                   <div className="flex items-baseline">
-                    <span className="font-condensed text-[15px] font-bold tracking-[.04em] text-[var(--cream)] uppercase">
+                    <span className="font-condensed text-[1.22rem] font-bold tracking-[.04em] text-[var(--cream)] uppercase">
                       {combo.name}
                     </span>
                     <span className="menu-leader" aria-hidden />
-                    <span className="numeric shrink-0 font-condensed font-bold text-[var(--cheddar)]">
+                    <span className="numeric shrink-0 font-condensed text-[1.22rem] font-bold text-[var(--cheddar)]">
                       {formatArs(combo.price)}
                     </span>
                   </div>
                   {combo.description && (
-                    <p className="mt-1 line-clamp-2 font-body text-[13px] text-[var(--ash)]">
+                    <p className="mt-1 line-clamp-2 font-body text-[0.94rem] leading-[1.4] text-[var(--ash)]">
                       {combo.description}
                     </p>
                   )}
                 </div>
 
-                <div className="flex shrink-0 items-center gap-2">
-                  {count > 0 && (
-                    <>
-                      <button
-                        type="button"
-                        className="diner-stepper-btn"
-                        onClick={() => decrementCombo(combo.id)}
-                        aria-label={`Quitar ${combo.name}`}
-                      >
-                        <Minus />
-                      </button>
-                      <span className="numeric w-4 text-center font-condensed text-sm font-bold text-[var(--cream)]">
-                        {count}
-                      </span>
-                    </>
-                  )}
+                <div className="diner-stepper">
                   <button
                     type="button"
-                    className="diner-stepper-btn"
+                    className="diner-st"
+                    onClick={() => decrementCombo(combo.id)}
+                    disabled={count === 0}
+                    aria-label={`Quitar ${combo.name}`}
+                  >
+                    <Minus />
+                  </button>
+                  <output className="diner-qty">{count}</output>
+                  <button
+                    type="button"
+                    className="diner-st"
                     onClick={() => addCombo(combo)}
                     aria-label={`Agregar ${combo.name}`}
                   >

@@ -27,33 +27,39 @@ const REVIEWS = [
 
 const INSTAGRAM_URL = "https://www.instagram.com/jebbsburgers/";
 
+// Tarjetas transcriptas de ref-style.css:174-183 (.rev/.rev .stars/
+// .rev .who): borde+radio 4px sobre --slab, no un simple border-t plano.
 export function ReviewsSection() {
   return (
-    <section id="opiniones" className="scroll-mt-20 bg-[var(--soot)] px-6 py-16">
-      <div className="mx-auto max-w-5xl">
-        <h2 className="mb-8 font-display text-3xl text-[var(--cream)] sm:text-4xl">
-          Opiniones
-        </h2>
+    <section id="opiniones" className="diner-section scroll-mt-20 bg-[var(--soot)]">
+      <div className="diner-wrap">
+        <div className="diner-sechead">
+          <div className="flex items-center gap-4">
+            <span className="font-display text-[2rem] leading-none text-[var(--cream)]">
+              10,2 mil
+            </span>
+            <span className="font-condensed text-sm font-semibold tracking-[.1em] text-[var(--ash)] uppercase">
+              Nos siguen en Instagram
+            </span>
+          </div>
+        </div>
 
-        <div className="grid gap-6 sm:grid-cols-3">
+        <div className="grid gap-4 sm:grid-cols-3">
           {REVIEWS.map((review) => (
-            <figure
-              key={review.author}
-              className="space-y-3 border-t border-[var(--line)] pt-4"
-            >
-              <div className="flex gap-0.5 text-[var(--cheddar)]" aria-hidden>
+            <figure key={review.author} className="diner-rev">
+              <div className="flex gap-0.5 text-[.86rem] tracking-[.2em] text-[var(--cheddar)]" aria-hidden>
                 {Array.from({ length: 5 }).map((_, i) => (
                   <Star key={i} className="size-3.5 fill-current" />
                 ))}
               </div>
-              <blockquote className="font-body text-sm text-[var(--ash)]">
+              <blockquote className="font-body text-[0.97rem] leading-[1.62] text-[var(--cream)]">
                 &ldquo;{review.text}&rdquo;
               </blockquote>
-              <figcaption className="font-condensed text-xs font-bold tracking-[.06em] text-[var(--cream)] uppercase">
-                {review.author}
-                <span className="block font-body text-[11px] font-normal tracking-normal text-[var(--ash-dim)] normal-case">
-                  {review.meta}
-                </span>
+              <figcaption className="mt-auto border-t border-[var(--line)] pt-[13px]">
+                <b className="block font-condensed text-[0.84rem] font-bold tracking-[.1em] text-[var(--cream)] uppercase">
+                  {review.author}
+                </b>
+                <span className="text-[0.79rem] text-[var(--ash-dim)]">{review.meta}</span>
               </figcaption>
             </figure>
           ))}
@@ -63,10 +69,10 @@ export function ReviewsSection() {
           href={INSTAGRAM_URL}
           target="_blank"
           rel="noopener noreferrer"
-          className="mt-8 inline-flex items-center gap-2 font-condensed text-sm font-bold tracking-[.06em] text-[var(--cream)] uppercase transition-colors hover:text-[var(--cheddar)]"
+          className="mt-6 inline-flex items-center gap-2 font-condensed text-sm font-bold tracking-[.06em] text-[var(--cream)] uppercase transition-colors hover:text-[var(--cheddar)]"
         >
           <Instagram className="size-4" aria-hidden />
-          10,2 mil seguidores en Instagram
+          @jebbsburgers
         </a>
       </div>
     </section>

@@ -129,6 +129,10 @@
   --paper-line: #c7b594;
   --line: rgba(246, 239, 225, 0.12);
   --line-2: rgba(246, 239, 225, 0.22);
+  /* Alto de la barra fija de carrito/CTA (ref-style.css:8, `.rail`
+     ref-style.css:189-195) -- el body reserva este espacio con
+     padding-bottom para que el contenido nunca quede tapado. */
+  --rail-h: 74px;
 }
 
 /* Dark theme — "Material y luz": casi-negro con vidrio real. */
@@ -652,7 +656,8 @@
   width: 60px;
   flex-shrink: 0;
   overflow: hidden;
-  border-radius: 0.75rem;
+  /* ref-style.css:98 .thumb -- 3px, casi recto, no una tile redondeada */
+  border-radius: 3px;
   background-color: var(--slab);
   border: 1px solid var(--line);
 }
@@ -674,9 +679,16 @@
 @utility menu-row {
   display: flex;
   align-items: center;
-  gap: 0.875rem;
-  padding-block: 0.85rem;
+  /* ref-style.css:96 .row -- gap y padding 15px exactos */
+  gap: 15px;
+  padding-block: 15px;
   border-bottom: 1px dashed var(--line-2);
+}
+
+/* ref-style.css:109 .row.on -- resalte sutil cuando la fila tiene
+   cantidad seleccionada (aplicar junto con menu-row cuando count > 0). */
+@utility menu-row-active {
+  background: linear-gradient(90deg, rgba(242, 178, 28, 0.09), transparent 60%);
 }
 
 /* Header de categoría de menú: título condensado mayúscula + una barra
@@ -685,14 +697,16 @@
 @utility diner-category-header {
   display: flex;
   align-items: center;
-  gap: 0.75rem;
-  margin-bottom: 0.5rem;
+  /* ref-style.css:92-94 .coursehead/.coursehead h3 -- título grande en
+     cheddar, no un label chico gris. */
+  gap: 14px;
+  margin-bottom: 4px;
   font-family: var(--font-condensed);
   font-weight: 700;
-  font-size: 0.8125rem;
-  letter-spacing: 0.14em;
+  font-size: 1.32rem;
+  letter-spacing: 0.16em;
   text-transform: uppercase;
-  color: var(--cream);
+  color: var(--cheddar);
   &::after {
     content: "";
     flex: 1 1 auto;
@@ -731,22 +745,29 @@
   }
 }
 
-/* Chip/pill de la marca (facts strip, tags de categoría en SidePicker,
-   etc.) -- Barlow Condensed mayúscula sobre slab. */
+/* Chip/label de marca (ref-style.css:38-40 .chip/.chip.hollow) -- casi
+   recto (2px), NO rounded-full: relleno cheddar sólido con texto casi
+   negro, o hueco con borde cheddar. Se usa como badge inline junto a
+   headings ("Confirmado", "A confirmar", "Precios a confirmar"), no como
+   badge-con-ícono (ese uso vivía en el delivery-zones.tsx viejo, ya
+   reemplazado por el mapa real). */
 @utility diner-chip {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.4rem;
-  border-radius: 9999px;
-  border: 1px solid var(--line-2);
-  background-color: var(--slab);
-  padding: 0.4rem 0.9rem;
+  display: inline-block;
   font-family: var(--font-condensed);
   font-weight: 700;
-  font-size: 0.75rem;
-  letter-spacing: 0.08em;
+  font-size: 0.72rem;
+  letter-spacing: 0.14em;
   text-transform: uppercase;
-  color: var(--cream);
+  color: #1a1204;
+  background: var(--cheddar);
+  padding: 2px 8px;
+  border-radius: 2px;
+  white-space: nowrap;
+}
+@utility diner-chip-hollow {
+  background: none;
+  color: var(--cheddar);
+  border: 1px solid rgba(242, 178, 28, 0.5);
 }
 
 /* Superficie de "ticket de papel" del checkout -- Courier Prime, sin
@@ -756,6 +777,287 @@
   color: var(--paper-ink);
   font-family: var(--font-ticket);
   border: 1px solid var(--paper-line);
+}
+
+/* ============================================================
+   Segundo pase de fidelidad "diner" -- transcripción directa de
+   ref-style.css (sitio de referencia real, jebbs-burgers.vercel.app,
+   284 líneas leídas completas). Cuando un valor numérico de acá difiere
+   de lo que ya existía arriba, gana este bloque: es el sistema visual
+   real del dueño, no una aproximación con criterio propio.
+   ============================================================ */
+
+/* body -- fondo con gradiente radial sutil (ref-style.css:17-23), no un
+   color plano. padding-bottom reserva el alto del rail fijo (WU2). */
+@utility diner-body {
+  background-color: var(--coal);
+  background-image: radial-gradient(120% 70% at 50% -10%, #1a1512 0%, var(--coal) 62%);
+  padding-bottom: calc(var(--rail-h) + 8px);
+}
+
+/* .wrap (ref-style.css:31) -- ancho real del contenedor central. NO es
+   un max-w-* genérico de Tailwind: min(1080px, 92vw) dos condiciones
+   (ancho de escritorio Y margen mínimo en mobile) a la vez. */
+@utility diner-wrap {
+  width: min(1080px, 92vw);
+  margin-inline: auto;
+}
+
+@utility diner-eyebrow {
+  font-family: var(--font-condensed);
+  font-weight: 700;
+  font-size: 0.82rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--cheddar);
+  margin: 0;
+}
+
+/* .nav (ref-style.css:42) */
+@utility diner-nav {
+  position: sticky;
+  top: 0;
+  z-index: 40;
+  background: rgba(11, 10, 8, 0.88);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border-bottom: 1px solid var(--line);
+}
+
+/* .btn / .btn-primary / .btn-ghost (ref-style.css:60-66) */
+@utility diner-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  padding: 13px 22px;
+  border-radius: 3px;
+  border: 0;
+  cursor: pointer;
+  font-family: var(--font-condensed);
+  font-weight: 700;
+  font-size: 1.06rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  text-decoration: none;
+  &:disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+  }
+}
+@utility diner-btn-primary {
+  background: var(--cheddar);
+  color: #1a1204;
+  &:hover {
+    background: #ffc634;
+  }
+}
+@utility diner-btn-ghost {
+  background: transparent;
+  color: var(--cream);
+  border: 1px solid var(--line-2);
+  &:hover {
+    border-color: var(--cream);
+  }
+}
+
+/* .shot figcaption (ref-style.css:69-70) -- badge ember flotante sobre
+   el borde inferior de la foto del hero. */
+@utility diner-shot-caption {
+  position: absolute;
+  left: 0;
+  bottom: -13px;
+  background: var(--ember);
+  color: #1a1204;
+  font-family: var(--font-condensed);
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  font-size: 0.78rem;
+  padding: 4px 10px;
+}
+
+/* section (ref-style.css:85) -- 62px de padding vertical en cada
+   sección; .sechead (86-88) alinea título+nota a la izquierda y un
+   chip/CTA a la derecha. */
+@utility diner-section {
+  padding-block: 62px;
+}
+@utility diner-sechead {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 20px;
+  flex-wrap: wrap;
+  margin-bottom: 30px;
+}
+@utility diner-sechead-title {
+  font-family: var(--font-display);
+  font-size: clamp(1.7rem, 3.6vw, 2.5rem);
+  line-height: 1;
+  letter-spacing: -0.01em;
+  margin-top: 10px;
+  color: var(--cream);
+}
+@utility diner-sechead-note {
+  margin: 8px 0 0;
+  color: var(--ash);
+  max-width: 52ch;
+}
+
+/* Stepper de la fila "de a pie" del picker (ref-style.css:105-108) --
+   cápsula con borde conteniendo -/cantidad/+, no botones circulares
+   sueltos. El panel de detalle expandido (carne/papas) sigue usando
+   diner-stepper-btn (circular) sin cambios -- pieza secundaria, fuera
+   de este pase para no arriesgarla. */
+@utility diner-stepper {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  flex: none;
+  background: var(--slab);
+  border: 1px solid var(--line);
+  border-radius: 3px;
+}
+@utility diner-st {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  background: none;
+  border: 0;
+  cursor: pointer;
+  font-size: 1.15rem;
+  line-height: 1;
+  color: var(--cream);
+  &:hover {
+    color: var(--cheddar);
+  }
+  &:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+  }
+  & svg {
+    width: 0.875rem;
+    height: 0.875rem;
+  }
+}
+@utility diner-qty {
+  width: 26px;
+  text-align: center;
+  font-family: var(--font-condensed);
+  font-weight: 700;
+  font-size: 1.1rem;
+  font-variant-numeric: tabular-nums;
+  color: var(--ash);
+}
+
+/* .cards/.card (ref-style.css:122-123) -- grilla de info con un
+   separador de 1px REAL hecho con el fondo del contenedor, no con
+   `gap` + `divide-x` de Tailwind (esos dejan huecos del color del
+   fondo de la página, no una línea). */
+@utility diner-cards-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(235px, 1fr));
+  gap: 1px;
+  background: var(--line);
+  border: 1px solid var(--line);
+}
+@utility diner-card {
+  background: var(--soot);
+  padding: 24px;
+}
+
+/* .rev (ref-style.css:176-177) */
+@utility diner-rev {
+  background: var(--slab);
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  padding: 22px;
+  display: flex;
+  flex-direction: column;
+  gap: 13px;
+}
+
+/* Mapa de zonas de envío -- marco real (ref-style.css:135 .zonemap) +
+   tarjetas de zona (156-165 .zrow/.zname/.zhoods/.zprice). El SVG en sí
+   se sirve como archivo estático (public/delivery-zone-map.svg, 570KB
+   de calles reales) vía <img>, no inline: pesa demasiado para el bundle
+   de JS y no hace falta que sea interactivo pieza por pieza para que
+   "aparezca el mapa", que es el reclamo explícito del dueño. */
+@utility diner-zonemap-frame {
+  background: var(--soot);
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  padding: 8px;
+}
+@utility diner-zrow {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 11px;
+  width: 100%;
+  height: 100%;
+  text-align: left;
+  background: var(--slab);
+  border: 1px solid var(--line);
+  border-left: 4px solid var(--zc, var(--cheddar));
+  border-radius: 3px;
+  padding: 14px 16px;
+}
+@utility diner-zname {
+  font-family: var(--font-condensed);
+  font-weight: 700;
+  font-size: 0.95rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--cream);
+}
+@utility diner-zhoods {
+  font-size: 0.85rem;
+  color: var(--ash);
+  line-height: 1.45;
+}
+@utility diner-zprice {
+  font-family: var(--font-condensed);
+  font-weight: 700;
+  font-size: 1.2rem;
+  color: var(--ash-dim);
+  margin-top: auto;
+  letter-spacing: 0.06em;
+  white-space: nowrap;
+  border-bottom: 1px dashed var(--line-2);
+  padding-bottom: 3px;
+}
+
+/* .rail (ref-style.css:189-195) -- barra fija de precio+CTA siempre
+   visible, reemplaza el FAB circular genérico que tenía CartDrawer. */
+@utility diner-rail {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 50;
+  height: var(--rail-h);
+  background: rgba(19, 17, 16, 0.96);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-top: 1px solid var(--line-2);
+}
+@utility diner-rail-k {
+  font-family: var(--font-condensed);
+  font-weight: 600;
+  font-size: 0.8rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--ash);
+}
+@utility diner-rail-v {
+  font-family: var(--font-display);
+  font-size: 1.28rem;
+  line-height: 1.15;
+  font-variant-numeric: tabular-nums;
+  color: var(--cream);
 }
 
 /* Fallbacks de accesibilidad (§14) — sin capa, para ganar siempre

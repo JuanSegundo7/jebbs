@@ -1,6 +1,6 @@
 "use client";
 
-import { CupSoda, Sandwich, ShoppingCart, Utensils, UtensilsCrossed } from "lucide-react";
+import { CupSoda, MessageCircle, Sandwich, Utensils, UtensilsCrossed } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Drawer,
@@ -28,21 +28,32 @@ interface CartDrawerProps {
 // line, and the "Confirmar pedido" guard. WU5 wires the real submit
 // (POST /api/orders -> WhatsApp handoff), replacing CheckoutPanel's bare
 // button with confirm-button.tsx's single-flight fetch + fallback anchor.
+//
+// El trigger es la barra fija .rail (ref-style.css:189-195) en vez del
+// FAB circular genérico: precio+CTA siempre visibles al pie de la
+// pantalla, con el alto reservado por --rail-h (globals.css, body
+// diner-body). Mismo mecanismo de Drawer/DrawerTrigger -- solo cambia el
+// afordance visual del disparador.
 export function CartDrawer({ cart, checkout, deliveryFeeArs }: CartDrawerProps) {
   const { burgers, combos, sides, itemCount, isEmpty, total } = cart;
 
   return (
     <Drawer>
       <DrawerTrigger asChild>
-        <Button
-          variant="default"
-          size="lg"
-          className="fixed right-4 bottom-4 z-40 rounded-full bg-[var(--cheddar)] font-condensed font-bold tracking-[.04em] text-[var(--coal)] uppercase hover:bg-[var(--cheddar-dim)]"
-          disabled={isEmpty}
-        >
-          <ShoppingCart />
-          {itemCount > 0 ? `${itemCount} - ${formatArs(total)}` : "Carrito"}
-        </Button>
+        <button type="button" className="diner-rail disabled:opacity-45" disabled={isEmpty}>
+          <div className="diner-wrap flex h-full items-center gap-4">
+            <div className="min-w-0 text-left">
+              <span className="diner-rail-k block">Tu pedido</span>
+              <span className="diner-rail-v block truncate">
+                {itemCount > 0 ? `${itemCount} · ${formatArs(total)}` : "Carrito vacío"}
+              </span>
+            </div>
+            <span className="diner-btn diner-btn-primary pointer-events-none ml-auto">
+              <MessageCircle className="size-4" aria-hidden />
+              Ver pedido
+            </span>
+          </div>
+        </button>
       </DrawerTrigger>
       <DrawerContent>
         <DrawerHeader>

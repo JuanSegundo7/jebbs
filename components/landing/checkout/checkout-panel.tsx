@@ -43,7 +43,9 @@ export function CheckoutPanel({ cart, checkout, deliveryFeeArs }: CheckoutPanelP
   const isDelivery = fulfillmentType === "delivery";
 
   return (
-    <div className="diner-ticket space-y-4 rounded-sm p-4">
+    // ref-style.css:199-200 .ticket -- padding real 26px 24px 18px, sin
+    // radio (el efecto "boleta" viene del .tear/box-shadow, no de un radio).
+    <div className="diner-ticket space-y-4 px-6 pt-[26px] pb-[18px] shadow-[0_26px_60px_rgba(0,0,0,.6)]">
       <CustomerNameField value={customerName} onChange={setCustomerName} />
 
       <FulfillmentToggle value={fulfillmentType} onChange={setFulfillmentType} />

@@ -1,6 +1,7 @@
 "use client";
 
 import { Minus, Plus, Trash2 } from "lucide-react";
+import { cn } from "@/lib/utils";
 import type { Extra } from "@/lib/types";
 import type { useSidesSelection } from "@/hooks/use-side-selection";
 import { formatArs } from "./currency";
@@ -38,38 +39,36 @@ function SidesGroup({ title, items, countFor, onAdd, onRemove }: SidesGroupProps
         {items.map((extra) => {
           const count = countFor(extra.id);
           return (
-            <div key={extra.id} className="menu-row last:border-b-0">
+            <div
+              key={extra.id}
+              className={cn("menu-row last:border-b-0", count > 0 && "menu-row-active")}
+            >
               <div className="min-w-0 flex-1">
                 <div className="flex items-baseline">
-                  <span className="font-condensed text-[15px] font-bold tracking-[.04em] text-[var(--cream)] uppercase">
+                  <span className="font-condensed text-[1.22rem] font-bold tracking-[.04em] text-[var(--cream)] uppercase">
                     {extra.name}
                   </span>
                   <span className="menu-leader" aria-hidden />
-                  <span className="numeric shrink-0 font-condensed font-bold text-[var(--cheddar)]">
+                  <span className="numeric shrink-0 font-condensed text-[1.22rem] font-bold text-[var(--cheddar)]">
                     {formatArs(extra.price)}
                   </span>
                 </div>
               </div>
 
-              <div className="flex shrink-0 items-center gap-2">
-                {count > 0 && (
-                  <>
-                    <button
-                      type="button"
-                      className="diner-stepper-btn"
-                      onClick={() => onRemove(extra.id)}
-                      aria-label={`Quitar ${extra.name}`}
-                    >
-                      <Minus />
-                    </button>
-                    <span className="numeric w-4 text-center font-condensed text-sm font-bold text-[var(--cream)]">
-                      {count}
-                    </span>
-                  </>
-                )}
+              <div className="diner-stepper">
                 <button
                   type="button"
-                  className="diner-stepper-btn"
+                  className="diner-st"
+                  onClick={() => onRemove(extra.id)}
+                  disabled={count === 0}
+                  aria-label={`Quitar ${extra.name}`}
+                >
+                  <Minus />
+                </button>
+                <output className="diner-qty">{count}</output>
+                <button
+                  type="button"
+                  className="diner-st"
                   onClick={() => onAdd(extra)}
                   aria-label={`Agregar ${extra.name}`}
                 >

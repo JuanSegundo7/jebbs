@@ -10,16 +10,18 @@ interface MenuSectionProps {
 
 export function MenuSection({ catalog, deliveryFeeArs }: MenuSectionProps) {
   return (
-    <section id="menu" className="scroll-mt-20 bg-[var(--coal)] px-6 py-16">
-      <div className="mx-auto max-w-5xl">
-        <div className="mb-8 space-y-1 text-center sm:text-left">
-          <h2 className="font-display text-3xl text-[var(--cream)] sm:text-4xl">
-            Elegí tu pedido
-          </h2>
-          <p className="font-body text-[15px] text-[var(--ash)]">
-            Hamburguesas, combos y acompañamientos -- armá el pedido y confirmalo
-            por WhatsApp.
-          </p>
+    <section id="menu" className="diner-section scroll-mt-20">
+      <div className="diner-wrap">
+        <div className="diner-sechead">
+          <div>
+            <p className="diner-eyebrow">La carta</p>
+            <h2 className="diner-sechead-title">Elegí lo tuyo</h2>
+            <p className="diner-sechead-note">
+              Tocá el + para sumar al pedido. Abajo de todo se te va armando
+              el ticket.
+            </p>
+          </div>
+          <span className="diner-chip diner-chip-hollow">Precios a confirmar</span>
         </div>
         <OrderBuilder catalog={catalog} deliveryFeeArs={deliveryFeeArs} />
       </div>

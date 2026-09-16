@@ -5,7 +5,7 @@ import { FactsStrip } from "@/components/landing/facts-strip";
 import { MenuSection } from "@/components/landing/menu-section";
 import { InfoSection } from "@/components/landing/info-section";
 import { ReviewsSection } from "@/components/landing/reviews-section";
-import { DeliveryZones } from "@/components/landing/delivery-zones";
+import { DeliveryZoneMap } from "@/components/landing/delivery-zone-map";
 import { SiteFooter } from "@/components/landing/site-footer";
 
 export default async function HomePage() {
@@ -24,8 +24,8 @@ export default async function HomePage() {
       <FactsStrip />
       <MenuSection catalog={catalog} deliveryFeeArs={catalog.deliveryFeeArs} />
       <InfoSection />
+      <DeliveryZoneMap />
       <ReviewsSection />
-      <DeliveryZones />
       <SiteFooter />
     </main>
   );

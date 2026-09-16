@@ -65,9 +65,13 @@ export function ConfirmButton({ cart, checkout }: ConfirmButtonProps) {
 
   return (
     <div className="space-y-2">
+      {/* ref-style.css:226-230 .tsend -- verde de "enviar", no el ember de
+          marca: #1D7A46/hover #1F8C4F/disabled #7C8A80. Es la única
+          superficie de la página que no usa la paleta cheddar/ember, a
+          propósito (leerse como "acción de enviar", no como CTA de marca). */}
       <Button
         size="lg"
-        className="w-full rounded-none bg-[var(--ember)] font-ticket font-bold tracking-[.04em] text-[var(--paper)] uppercase hover:bg-[var(--cheddar)]"
+        className="w-full rounded-none bg-[#1D7A46] font-ticket font-bold tracking-[.1em] text-[#F3FBF5] uppercase hover:bg-[#1F8C4F] disabled:bg-[#7C8A80] disabled:opacity-100"
         disabled={!checkout.canConfirm || isPending}
         onClick={() => run()}
       >

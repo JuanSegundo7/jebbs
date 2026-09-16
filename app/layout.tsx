@@ -23,7 +23,7 @@ export default function RootLayout({
       className={`dark ${archivoBlack.variable} ${barlowCondensed.variable} ${barlow.variable} ${courierPrime.variable}`}
       suppressHydrationWarning
     >
-      <body className="font-body antialiased min-h-screen bg-[var(--coal)] text-[var(--cream)]">
+      <body className="diner-body font-body antialiased min-h-screen text-[var(--cream)]">
         {children}
       </body>
     </html>
