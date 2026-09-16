@@ -1,6 +1,7 @@
 "use client";
 
-import { Minus, Plus, Trash2 } from "lucide-react";
+import Image from "next/image";
+import { Beef, Minus, Plus, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
@@ -47,19 +48,40 @@ export function BurgerPicker({
               key={burger.id}
               interactive
               className={cn(
-                "cursor-pointer relative",
+                "cursor-pointer relative gap-0 overflow-hidden p-0",
                 count > 0 && "ring-2 ring-primary",
               )}
               onClick={() => addBurger(burger)}
             >
-              <CardContent className="p-3">
-                {count > 0 && (
-                  <span className="absolute -top-2 -right-2 flex h-5 w-5 items-center justify-center rounded-full bg-primary text-caption text-primary-foreground">
-                    {count}
-                  </span>
+              {count > 0 && (
+                <span className="absolute -top-2 -right-2 z-10 flex h-5 w-5 items-center justify-center rounded-full bg-primary text-caption text-primary-foreground">
+                  {count}
+                </span>
+              )}
+              <div className="relative aspect-[4/3] w-full overflow-hidden bg-[var(--accent-tint-08)]">
+                {burger.image_url ? (
+                  <Image
+                    src={burger.image_url}
+                    alt={burger.name}
+                    fill
+                    sizes="(min-width: 640px) 30vw, 45vw"
+                    className="object-cover"
+                  />
+                ) : (
+                  <div className="flex h-full w-full items-center justify-center">
+                    <Beef
+                      className="size-8 text-muted-foreground"
+                      strokeWidth={1.25}
+                      aria-hidden
+                    />
+                  </div>
                 )}
-                <p className="font-medium">{burger.name}</p>
-                <p className="text-subheadline text-muted-foreground">
+              </div>
+              <CardContent className="space-y-0.5 p-3">
+                <p className="text-subheadline font-medium text-foreground">
+                  {burger.name}
+                </p>
+                <p className="text-footnote text-muted-foreground">
                   {formatArs(burger.base_price)}
                 </p>
               </CardContent>

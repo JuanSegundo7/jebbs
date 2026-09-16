@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { Loader2, MessageCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useSingleFlight } from "@/hooks/use-single-flight";
 import {
@@ -65,19 +66,29 @@ export function ConfirmButton({ cart, checkout }: ConfirmButtonProps) {
   return (
     <div className="space-y-2">
       <Button
+        size="lg"
         className="w-full"
         disabled={!checkout.canConfirm || isPending}
         onClick={() => run()}
       >
+        {isPending ? (
+          <Loader2 className="size-4 animate-spin" aria-hidden />
+        ) : (
+          <MessageCircle className="size-4" aria-hidden />
+        )}
         Confirmar pedido
       </Button>
 
-      {error && <p className="text-destructive text-footnote">{error}</p>}
+      {error && (
+        <p className="text-destructive text-footnote" role="alert">
+          {error}
+        </p>
+      )}
 
       {whatsappUrl && (
         <a
           href={whatsappUrl}
-          className="text-primary block text-center text-footnote underline"
+          className="block text-center text-footnote text-primary underline underline-offset-2"
         >
           Si no te redirigió, tocá acá para abrir WhatsApp
         </a>

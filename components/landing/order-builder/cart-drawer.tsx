@@ -1,6 +1,6 @@
 "use client";
 
-import { ShoppingCart } from "lucide-react";
+import { CupSoda, Sandwich, ShoppingCart, Utensils, UtensilsCrossed } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Drawer,
@@ -36,7 +36,8 @@ export function CartDrawer({ cart, checkout, deliveryFeeArs }: CartDrawerProps) 
       <DrawerTrigger asChild>
         <Button
           variant="default"
-          className="fixed bottom-4 right-4 z-40 shadow-lg"
+          size="lg"
+          className="fixed right-4 bottom-4 z-40"
           disabled={isEmpty}
         >
           <ShoppingCart />
@@ -45,13 +46,13 @@ export function CartDrawer({ cart, checkout, deliveryFeeArs }: CartDrawerProps) 
       </DrawerTrigger>
       <DrawerContent>
         <DrawerHeader>
-          <DrawerTitle>Tu pedido</DrawerTitle>
+          <DrawerTitle className="text-title3">Tu pedido</DrawerTitle>
           <DrawerDescription>
             Este total es orientativo -- se confirma al enviar el pedido.
           </DrawerDescription>
         </DrawerHeader>
 
-        <div className="max-h-[50vh] space-y-3 overflow-y-auto px-4">
+        <div className="max-h-[50vh] space-y-2 overflow-y-auto px-4">
           {isEmpty && (
             <p className="text-muted-foreground text-subheadline">
               Todavia no agregaste nada.
@@ -59,7 +60,11 @@ export function CartDrawer({ cart, checkout, deliveryFeeArs }: CartDrawerProps) 
           )}
 
           {burgers.selectedBurgers.map((item) => (
-            <div key={item.id} className="flex items-center justify-between text-subheadline">
+            <div
+              key={item.id}
+              className="flex items-center gap-2 text-subheadline"
+            >
+              <Sandwich className="size-4 shrink-0 text-muted-foreground" aria-hidden />
               <span>
                 {item.quantity}x {item.burger.name}
               </span>
@@ -69,21 +74,32 @@ export function CartDrawer({ cart, checkout, deliveryFeeArs }: CartDrawerProps) 
           {combos.selectedCombos.map((instance) => (
             <div
               key={instance.id}
-              className="flex items-center justify-between text-subheadline"
+              className="flex items-center gap-2 text-subheadline"
             >
+              <UtensilsCrossed
+                className="size-4 shrink-0 text-muted-foreground"
+                aria-hidden
+              />
               <span>
                 {instance.quantity}x {instance.combo.name}
               </span>
             </div>
           ))}
 
-          {sides.selectedSides.map((side) => (
-            <div key={side.id} className="flex items-center justify-between text-subheadline">
-              <span>
-                {side.quantity}x {side.extra.name}
-              </span>
-            </div>
-          ))}
+          {sides.selectedSides.map((side) => {
+            const SideIcon = side.extra.category === "drink" ? CupSoda : Utensils;
+            return (
+              <div
+                key={side.id}
+                className="flex items-center gap-2 text-subheadline"
+              >
+                <SideIcon className="size-4 shrink-0 text-muted-foreground" aria-hidden />
+                <span>
+                  {side.quantity}x {side.extra.name}
+                </span>
+              </div>
+            );
+          })}
         </div>
 
         <div className="px-4">

@@ -20,9 +20,8 @@ interface OrderBuilderProps {
 // Top-level order-builder for the landing (WU3 + WU3b). Owns both the cart
 // state (useCart) and the checkout state (useCheckout -- fulfillment type,
 // address, phone, notes), and renders the pickers, the cart drawer, and the
-// checkout panel. Submitting the order to POST /api/orders and the
-// WhatsApp handoff are WU4/WU5 -- nothing here writes anything yet, it only
-// builds the in-memory selection and checkout fields.
+// checkout panel. The checkout panel's ConfirmButton (WU5) is what actually
+// submits to POST /api/orders and performs the WhatsApp handoff.
 export function OrderBuilder({ catalog, deliveryFeeArs }: OrderBuilderProps) {
   const checkout = useCheckout();
   const isDelivery = checkout.fulfillmentType === "delivery";
@@ -36,17 +35,27 @@ export function OrderBuilder({ catalog, deliveryFeeArs }: OrderBuilderProps) {
   const drinkExtras = catalog.extras.filter((e) => e.category === "drink");
   const sideExtras = catalog.extras.filter((e) => e.category === "sides");
   const toppingExtras = catalog.extras.filter((e) => e.category === "extra");
+  // Bebidas y sides tab: standalone drinks + sides, both handled by the same
+  // generic useSidesSelection (it prices/selects any Extra regardless of
+  // category) -- only the display grouping is category-aware (SidePicker).
+  const drinksAndSides = [...drinkExtras, ...sideExtras];
 
   return (
     <div className="space-y-6">
       <Tabs defaultValue="burgers">
-        <TabsList>
-          <TabsTrigger value="burgers">Hamburguesas</TabsTrigger>
-          <TabsTrigger value="combos">Combos</TabsTrigger>
-          <TabsTrigger value="sides">Acompanamientos</TabsTrigger>
+        <TabsList className="h-auto w-full flex-wrap justify-start gap-1 p-1 sm:w-fit">
+          <TabsTrigger value="burgers" className="px-4 py-1.5">
+            Hamburguesas
+          </TabsTrigger>
+          <TabsTrigger value="combos" className="px-4 py-1.5">
+            Combos
+          </TabsTrigger>
+          <TabsTrigger value="sides" className="px-4 py-1.5">
+            Bebidas y sides
+          </TabsTrigger>
         </TabsList>
 
-        <TabsContent value="burgers">
+        <TabsContent value="burgers" className="mt-4">
           <BurgerPicker
             burgers={catalog.burgers}
             toppingExtras={toppingExtras}
@@ -54,7 +63,7 @@ export function OrderBuilder({ catalog, deliveryFeeArs }: OrderBuilderProps) {
           />
         </TabsContent>
 
-        <TabsContent value="combos">
+        <TabsContent value="combos" className="mt-4">
           <ComboPicker
             combos={catalog.combos}
             burgers={catalog.burgers}
@@ -64,8 +73,8 @@ export function OrderBuilder({ catalog, deliveryFeeArs }: OrderBuilderProps) {
           />
         </TabsContent>
 
-        <TabsContent value="sides">
-          <SidePicker sides={sideExtras} selection={cart.sides} />
+        <TabsContent value="sides" className="mt-4">
+          <SidePicker sides={drinksAndSides} selection={cart.sides} />
         </TabsContent>
       </Tabs>
 

@@ -2,6 +2,7 @@
 
 import type { useCart } from "@/hooks/use-cart";
 import type { UseCheckoutState } from "@/hooks/use-checkout";
+import { Separator } from "@/components/ui/separator";
 import { ConfirmButton } from "./confirm-button";
 import { CustomerNameField } from "./customer-name-field";
 import { DeliveryDetailsForm } from "./delivery-details-form";
@@ -43,17 +44,22 @@ export function CheckoutPanel({ cart, checkout, deliveryFeeArs }: CheckoutPanelP
       <FulfillmentToggle value={fulfillmentType} onChange={setFulfillmentType} />
 
       {isDelivery && (
-        <DeliveryDetailsForm
-          phone={phone}
-          onPhoneChange={setPhone}
-          address={address}
-          onAddressChange={setAddress}
-          notes={notes}
-          onNotesChange={setNotes}
-        />
+        <>
+          <Separator />
+          <DeliveryDetailsForm
+            phone={phone}
+            onPhoneChange={setPhone}
+            address={address}
+            onAddressChange={setAddress}
+            notes={notes}
+            onNotesChange={setNotes}
+          />
+        </>
       )}
 
       {isDelivery && <DeliveryFeeLine deliveryFeeArs={deliveryFeeArs} />}
+
+      <Separator />
 
       <ConfirmButton cart={cart} checkout={checkout} />
     </div>

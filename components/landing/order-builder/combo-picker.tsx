@@ -1,6 +1,6 @@
 "use client";
 
-import { Trash2 } from "lucide-react";
+import { Trash2, UtensilsCrossed } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
@@ -49,19 +49,36 @@ export function ComboPicker({
               key={combo.id}
               interactive
               className={cn(
-                "cursor-pointer relative",
+                "cursor-pointer relative gap-0 overflow-hidden p-0",
                 count > 0 && "ring-2 ring-primary",
               )}
               onClick={() => addCombo(combo)}
             >
-              <CardContent className="p-3">
-                {count > 0 && (
-                  <span className="absolute -top-2 -right-2 flex h-5 w-5 items-center justify-center rounded-full bg-primary text-caption text-primary-foreground">
-                    {count}
-                  </span>
+              {count > 0 && (
+                <span className="absolute -top-2 -right-2 z-10 flex h-5 w-5 items-center justify-center rounded-full bg-primary text-caption text-primary-foreground">
+                  {count}
+                </span>
+              )}
+              {/* Combo has no image_url in the catalog -- an icon tile keeps
+                  the same visual weight as BurgerPicker's photo cards
+                  instead of leaving this grid bare. */}
+              <div className="flex aspect-[4/3] w-full items-center justify-center bg-[var(--accent-tint-08)]">
+                <UtensilsCrossed
+                  className="size-8 text-muted-foreground"
+                  strokeWidth={1.25}
+                  aria-hidden
+                />
+              </div>
+              <CardContent className="space-y-0.5 p-3">
+                <p className="text-subheadline font-medium text-foreground">
+                  {combo.name}
+                </p>
+                {combo.description && (
+                  <p className="line-clamp-2 text-caption text-muted-foreground">
+                    {combo.description}
+                  </p>
                 )}
-                <p className="font-medium">{combo.name}</p>
-                <p className="text-subheadline text-muted-foreground">
+                <p className="text-footnote font-medium text-accent-foreground">
                   {formatArs(combo.price)}
                 </p>
               </CardContent>

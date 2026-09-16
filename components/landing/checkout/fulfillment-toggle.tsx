@@ -1,5 +1,6 @@
 "use client";
 
+import { Store, Truck } from "lucide-react";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import type { FulfillmentType } from "@/hooks/use-checkout";
 
@@ -17,8 +18,14 @@ export function FulfillmentToggle({ value, onChange }: FulfillmentToggleProps) {
       onValueChange={(next) => onChange(next as FulfillmentType)}
     >
       <TabsList className="w-full">
-        <TabsTrigger value="pickup">Retiro en el local</TabsTrigger>
-        <TabsTrigger value="delivery">Envío a domicilio</TabsTrigger>
+        <TabsTrigger value="pickup">
+          <Store className="size-3.5" aria-hidden />
+          Retiro en el local
+        </TabsTrigger>
+        <TabsTrigger value="delivery">
+          <Truck className="size-3.5" aria-hidden />
+          Envío a domicilio
+        </TabsTrigger>
       </TabsList>
     </Tabs>
   );

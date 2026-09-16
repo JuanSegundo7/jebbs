@@ -1,6 +1,6 @@
 "use client";
 
-import { Minus, Plus, Trash2 } from "lucide-react";
+import { CupSoda, Minus, Plus, Trash2, Utensils, type LucideIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
@@ -9,25 +9,33 @@ import type { useSidesSelection } from "@/hooks/use-side-selection";
 import { formatArs } from "./currency";
 
 interface SidePickerProps {
+  /** Standalone-purchasable extras for this tab -- drinks + sides, both
+   * routed through the same generic useSidesSelection. Only the display is
+   * category-aware: it groups by Extra.category into two labeled
+   * sub-sections instead of one undifferentiated grid. */
   sides: Extra[];
   selection: ReturnType<typeof useSidesSelection>;
 }
 
-export function SidePicker({ sides, selection }: SidePickerProps) {
-  const {
-    selectedSides,
-    addSide,
-    removeSide,
-    updateQuantity,
-  } = selection;
+interface SidesGroupProps {
+  title: string;
+  icon: LucideIcon;
+  items: Extra[];
+  countFor: (extraId: string) => number;
+  onAdd: (extra: Extra) => void;
+}
 
-  const countFor = (extraId: string) =>
-    selectedSides.find((s) => s.extra.id === extraId)?.quantity ?? 0;
+function SidesGroup({ title, icon: Icon, items, countFor, onAdd }: SidesGroupProps) {
+  if (items.length === 0) return null;
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-3">
+      <h3 className="flex items-center gap-1.5 text-caption font-semibold tracking-wide text-muted-foreground uppercase">
+        <Icon className="size-3.5" aria-hidden />
+        {title}
+      </h3>
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
-        {sides.map((extra) => {
+        {items.map((extra) => {
           const count = countFor(extra.id);
           return (
             <Card
@@ -37,7 +45,7 @@ export function SidePicker({ sides, selection }: SidePickerProps) {
                 "cursor-pointer relative",
                 count > 0 && "ring-2 ring-primary",
               )}
-              onClick={() => addSide(extra)}
+              onClick={() => onAdd(extra)}
             >
               <CardContent className="p-3">
                 {count > 0 && (
@@ -54,6 +62,35 @@ export function SidePicker({ sides, selection }: SidePickerProps) {
           );
         })}
       </div>
+    </div>
+  );
+}
+
+export function SidePicker({ sides, selection }: SidePickerProps) {
+  const { selectedSides, addSide, removeSide, updateQuantity } = selection;
+
+  const countFor = (extraId: string) =>
+    selectedSides.find((s) => s.extra.id === extraId)?.quantity ?? 0;
+
+  const drinks = sides.filter((s) => s.category === "drink");
+  const snacks = sides.filter((s) => s.category !== "drink");
+
+  return (
+    <div className="space-y-6">
+      <SidesGroup
+        title="Bebidas"
+        icon={CupSoda}
+        items={drinks}
+        countFor={countFor}
+        onAdd={addSide}
+      />
+      <SidesGroup
+        title="Acompañamientos"
+        icon={Utensils}
+        items={snacks}
+        countFor={countFor}
+        onAdd={addSide}
+      />
 
       {selectedSides.length > 0 && (
         <div className="space-y-2">
