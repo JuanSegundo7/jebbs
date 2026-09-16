@@ -1,9 +1,12 @@
 import { getCatalog } from "@/lib/catalog/get-catalog";
 import { SiteHeader } from "@/components/landing/site-header";
 import { Hero } from "@/components/landing/hero";
+import { FactsStrip } from "@/components/landing/facts-strip";
 import { MenuSection } from "@/components/landing/menu-section";
-import { InfoTabs } from "@/components/landing/info-tabs";
-import { WhatsappCta } from "@/components/landing/whatsapp-cta";
+import { InfoSection } from "@/components/landing/info-section";
+import { ReviewsSection } from "@/components/landing/reviews-section";
+import { DeliveryZones } from "@/components/landing/delivery-zones";
+import { SiteFooter } from "@/components/landing/site-footer";
 
 export default async function HomePage() {
   const catalog = await getCatalog();
@@ -18,9 +21,12 @@ export default async function HomePage() {
     <main>
       <SiteHeader />
       <Hero featuredBurger={featuredBurger} />
+      <FactsStrip />
       <MenuSection catalog={catalog} deliveryFeeArs={catalog.deliveryFeeArs} />
-      <InfoTabs />
-      <WhatsappCta />
+      <InfoSection />
+      <ReviewsSection />
+      <DeliveryZones />
+      <SiteFooter />
     </main>
   );
 }

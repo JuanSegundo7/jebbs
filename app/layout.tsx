@@ -1,6 +1,6 @@
 import type React from "react";
 import type { Metadata } from "next";
-import { geistMono, pacifico } from "@/lib/fonts";
+import { archivoBlack, barlow, barlowCondensed, courierPrime } from "@/lib/fonts";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -20,10 +20,12 @@ export default function RootLayout({
   return (
     <html
       lang="es"
-      className={`dark ${geistMono.variable} ${pacifico.variable}`}
+      className={`dark ${archivoBlack.variable} ${barlowCondensed.variable} ${barlow.variable} ${courierPrime.variable}`}
       suppressHydrationWarning
     >
-      <body className="font-sans antialiased min-h-screen">{children}</body>
+      <body className="font-body antialiased min-h-screen bg-[var(--coal)] text-[var(--cream)]">
+        {children}
+      </body>
     </html>
   );
 }

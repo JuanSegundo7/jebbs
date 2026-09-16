@@ -1,13 +1,12 @@
 "use client";
 
-import { Trash2, UtensilsCrossed } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
+import { Trash2, UtensilsCrossed, Minus, Plus } from "lucide-react";
 import { cn } from "@/lib/utils";
 import type { Burger, Extra } from "@/lib/types";
 import type { ComboWithSlots } from "@/lib/types/combo-types";
 import type { useComboSelection } from "@/hooks/use-combo-selection";
 import { formatArs } from "./currency";
+import { MenuCategoryHeader } from "./menu-category-header";
 
 interface ComboPickerProps {
   combos: ComboWithSlots[];
@@ -17,6 +16,11 @@ interface ComboPickerProps {
   selection: ReturnType<typeof useComboSelection>;
 }
 
+// Printed-menu list (reference site: jebbs-burgers.vercel.app), same
+// pattern as BurgerPicker/SidePicker. Combos have no image_url in the
+// catalog, so the thumbnail is a fixed icon tile instead of a photo. All
+// selection/slot logic below is exactly what ComboPicker already had
+// (useComboSelection, untouched) -- only the visual wrapper changed.
 export function ComboPicker({
   combos,
   burgers,
@@ -39,165 +43,192 @@ export function ComboPicker({
   const comboCountFor = (comboId: string) =>
     selectedCombos.filter((c) => c.combo.id === comboId).length;
 
+  // Derived helper, not new state: combos have no quantity merge (each add
+  // is a distinct customizable instance), so the browsing row's "-" removes
+  // the most-recently-added instance of this combo -- the same instance a
+  // customer who just tapped "+" would expect to undo.
+  const decrementCombo = (comboId: string) => {
+    const instances = selectedCombos.filter((c) => c.combo.id === comboId);
+    const last = instances[instances.length - 1];
+    if (last) removeCombo(last.id);
+  };
+
   return (
-    <div className="space-y-4">
-      <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
-        {combos.map((combo) => {
-          const count = comboCountFor(combo.id);
-          return (
-            <Card
-              key={combo.id}
-              interactive
-              className={cn(
-                "cursor-pointer relative gap-0 overflow-hidden p-0",
-                count > 0 && "ring-2 ring-primary",
-              )}
-              onClick={() => addCombo(combo)}
-            >
-              {count > 0 && (
-                <span className="absolute -top-2 -right-2 z-10 flex h-5 w-5 items-center justify-center rounded-full bg-primary text-caption text-primary-foreground">
-                  {count}
-                </span>
-              )}
-              {/* Combo has no image_url in the catalog -- an icon tile keeps
-                  the same visual weight as BurgerPicker's photo cards
-                  instead of leaving this grid bare. */}
-              <div className="flex aspect-[4/3] w-full items-center justify-center bg-[var(--accent-tint-08)]">
-                <UtensilsCrossed
-                  className="size-8 text-muted-foreground"
-                  strokeWidth={1.25}
-                  aria-hidden
-                />
+    <div className="space-y-6">
+      <div>
+        <MenuCategoryHeader title="Combos" />
+        <div>
+          {combos.map((combo) => {
+            const count = comboCountFor(combo.id);
+            return (
+              <div key={combo.id} className="menu-row last:border-b-0">
+                <div className="diner-thumb flex items-center justify-center">
+                  <UtensilsCrossed className="size-6 text-[var(--ash-dim)]" strokeWidth={1.25} aria-hidden />
+                </div>
+
+                <div className="min-w-0 flex-1">
+                  <div className="flex items-baseline">
+                    <span className="font-condensed text-[15px] font-bold tracking-[.04em] text-[var(--cream)] uppercase">
+                      {combo.name}
+                    </span>
+                    <span className="menu-leader" aria-hidden />
+                    <span className="numeric shrink-0 font-condensed font-bold text-[var(--cheddar)]">
+                      {formatArs(combo.price)}
+                    </span>
+                  </div>
+                  {combo.description && (
+                    <p className="mt-1 line-clamp-2 font-body text-[13px] text-[var(--ash)]">
+                      {combo.description}
+                    </p>
+                  )}
+                </div>
+
+                <div className="flex shrink-0 items-center gap-2">
+                  {count > 0 && (
+                    <>
+                      <button
+                        type="button"
+                        className="diner-stepper-btn"
+                        onClick={() => decrementCombo(combo.id)}
+                        aria-label={`Quitar ${combo.name}`}
+                      >
+                        <Minus />
+                      </button>
+                      <span className="numeric w-4 text-center font-condensed text-sm font-bold text-[var(--cream)]">
+                        {count}
+                      </span>
+                    </>
+                  )}
+                  <button
+                    type="button"
+                    className="diner-stepper-btn"
+                    onClick={() => addCombo(combo)}
+                    aria-label={`Agregar ${combo.name}`}
+                  >
+                    <Plus />
+                  </button>
+                </div>
               </div>
-              <CardContent className="space-y-0.5 p-3">
-                <p className="text-subheadline font-medium text-foreground">
-                  {combo.name}
-                </p>
-                {combo.description && (
-                  <p className="line-clamp-2 text-caption text-muted-foreground">
-                    {combo.description}
-                  </p>
-                )}
-                <p className="text-footnote font-medium text-accent-foreground">
-                  {formatArs(combo.price)}
-                </p>
-              </CardContent>
-            </Card>
-          );
-        })}
+            );
+          })}
+        </div>
       </div>
 
       {selectedCombos.map((instance) => (
-        <Card key={instance.id} depth="flat">
-          <CardContent className="space-y-4 p-3">
-            <div className="flex items-center justify-between">
-              <span className="font-medium">{instance.combo.name}</span>
-              <Button
-                variant="ghost"
-                size="icon-sm"
-                className="text-destructive"
-                onClick={() => removeCombo(instance.id)}
-                aria-label="Eliminar combo"
-              >
-                <Trash2 />
-              </Button>
-            </div>
+        <div
+          key={instance.id}
+          className="space-y-4 rounded-xl border border-[var(--line)] bg-[var(--slab)] p-3"
+        >
+          <div className="flex items-center justify-between">
+            <span className="font-condensed text-sm font-bold tracking-[.03em] text-[var(--cream)] uppercase">
+              {instance.combo.name}
+            </span>
+            <button
+              type="button"
+              className="inline-flex size-7 items-center justify-center rounded-full text-[var(--ember)] transition-colors hover:bg-[var(--coal)]"
+              onClick={() => removeCombo(instance.id)}
+              aria-label="Eliminar combo"
+            >
+              <Trash2 className="size-4" />
+            </button>
+          </div>
 
-            {instance.slots.map((slot) => {
-              if (slot.slotType === "burger") {
-                const remaining = getRemainingQuantity(instance.id, slot.slotId);
-                return (
-                  <div key={slot.slotId} className="space-y-2">
-                    <p className="text-caption text-muted-foreground">
-                      Hamburguesas ({remaining} disponibles)
-                    </p>
-                    <ul className="space-y-1">
-                      {slot.burgers.map((item) => (
-                        <li
-                          key={item.id}
-                          className="flex items-center justify-between text-subheadline"
+          {instance.slots.map((slot) => {
+            if (slot.slotType === "burger") {
+              const remaining = getRemainingQuantity(instance.id, slot.slotId);
+              return (
+                <div key={slot.slotId} className="space-y-2">
+                  <p className="font-condensed text-xs font-bold tracking-[.08em] text-[var(--ash)] uppercase">
+                    Hamburguesas ({remaining} disponibles)
+                  </p>
+                  <ul className="space-y-1">
+                    {slot.burgers.map((item) => (
+                      <li
+                        key={item.id}
+                        className="flex items-center justify-between font-body text-sm text-[var(--cream)]"
+                      >
+                        <span>{item.burger.name}</span>
+                        <button
+                          type="button"
+                          className="text-[var(--ember)]"
+                          onClick={() =>
+                            removeBurgerFromSlot(instance.id, slot.slotId, item.id)
+                          }
+                          aria-label="Quitar hamburguesa del combo"
                         >
-                          <span>{item.burger.name}</span>
-                          <button
-                            type="button"
-                            className="text-destructive"
-                            onClick={() =>
-                              removeBurgerFromSlot(instance.id, slot.slotId, item.id)
-                            }
-                            aria-label="Quitar hamburguesa del combo"
-                          >
-                            <Trash2 className="size-4" />
-                          </button>
-                        </li>
-                      ))}
-                    </ul>
-                    {remaining > 0 && (
-                      <div className="flex flex-wrap gap-2">
-                        {burgers
-                          .filter((burger) =>
-                            canAddBurgerToSlot(instance.id, slot.slotId, burger),
-                          )
-                          .map((burger) => (
-                            <button
-                              key={burger.id}
-                              type="button"
-                              className="rounded-full border border-border px-3 py-1 text-caption"
-                              onClick={() =>
-                                addBurgerToSlot(instance.id, slot.slotId, burger)
-                              }
-                            >
-                              {burger.name}
-                            </button>
-                          ))}
-                      </div>
-                    )}
-                  </div>
-                );
-              }
-
-              if (slot.slotType === "drink" || slot.slotType === "side") {
-                const options = slot.slotType === "drink" ? drinkExtras : sideExtras;
-                const label = slot.slotType === "drink" ? "Bebida" : "Acompañamiento";
-                const selectedIds = slot.selectedExtras.map((e) => e.id);
-
-                return (
-                  <div key={slot.slotId} className="space-y-2">
-                    <p className="text-caption text-muted-foreground">{label}</p>
+                          <Trash2 className="size-4" />
+                        </button>
+                      </li>
+                    ))}
+                  </ul>
+                  {remaining > 0 && (
                     <div className="flex flex-wrap gap-2">
-                      {options.map((extra) => {
-                        const timesSelected = selectedIds.filter(
-                          (id) => id === extra.id,
-                        ).length;
-                        return (
+                      {burgers
+                        .filter((burger) =>
+                          canAddBurgerToSlot(instance.id, slot.slotId, burger),
+                        )
+                        .map((burger) => (
                           <button
-                            key={extra.id}
+                            key={burger.id}
                             type="button"
-                            className={cn(
-                              "rounded-full border px-3 py-1 text-caption",
-                              timesSelected > 0
-                                ? "border-primary bg-primary text-primary-foreground"
-                                : "border-border",
-                            )}
+                            className="rounded-full border border-[var(--line-2)] px-3 py-1 font-condensed text-[11px] font-bold tracking-[.04em] text-[var(--ash)] uppercase"
                             onClick={() =>
-                              timesSelected > 0
-                                ? removeOneExtraFromSlot(instance.id, slot.slotId, extra)
-                                : selectExtraForSlot(instance.id, slot.slotId, extra)
+                              addBurgerToSlot(instance.id, slot.slotId, burger)
                             }
                           >
-                            {extra.name}
-                            {timesSelected > 0 ? ` (${timesSelected})` : ""}
+                            {burger.name}
                           </button>
-                        );
-                      })}
+                        ))}
                     </div>
-                  </div>
-                );
-              }
+                  )}
+                </div>
+              );
+            }
 
-              return null;
-            })}
-          </CardContent>
-        </Card>
+            if (slot.slotType === "drink" || slot.slotType === "side") {
+              const options = slot.slotType === "drink" ? drinkExtras : sideExtras;
+              const label = slot.slotType === "drink" ? "Bebida" : "Acompañamiento";
+              const selectedIds = slot.selectedExtras.map((e) => e.id);
+
+              return (
+                <div key={slot.slotId} className="space-y-2">
+                  <p className="font-condensed text-xs font-bold tracking-[.08em] text-[var(--ash)] uppercase">
+                    {label}
+                  </p>
+                  <div className="flex flex-wrap gap-2">
+                    {options.map((extra) => {
+                      const timesSelected = selectedIds.filter(
+                        (id) => id === extra.id,
+                      ).length;
+                      return (
+                        <button
+                          key={extra.id}
+                          type="button"
+                          className={cn(
+                            "rounded-full border px-3 py-1 font-condensed text-[11px] font-bold tracking-[.04em] uppercase",
+                            timesSelected > 0
+                              ? "border-[var(--cheddar)] bg-[var(--cheddar)] text-[var(--coal)]"
+                              : "border-[var(--line-2)] text-[var(--ash)]",
+                          )}
+                          onClick={() =>
+                            timesSelected > 0
+                              ? removeOneExtraFromSlot(instance.id, slot.slotId, extra)
+                              : selectExtraForSlot(instance.id, slot.slotId, extra)
+                          }
+                        >
+                          {extra.name}
+                          {timesSelected > 0 ? ` (${timesSelected})` : ""}
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+              );
+            }
+
+            return null;
+          })}
+        </div>
       ))}
     </div>
   );

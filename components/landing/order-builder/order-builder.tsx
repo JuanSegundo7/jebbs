@@ -40,17 +40,24 @@ export function OrderBuilder({ catalog, deliveryFeeArs }: OrderBuilderProps) {
   // category) -- only the display grouping is category-aware (SidePicker).
   const drinksAndSides = [...drinkExtras, ...sideExtras];
 
+  // Tab pills restyled to the diner identity: condensed uppercase labels,
+  // cheddar fill on the active tab, slab background otherwise -- the
+  // grouped-by-category *content* underneath each tab is now a printed-menu
+  // list (BurgerPicker/ComboPicker/SidePicker), not a card grid.
+  const tabTriggerClass =
+    "rounded-full px-4 py-1.5 font-condensed text-[12px] font-bold tracking-[.08em] text-[var(--ash)] uppercase data-[state=active]:bg-[var(--cheddar)] data-[state=active]:text-[var(--coal)] data-[state=active]:shadow-none";
+
   return (
     <div className="space-y-6">
       <Tabs defaultValue="burgers">
-        <TabsList className="h-auto w-full flex-wrap justify-start gap-1 p-1 sm:w-fit">
-          <TabsTrigger value="burgers" className="px-4 py-1.5">
+        <TabsList className="h-auto w-full flex-wrap justify-start gap-1 border border-[var(--line)] bg-[var(--soot)] p-1 sm:w-fit">
+          <TabsTrigger value="burgers" className={tabTriggerClass}>
             Hamburguesas
           </TabsTrigger>
-          <TabsTrigger value="combos" className="px-4 py-1.5">
+          <TabsTrigger value="combos" className={tabTriggerClass}>
             Combos
           </TabsTrigger>
-          <TabsTrigger value="sides" className="px-4 py-1.5">
+          <TabsTrigger value="sides" className={tabTriggerClass}>
             Bebidas y sides
           </TabsTrigger>
         </TabsList>

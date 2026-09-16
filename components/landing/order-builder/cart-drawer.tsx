@@ -37,7 +37,7 @@ export function CartDrawer({ cart, checkout, deliveryFeeArs }: CartDrawerProps) 
         <Button
           variant="default"
           size="lg"
-          className="fixed right-4 bottom-4 z-40"
+          className="fixed right-4 bottom-4 z-40 rounded-full bg-[var(--cheddar)] font-condensed font-bold tracking-[.04em] text-[var(--coal)] uppercase hover:bg-[var(--cheddar-dim)]"
           disabled={isEmpty}
         >
           <ShoppingCart />
@@ -46,7 +46,9 @@ export function CartDrawer({ cart, checkout, deliveryFeeArs }: CartDrawerProps) 
       </DrawerTrigger>
       <DrawerContent>
         <DrawerHeader>
-          <DrawerTitle className="text-title3">Tu pedido</DrawerTitle>
+          <DrawerTitle className="font-display text-xl text-[var(--cream)]">
+            Tu pedido
+          </DrawerTitle>
           <DrawerDescription>
             Este total es orientativo -- se confirma al enviar el pedido.
           </DrawerDescription>
@@ -62,9 +64,9 @@ export function CartDrawer({ cart, checkout, deliveryFeeArs }: CartDrawerProps) 
           {burgers.selectedBurgers.map((item) => (
             <div
               key={item.id}
-              className="flex items-center gap-2 text-subheadline"
+              className="flex items-center gap-2 font-body text-sm text-[var(--cream)]"
             >
-              <Sandwich className="size-4 shrink-0 text-muted-foreground" aria-hidden />
+              <Sandwich className="size-4 shrink-0 text-[var(--cheddar)]" aria-hidden />
               <span>
                 {item.quantity}x {item.burger.name}
               </span>
@@ -74,10 +76,10 @@ export function CartDrawer({ cart, checkout, deliveryFeeArs }: CartDrawerProps) 
           {combos.selectedCombos.map((instance) => (
             <div
               key={instance.id}
-              className="flex items-center gap-2 text-subheadline"
+              className="flex items-center gap-2 font-body text-sm text-[var(--cream)]"
             >
               <UtensilsCrossed
-                className="size-4 shrink-0 text-muted-foreground"
+                className="size-4 shrink-0 text-[var(--cheddar)]"
                 aria-hidden
               />
               <span>
@@ -91,9 +93,9 @@ export function CartDrawer({ cart, checkout, deliveryFeeArs }: CartDrawerProps) 
             return (
               <div
                 key={side.id}
-                className="flex items-center gap-2 text-subheadline"
+                className="flex items-center gap-2 font-body text-sm text-[var(--cream)]"
               >
-                <SideIcon className="size-4 shrink-0 text-muted-foreground" aria-hidden />
+                <SideIcon className="size-4 shrink-0 text-[var(--cheddar)]" aria-hidden />
                 <span>
                   {side.quantity}x {side.extra.name}
                 </span>
@@ -107,9 +109,9 @@ export function CartDrawer({ cart, checkout, deliveryFeeArs }: CartDrawerProps) 
         </div>
 
         <DrawerFooter>
-          <div className="flex items-center justify-between text-title3 font-semibold">
+          <div className="flex items-center justify-between font-condensed text-lg font-bold text-[var(--cream)] uppercase">
             <span>Total</span>
-            <span>{formatArs(total)}</span>
+            <span className="numeric text-[var(--cheddar)]">{formatArs(total)}</span>
           </div>
           <DrawerClose asChild>
             <Button variant="outline">Seguir eligiendo</Button>

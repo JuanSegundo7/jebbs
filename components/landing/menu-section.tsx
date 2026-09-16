@@ -10,17 +10,19 @@ interface MenuSectionProps {
 
 export function MenuSection({ catalog, deliveryFeeArs }: MenuSectionProps) {
   return (
-    <section id="menu" className="mx-auto max-w-5xl scroll-mt-20 px-6 py-12">
-      <div className="mb-6 space-y-1 text-center sm:text-left">
-        <h2 className="text-title1 font-semibold text-foreground">
-          Elegí tu pedido
-        </h2>
-        <p className="text-subheadline text-muted-foreground">
-          Hamburguesas, combos y acompañamientos -- armá el pedido y confirmalo
-          por WhatsApp.
-        </p>
+    <section id="menu" className="scroll-mt-20 bg-[var(--coal)] px-6 py-16">
+      <div className="mx-auto max-w-5xl">
+        <div className="mb-8 space-y-1 text-center sm:text-left">
+          <h2 className="font-display text-3xl text-[var(--cream)] sm:text-4xl">
+            Elegí tu pedido
+          </h2>
+          <p className="font-body text-[15px] text-[var(--ash)]">
+            Hamburguesas, combos y acompañamientos -- armá el pedido y confirmalo
+            por WhatsApp.
+          </p>
+        </div>
+        <OrderBuilder catalog={catalog} deliveryFeeArs={deliveryFeeArs} />
       </div>
-      <OrderBuilder catalog={catalog} deliveryFeeArs={deliveryFeeArs} />
     </section>
   );
 }

@@ -22,6 +22,11 @@ interface CheckoutPanelProps {
 // customer-name field yet) with confirm-button.tsx: the real single-flight
 // POST /api/orders + WhatsApp handoff, built from `cart` + `checkout`
 // directly via lib/order/build-cart-request.ts.
+//
+// Restyled as a paper ticket (reference site: jebbs-burgers.vercel.app,
+// checkout section): --paper background, Courier Prime, no glass/blur.
+// Every child below only changed classes/styles -- none of the
+// selection/validation logic moved.
 export function CheckoutPanel({ cart, checkout, deliveryFeeArs }: CheckoutPanelProps) {
   const {
     fulfillmentType,
@@ -38,14 +43,14 @@ export function CheckoutPanel({ cart, checkout, deliveryFeeArs }: CheckoutPanelP
   const isDelivery = fulfillmentType === "delivery";
 
   return (
-    <div className="ios-glass space-y-4 rounded-2xl p-4">
+    <div className="diner-ticket space-y-4 rounded-sm p-4">
       <CustomerNameField value={customerName} onChange={setCustomerName} />
 
       <FulfillmentToggle value={fulfillmentType} onChange={setFulfillmentType} />
 
       {isDelivery && (
         <>
-          <Separator />
+          <Separator className="bg-[var(--paper-line)]" />
           <DeliveryDetailsForm
             phone={phone}
             onPhoneChange={setPhone}
@@ -59,7 +64,7 @@ export function CheckoutPanel({ cart, checkout, deliveryFeeArs }: CheckoutPanelP
 
       {isDelivery && <DeliveryFeeLine deliveryFeeArs={deliveryFeeArs} />}
 
-      <Separator />
+      <Separator className="bg-[var(--paper-line)]" />
 
       <ConfirmButton cart={cart} checkout={checkout} />
     </div>

@@ -2,12 +2,11 @@
 
 import Image from "next/image";
 import { Beef, Minus, Plus, Trash2 } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 import type { Burger, Extra } from "@/lib/types";
 import type { useBurgerSelection } from "@/hooks/use-burger-selection";
 import { formatArs } from "./currency";
+import { MenuCategoryHeader } from "./menu-category-header";
 
 interface BurgerPickerProps {
   burgers: Burger[];
@@ -15,6 +14,11 @@ interface BurgerPickerProps {
   selection: ReturnType<typeof useBurgerSelection>;
 }
 
+// Printed-menu list (reference site: jebbs-burgers.vercel.app) instead of a
+// grid of cards: thumbnail, name, leader dots, price, description, +/-
+// stepper. The selection/quantity/detail-expansion logic below is exactly
+// what BurgerPicker already had (useBurgerSelection, untouched) -- only the
+// visual wrapper changed.
 export function BurgerPicker({
   burgers,
   toppingExtras,
@@ -38,56 +42,87 @@ export function BurgerPicker({
       .filter((b) => b.burger.id === burgerId)
       .reduce((acc, b) => acc + b.quantity, 0);
 
+  // Derived helper, not new state: the browsing row's "-" decrements the
+  // most-recently-added instance of this burger. Per-instance detail
+  // (meat/fries/veggie/extras) is still edited below, in the expanded
+  // selected-items list -- this only mirrors what the "+" (addBurger) does.
+  const decrementBurger = (burgerId: string) => {
+    const instances = selectedBurgers.filter((b) => b.burger.id === burgerId);
+    const last = instances[instances.length - 1];
+    if (last) updateQuantity(last.id, -1);
+  };
+
   return (
-    <div className="space-y-4">
-      <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
-        {burgers.map((burger) => {
-          const count = countFor(burger.id);
-          return (
-            <Card
-              key={burger.id}
-              interactive
-              className={cn(
-                "cursor-pointer relative gap-0 overflow-hidden p-0",
-                count > 0 && "ring-2 ring-primary",
-              )}
-              onClick={() => addBurger(burger)}
-            >
-              {count > 0 && (
-                <span className="absolute -top-2 -right-2 z-10 flex h-5 w-5 items-center justify-center rounded-full bg-primary text-caption text-primary-foreground">
-                  {count}
-                </span>
-              )}
-              <div className="relative aspect-[4/3] w-full overflow-hidden bg-[var(--accent-tint-08)]">
-                {burger.image_url ? (
-                  <Image
-                    src={burger.image_url}
-                    alt={burger.name}
-                    fill
-                    sizes="(min-width: 640px) 30vw, 45vw"
-                    className="object-cover"
-                  />
-                ) : (
-                  <div className="flex h-full w-full items-center justify-center">
-                    <Beef
-                      className="size-8 text-muted-foreground"
-                      strokeWidth={1.25}
-                      aria-hidden
+    <div className="space-y-6">
+      <div>
+        <MenuCategoryHeader title="Hamburguesas" />
+        <div>
+          {burgers.map((burger) => {
+            const count = countFor(burger.id);
+            return (
+              <div key={burger.id} className="menu-row last:border-b-0">
+                <div className="diner-thumb">
+                  {burger.image_url ? (
+                    <Image
+                      src={burger.image_url}
+                      alt={burger.name}
+                      fill
+                      sizes="60px"
+                      className="object-cover"
                     />
+                  ) : (
+                    <div className="flex h-full w-full items-center justify-center">
+                      <Beef className="size-6 text-[var(--ash-dim)]" strokeWidth={1.25} aria-hidden />
+                    </div>
+                  )}
+                </div>
+
+                <div className="min-w-0 flex-1">
+                  <div className="flex items-baseline">
+                    <span className="font-condensed text-[15px] font-bold tracking-[.04em] text-[var(--cream)] uppercase">
+                      {burger.name}
+                    </span>
+                    <span className="menu-leader" aria-hidden />
+                    <span className="numeric shrink-0 font-condensed font-bold text-[var(--cheddar)]">
+                      {formatArs(burger.base_price)}
+                    </span>
                   </div>
-                )}
+                  {burger.description && (
+                    <p className="mt-1 font-body text-[13px] text-[var(--ash)]">
+                      {burger.description}
+                    </p>
+                  )}
+                </div>
+
+                <div className="flex shrink-0 items-center gap-2">
+                  {count > 0 && (
+                    <>
+                      <button
+                        type="button"
+                        className="diner-stepper-btn"
+                        onClick={() => decrementBurger(burger.id)}
+                        aria-label={`Quitar ${burger.name}`}
+                      >
+                        <Minus />
+                      </button>
+                      <span className="numeric w-4 text-center font-condensed text-sm font-bold text-[var(--cream)]">
+                        {count}
+                      </span>
+                    </>
+                  )}
+                  <button
+                    type="button"
+                    className="diner-stepper-btn"
+                    onClick={() => addBurger(burger)}
+                    aria-label={`Agregar ${burger.name}`}
+                  >
+                    <Plus />
+                  </button>
+                </div>
               </div>
-              <CardContent className="space-y-0.5 p-3">
-                <p className="text-subheadline font-medium text-foreground">
-                  {burger.name}
-                </p>
-                <p className="text-footnote text-muted-foreground">
-                  {formatArs(burger.base_price)}
-                </p>
-              </CardContent>
-            </Card>
-          );
-        })}
+            );
+          })}
+        </div>
       </div>
 
       {selectedBurgers.length > 0 && (
@@ -95,135 +130,141 @@ export function BurgerPicker({
           {selectedBurgers.map((item) => {
             const expanded = expandedBurger === item.id;
             return (
-              <Card key={item.id} depth="flat">
-                <CardContent className="space-y-3 p-3">
-                  <div className="flex items-center justify-between gap-2">
+              <div
+                key={item.id}
+                className="space-y-3 rounded-xl border border-[var(--line)] bg-[var(--slab)] p-3"
+              >
+                <div className="flex items-center justify-between gap-2">
+                  <button
+                    type="button"
+                    className="flex-1 text-left font-condensed text-sm font-bold tracking-[.03em] text-[var(--cream)] uppercase"
+                    onClick={() => toggleExpanded(item.id)}
+                  >
+                    {item.burger.name}
+                  </button>
+                  <div className="flex items-center gap-1">
                     <button
                       type="button"
-                      className="flex-1 text-left font-medium"
-                      onClick={() => toggleExpanded(item.id)}
+                      className="diner-stepper-btn"
+                      onClick={() => updateQuantity(item.id, -1)}
+                      aria-label="Quitar uno"
                     >
-                      {item.burger.name}
+                      <Minus />
                     </button>
-                    <div className="flex items-center gap-1">
-                      <Button
-                        variant="outline"
-                        size="icon-sm"
-                        onClick={() => updateQuantity(item.id, -1)}
-                        aria-label="Quitar uno"
-                      >
-                        <Minus />
-                      </Button>
-                      <span className="w-6 text-center text-subheadline">
-                        {item.quantity}
-                      </span>
-                      <Button
-                        variant="outline"
-                        size="icon-sm"
-                        onClick={() => updateQuantity(item.id, 1)}
-                        aria-label="Agregar uno"
-                      >
-                        <Plus />
-                      </Button>
-                      <Button
-                        variant="ghost"
-                        size="icon-sm"
-                        className="text-destructive"
-                        onClick={() => removeBurger(item.id)}
-                        aria-label="Eliminar"
-                      >
-                        <Trash2 />
-                      </Button>
-                    </div>
+                    <span className="numeric w-6 text-center text-sm text-[var(--cream)]">
+                      {item.quantity}
+                    </span>
+                    <button
+                      type="button"
+                      className="diner-stepper-btn"
+                      onClick={() => updateQuantity(item.id, 1)}
+                      aria-label="Agregar uno"
+                    >
+                      <Plus />
+                    </button>
+                    <button
+                      type="button"
+                      className="inline-flex size-7 items-center justify-center rounded-full text-[var(--ember)] transition-colors hover:bg-[var(--coal)]"
+                      onClick={() => removeBurger(item.id)}
+                      aria-label="Eliminar"
+                    >
+                      <Trash2 className="size-4" />
+                    </button>
                   </div>
+                </div>
 
-                  {expanded && (
-                    <div className="space-y-3 border-t pt-3">
-                      <div className="flex items-center justify-between">
-                        <span className="text-subheadline">Carne</span>
-                        <div className="flex items-center gap-1">
-                          <Button
-                            variant="outline"
-                            size="icon-sm"
-                            onClick={() => updateMeatCount(item.id, -1)}
-                            aria-label="Menos carne"
-                          >
-                            <Minus />
-                          </Button>
-                          <span className="w-6 text-center">{item.meatCount}</span>
-                          <Button
-                            variant="outline"
-                            size="icon-sm"
-                            onClick={() => updateMeatCount(item.id, 1)}
-                            aria-label="Más carne"
-                          >
-                            <Plus />
-                          </Button>
-                        </div>
+                {expanded && (
+                  <div className="space-y-3 border-t border-[var(--line)] pt-3">
+                    <div className="flex items-center justify-between">
+                      <span className="font-condensed text-xs font-bold tracking-[.08em] text-[var(--ash)] uppercase">
+                        Carne
+                      </span>
+                      <div className="flex items-center gap-1">
+                        <button
+                          type="button"
+                          className="diner-stepper-btn"
+                          onClick={() => updateMeatCount(item.id, -1)}
+                          aria-label="Menos carne"
+                        >
+                          <Minus />
+                        </button>
+                        <span className="numeric w-6 text-center text-sm text-[var(--cream)]">
+                          {item.meatCount}
+                        </span>
+                        <button
+                          type="button"
+                          className="diner-stepper-btn"
+                          onClick={() => updateMeatCount(item.id, 1)}
+                          aria-label="Más carne"
+                        >
+                          <Plus />
+                        </button>
                       </div>
-
-                      <div className="flex items-center justify-between">
-                        <span className="text-subheadline">Papas</span>
-                        <div className="flex items-center gap-1">
-                          <Button
-                            variant="outline"
-                            size="icon-sm"
-                            onClick={() => updateFriesQuantity(item.id, -1)}
-                            aria-label="Menos papas"
-                          >
-                            <Minus />
-                          </Button>
-                          <span className="w-6 text-center">
-                            {item.friesQuantity}
-                          </span>
-                          <Button
-                            variant="outline"
-                            size="icon-sm"
-                            onClick={() => updateFriesQuantity(item.id, 1)}
-                            aria-label="Más papas"
-                          >
-                            <Plus />
-                          </Button>
-                        </div>
-                      </div>
-
-                      <label className="flex items-center gap-2 text-subheadline">
-                        <input
-                          type="checkbox"
-                          checked={item.isVeggie ?? false}
-                          onChange={() => toggleVeggie(item.id)}
-                        />
-                        Version veggie
-                      </label>
-
-                      {toppingExtras.length > 0 && (
-                        <div className="flex flex-wrap gap-2">
-                          {toppingExtras.map((extra) => {
-                            const active = item.selectedExtras.some(
-                              (e) => e.extra.id === extra.id,
-                            );
-                            return (
-                              <button
-                                key={extra.id}
-                                type="button"
-                                onClick={() => toggleExtra(item.id, extra)}
-                                className={cn(
-                                  "rounded-full border px-3 py-1 text-caption",
-                                  active
-                                    ? "border-primary bg-primary text-primary-foreground"
-                                    : "border-border",
-                                )}
-                              >
-                                {extra.name} (+{formatArs(extra.price)})
-                              </button>
-                            );
-                          })}
-                        </div>
-                      )}
                     </div>
-                  )}
-                </CardContent>
-              </Card>
+
+                    <div className="flex items-center justify-between">
+                      <span className="font-condensed text-xs font-bold tracking-[.08em] text-[var(--ash)] uppercase">
+                        Papas
+                      </span>
+                      <div className="flex items-center gap-1">
+                        <button
+                          type="button"
+                          className="diner-stepper-btn"
+                          onClick={() => updateFriesQuantity(item.id, -1)}
+                          aria-label="Menos papas"
+                        >
+                          <Minus />
+                        </button>
+                        <span className="numeric w-6 text-center text-sm text-[var(--cream)]">
+                          {item.friesQuantity}
+                        </span>
+                        <button
+                          type="button"
+                          className="diner-stepper-btn"
+                          onClick={() => updateFriesQuantity(item.id, 1)}
+                          aria-label="Más papas"
+                        >
+                          <Plus />
+                        </button>
+                      </div>
+                    </div>
+
+                    <label className="flex items-center gap-2 font-body text-sm text-[var(--ash)]">
+                      <input
+                        type="checkbox"
+                        checked={item.isVeggie ?? false}
+                        onChange={() => toggleVeggie(item.id)}
+                      />
+                      Version veggie
+                    </label>
+
+                    {toppingExtras.length > 0 && (
+                      <div className="flex flex-wrap gap-2">
+                        {toppingExtras.map((extra) => {
+                          const active = item.selectedExtras.some(
+                            (e) => e.extra.id === extra.id,
+                          );
+                          return (
+                            <button
+                              key={extra.id}
+                              type="button"
+                              onClick={() => toggleExtra(item.id, extra)}
+                              className={cn(
+                                "rounded-full border px-3 py-1 font-condensed text-[11px] font-bold tracking-[.04em] uppercase",
+                                active
+                                  ? "border-[var(--cheddar)] bg-[var(--cheddar)] text-[var(--coal)]"
+                                  : "border-[var(--line-2)] text-[var(--ash)]",
+                              )}
+                            >
+                              {extra.name} (+{formatArs(extra.price)})
+                            </button>
+                          );
+                        })}
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
             );
           })}
         </div>

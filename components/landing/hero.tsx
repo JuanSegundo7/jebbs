@@ -1,5 +1,5 @@
 import Image from "next/image";
-import { Beef, Store, Truck } from "lucide-react";
+import { Beef } from "lucide-react";
 import type { Burger } from "@/lib/types";
 
 interface HeroProps {
@@ -9,40 +9,47 @@ interface HeroProps {
   featuredBurger?: Burger | null;
 }
 
+// "Diner" hero (reference site: jebbs-burgers.vercel.app): eyebrow in
+// cheddar, Archivo Black display headline with an italic second line,
+// descriptive copy in Barlow, CTA into the menu. Replaces the previous
+// glass card + Pacifico wordmark treatment.
 export function Hero({ featuredBurger }: HeroProps) {
   return (
-    <section id="top" className="mx-auto max-w-5xl scroll-mt-20 px-6 pt-8 pb-12 sm:pt-12">
-      <div className="material-regular grid gap-8 overflow-hidden rounded-3xl p-6 sm:p-10 md:grid-cols-[1.05fr_0.95fr] md:items-center">
-        <div className="space-y-5 text-center md:text-left">
-          <div className="flex flex-wrap justify-center gap-2 md:justify-start">
-            <span className="inline-flex items-center gap-1.5 rounded-full border border-border bg-accent px-3 py-1 text-caption font-medium text-accent-foreground">
-              <Store className="size-3.5" aria-hidden />
-              Retiro en el local
-            </span>
-            <span className="inline-flex items-center gap-1.5 rounded-full border border-border bg-accent px-3 py-1 text-caption font-medium text-accent-foreground">
-              <Truck className="size-3.5" aria-hidden />
-              Envío a domicilio
-            </span>
-          </div>
+    <section id="top" className="scroll-mt-20 bg-[var(--coal)] px-6 pt-14 pb-16 sm:pt-20">
+      <div className="mx-auto grid max-w-5xl gap-10 md:grid-cols-[1.05fr_0.95fr] md:items-center">
+        <div className="space-y-6 text-center md:text-left">
+          {/* TODO: confirmar con el dueño la ubicación real (barrio/zona) que va acá */}
+          <p className="font-condensed text-[13px] font-bold tracking-[.18em] text-[var(--cheddar)] uppercase">
+            Delivery y take away · Gonnet y City Bell
+          </p>
 
-          {/* font-brand (Pacifico, wired in globals.css/layout.tsx but unused
-              until now) is the reserved wordmark treatment -- exactly what a
-              burger-place name wants instead of the generic bold sans. */}
-          <h1 className="font-brand text-display text-foreground">
-            Jebbs Burger&apos;s
+          {/* TODO: copy real a confirmar con el dueño -- este es un punto de
+              partida fiel al tono del sitio de referencia (Archivo Black +
+              segunda línea en itálica), no el texto final. */}
+          <h1 className="font-display text-[2.75rem] leading-[0.95] text-[var(--cream)] sm:text-[3.75rem]">
+            Doble cheddar,
+            <br />
+            <em className="font-body italic text-[var(--ember)]">
+              sin vueltas.
+            </em>
           </h1>
 
-          {/* TODO: copy real -- a short marketing tagline belongs here once
-              the shop provides one. The line below is the original,
-              accurate functional copy (kept, not replaced) describing how
-              ordering actually works. */}
-          <p className="mx-auto max-w-xl text-body text-muted-foreground md:mx-0">
-            Armá tu pedido y confirmalo por WhatsApp. Sin cuentas, sin apps -- elegí,
-            confirmá y listo.
+          <p className="mx-auto max-w-xl font-body text-[15px] leading-relaxed text-[var(--ash)] md:mx-0">
+            Armá tu pedido y confirmalo por WhatsApp. Sin cuentas, sin apps —
+            elegí, confirmá y listo.
           </p>
+
+          <div className="flex justify-center md:justify-start">
+            <a
+              href="#menu"
+              className="inline-flex items-center gap-2 rounded-full bg-[var(--cheddar)] px-7 py-3 font-condensed text-sm font-bold tracking-[.08em] text-[var(--coal)] uppercase transition-colors hover:bg-[var(--cheddar-dim)] active:scale-[0.97]"
+            >
+              Ver el menú
+            </a>
+          </div>
         </div>
 
-        <div className="relative mx-auto aspect-square w-full max-w-sm overflow-hidden rounded-3xl ios-glass">
+        <div className="relative mx-auto aspect-square w-full max-w-sm overflow-hidden rounded-3xl border border-[var(--line)] bg-[var(--soot)]">
           {featuredBurger?.image_url ? (
             <Image
               src={featuredBurger.image_url}
@@ -53,12 +60,8 @@ export function Hero({ featuredBurger }: HeroProps) {
               priority
             />
           ) : (
-            <div className="flex h-full w-full items-center justify-center bg-[var(--accent-tint-08)]">
-              <Beef
-                className="size-20 text-muted-foreground"
-                strokeWidth={1.25}
-                aria-hidden
-              />
+            <div className="flex h-full w-full items-center justify-center">
+              <Beef className="size-20 text-[var(--ash-dim)]" strokeWidth={1.25} aria-hidden />
             </div>
           )}
         </div>

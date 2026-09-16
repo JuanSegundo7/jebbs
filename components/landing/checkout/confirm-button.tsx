@@ -67,7 +67,7 @@ export function ConfirmButton({ cart, checkout }: ConfirmButtonProps) {
     <div className="space-y-2">
       <Button
         size="lg"
-        className="w-full"
+        className="w-full rounded-none bg-[var(--ember)] font-ticket font-bold tracking-[.04em] text-[var(--paper)] uppercase hover:bg-[var(--cheddar)]"
         disabled={!checkout.canConfirm || isPending}
         onClick={() => run()}
       >
@@ -80,7 +80,7 @@ export function ConfirmButton({ cart, checkout }: ConfirmButtonProps) {
       </Button>
 
       {error && (
-        <p className="text-destructive text-footnote" role="alert">
+        <p className="font-ticket text-xs text-[var(--ember)]" role="alert">
           {error}
         </p>
       )}
@@ -88,7 +88,7 @@ export function ConfirmButton({ cart, checkout }: ConfirmButtonProps) {
       {whatsappUrl && (
         <a
           href={whatsappUrl}
-          className="block text-center text-footnote text-primary underline underline-offset-2"
+          className="block text-center font-ticket text-xs text-[var(--paper-ink)] underline underline-offset-2"
         >
           Si no te redirigió, tocá acá para abrir WhatsApp
         </a>

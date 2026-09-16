@@ -107,6 +107,28 @@
   --chart-5: #e87ba4;
 
   --radius: 14px;
+
+  /* Identidad "diner" de Jebbs Burger's -- paleta extraída del HTML real
+     del sitio de referencia (jebbs-burgers.vercel.app), el mockup hecho
+     para el mismo negocio. Reemplaza la identidad glass/iOS genérica de
+     arriba como sistema visual de la landing (nav, hero, menú, info,
+     reseñas, checkout, footer); la escalera surface, material e ios-glass
+     de arriba se conserva sin tocar porque el carrito (cart-drawer) sigue
+     usándola a propósito -- conviven, no se pisan (nombres disjuntos). */
+  --coal: #0b0a08;
+  --soot: #131110;
+  --slab: #1c1815;
+  --cheddar: #f2b21c;
+  --cheddar-dim: #c99418;
+  --ember: #e2622c;
+  --cream: #f6efe1;
+  --ash: #a29683;
+  --ash-dim: #6e655a;
+  --paper: #efe3cc;
+  --paper-ink: #231f1a;
+  --paper-line: #c7b594;
+  --line: rgba(246, 239, 225, 0.12);
+  --line-2: rgba(246, 239, 225, 0.22);
 }
 
 /* Dark theme — "Material y luz": casi-negro con vidrio real. */
@@ -225,9 +247,14 @@
   --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI Variable", "Segoe UI",
     system-ui, Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif,
     "Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji";
-  --font-mono: var(--font-geist-mono), ui-monospace, SFMono-Regular, Menlo,
-    monospace;
-  --font-brand: var(--font-pacifico), cursive;
+  /* Identidad "diner" -- 4 roles fijos, ver lib/fonts.ts. font-condensed es
+     el caballito de batalla (nav, nombres de producto, precios, headers de
+     categoría, chips, labels): se usa siempre en mayúscula con tracking
+     generoso en el sitio de consumo, no acá. */
+  --font-display: var(--font-archivo-black), Impact, sans-serif;
+  --font-condensed: var(--font-barlow-condensed), "Arial Narrow", sans-serif;
+  --font-body: var(--font-barlow), sans-serif;
+  --font-ticket: var(--font-courier-prime), ui-monospace, SFMono-Regular, monospace;
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --color-card: var(--card);
@@ -609,6 +636,126 @@
     background: var(--accent-brand);
     box-shadow: 0 0 10px -1px var(--accent-brand);
   }
+}
+
+/* ============================================================
+   Identidad "diner" -- utilities compartidas por nav/hero/menú/info/
+   reseñas/checkout/footer (components/landing/**). Vocabulario chico y
+   reutilizado, no una clase por componente: así el menú-lista de
+   burger-picker/combo-picker/side-picker se lee como UN sistema.
+   ============================================================ */
+
+/* Miniatura 60x60 de un item de menú (Burger.image_url o placeholder). */
+@utility diner-thumb {
+  position: relative;
+  height: 60px;
+  width: 60px;
+  flex-shrink: 0;
+  overflow: hidden;
+  border-radius: 0.75rem;
+  background-color: var(--slab);
+  border: 1px solid var(--line);
+}
+
+/* La "línea de puntos" que conecta nombre -> precio (patrón clásico de
+   menú de papel impreso). flex:1 para que absorba el ancho variable entre
+   un nombre corto/largo y un precio corto/largo. */
+@utility menu-leader {
+  flex: 1 1 auto;
+  min-width: 1rem;
+  border-bottom: 1px dotted var(--ash-dim);
+  margin-bottom: 0.3em;
+  align-self: flex-end;
+}
+
+/* Una fila de menú: separada por línea punteada sutil, la última fila del
+   grupo sin borde (usar `last:border-b-0` en el elemento, no acá, porque
+   `@utility` no puede ver la posición del elemento en su padre). */
+@utility menu-row {
+  display: flex;
+  align-items: center;
+  gap: 0.875rem;
+  padding-block: 0.85rem;
+  border-bottom: 1px dashed var(--line-2);
+}
+
+/* Header de categoría de menú: título condensado mayúscula + una barra
+   horizontal fina que ocupa el espacio restante (Burgers/Combos/Bebidas/
+   Sides). */
+@utility diner-category-header {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 0.5rem;
+  font-family: var(--font-condensed);
+  font-weight: 700;
+  font-size: 0.8125rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--cream);
+  &::after {
+    content: "";
+    flex: 1 1 auto;
+    height: 1px;
+    background: var(--line-2);
+  }
+}
+
+/* Botón redondo +/- del stepper de cantidad, repetido en los 3 pickers y
+   en la lista del carrito -- una sola definición. */
+@utility diner-stepper-btn {
+  display: inline-flex;
+  height: 1.75rem;
+  width: 1.75rem;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  border-radius: 9999px;
+  border: 1px solid var(--line-2);
+  background-color: var(--slab);
+  color: var(--cheddar);
+  transition: border-color 150ms, background-color 150ms, transform 150ms;
+  & svg {
+    width: 0.875rem;
+    height: 0.875rem;
+  }
+  &:hover {
+    border-color: var(--cheddar-dim);
+  }
+  &:active {
+    transform: scale(0.92);
+  }
+  &:disabled {
+    opacity: 0.4;
+    pointer-events: none;
+  }
+}
+
+/* Chip/pill de la marca (facts strip, tags de categoría en SidePicker,
+   etc.) -- Barlow Condensed mayúscula sobre slab. */
+@utility diner-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  border-radius: 9999px;
+  border: 1px solid var(--line-2);
+  background-color: var(--slab);
+  padding: 0.4rem 0.9rem;
+  font-family: var(--font-condensed);
+  font-weight: 700;
+  font-size: 0.75rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--cream);
+}
+
+/* Superficie de "ticket de papel" del checkout -- Courier Prime, sin
+   glass/blur, bordes finos. Aplicada en checkout-panel.tsx. */
+@utility diner-ticket {
+  background-color: var(--paper);
+  color: var(--paper-ink);
+  font-family: var(--font-ticket);
+  border: 1px solid var(--paper-line);
 }
 
 /* Fallbacks de accesibilidad (§14) — sin capa, para ganar siempre

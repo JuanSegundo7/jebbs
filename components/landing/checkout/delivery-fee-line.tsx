@@ -10,11 +10,11 @@ interface DeliveryFeeLineProps {
 export function DeliveryFeeLine({ deliveryFeeArs }: DeliveryFeeLineProps) {
   return (
     <div
-      className="flex items-center justify-between text-subheadline"
+      className="flex items-center justify-between border-t border-dashed border-[var(--paper-line)] pt-2 font-ticket text-sm text-[var(--paper-ink)]"
       data-testid="delivery-fee-line"
     >
       <span>Costo de envío</span>
-      <span>{formatArs(deliveryFeeArs)}</span>
+      <span className="numeric">{formatArs(deliveryFeeArs)}</span>
     </div>
   );
 }
