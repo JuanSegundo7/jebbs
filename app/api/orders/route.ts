@@ -14,6 +14,7 @@ import {
 } from "@/lib/order/assert-delivery-invariant";
 import { createWebOrder } from "@/lib/order/create-web-order";
 import { checkRateLimit } from "@/lib/order/rate-limit";
+import { formatOrderForWhatsapp } from "@/lib/utils/format-order-whatsapp";
 
 // Order Creation Flow (D7, design.md): nothing is written before this
 // handler reaches step 10 below. Every earlier step can reject the request
@@ -177,18 +178,21 @@ export async function POST(request: NextRequest) {
       customerAddressId,
     });
 
-    // Step 12 -- TODO(WU5, tasks.md 7.1-7.2): formatOrderForWhatsapp() and
-    // its OrderForWhatsapp type don't exist in this repo yet
-    // (lib/utils/format-order-whatsapp.ts is WU5's job). This response is
-    // deliberately missing `whatsapp_text`/`whatsapp_url` from design.md's
-    // full response contract until that formatter lands -- returning the
-    // raw confirmed order fields instead of inventing a broken formatter.
+    // Step 12 (DD1): formatOrderForWhatsapp runs server-side only, over the
+    // re-queried row -- see design.md's rationale for why this can't move
+    // to the browser (timezone control, single source of shop copy, no
+    // DB join shape shipped to the client).
+    const whatsappText = formatOrderForWhatsapp(created.raw);
+    const whatsappUrl = `https://wa.me/${env.NEXT_PUBLIC_WHATSAPP_NUMBER}?text=${encodeURIComponent(whatsappText)}`;
+
     return NextResponse.json(
       {
         order_id: created.orderId,
         order_number: created.orderNumber,
         total_amount: created.totalAmount,
         delivery_fee: created.deliveryFee,
+        whatsapp_text: whatsappText,
+        whatsapp_url: whatsappUrl,
       },
       { status: 201 },
     );

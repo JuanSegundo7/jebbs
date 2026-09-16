@@ -87,7 +87,7 @@ export function CartDrawer({ cart, checkout, deliveryFeeArs }: CartDrawerProps) 
         </div>
 
         <div className="px-4">
-          <CheckoutPanel checkout={checkout} deliveryFeeArs={deliveryFeeArs} />
+          <CheckoutPanel cart={cart} checkout={checkout} deliveryFeeArs={deliveryFeeArs} />
         </div>
 
         <DrawerFooter>

@@ -1,6 +1,7 @@
 import "server-only";
 import { createAdminClient } from "@/lib/supabase/admin";
 import type { OrderItemInput } from "@/lib/order/data-transformer";
+import type { OrderForWhatsapp } from "@/lib/utils/format-order-whatsapp";
 
 export interface CreateWebOrderArgs {
   items: OrderItemInput[];
@@ -14,19 +15,16 @@ export interface CreateWebOrderArgs {
   customerAddressId: string | null;
 }
 
-// TODO(WU5, tasks.md 7.1-7.2): once lib/utils/format-order-whatsapp.ts and
-// its `OrderForWhatsapp` type exist, `raw` below should be typed as that
-// interface and the route handler should call formatOrderForWhatsapp(raw)
-// to build the `whatsapp_text`/`whatsapp_url` response fields. Returning the
-// untyped re-queried row for now (rather than inventing a formatter ahead of
-// its own task) keeps this lot's response honest about what it can and
-// cannot produce yet.
+// `raw` is the re-queried row (NESTED_ORDER_SELECT below), typed as
+// OrderForWhatsapp (design.md D4) -- the route handler feeds it straight
+// into formatOrderForWhatsapp() to build the `whatsapp_text`/`whatsapp_url`
+// response fields (WU5, tasks.md 7.4).
 export interface CreatedWebOrder {
   orderId: string;
   orderNumber: number;
   totalAmount: number;
   deliveryFee: number;
-  raw: unknown;
+  raw: OrderForWhatsapp;
 }
 
 const NESTED_ORDER_SELECT = `
@@ -159,7 +157,7 @@ export async function createWebOrder(
     );
   }
 
-  const row = reQueried as {
+  const row = reQueried as unknown as OrderForWhatsapp & {
     id: string;
     order_number: number;
     total_amount: number;
@@ -171,6 +169,6 @@ export async function createWebOrder(
     orderNumber: row.order_number,
     totalAmount: row.total_amount,
     deliveryFee: row.delivery_fee,
-    raw: reQueried,
+    raw: row,
   };
 }

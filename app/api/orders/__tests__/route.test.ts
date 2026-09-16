@@ -116,6 +116,19 @@ const ORDERS_RE_QUERY_ROW = {
   order_number: 42,
   total_amount: 5000,
   delivery_fee: 0,
+  created_at: "2026-01-15T15:05:00.000Z",
+  customer_name: "Juan",
+  customer: null,
+  customer_address_id: null,
+  delivery_type: "pickup",
+  delivery_time: null,
+  payment_method: "cash",
+  discount_type: "none",
+  discount_value: 0,
+  discount_amount: 0,
+  price_adjustment: 0,
+  notes: null,
+  order_items: [],
 };
 
 function pickupBody() {
@@ -179,12 +192,16 @@ describe("POST /api/orders", () => {
     const json = await response.json();
 
     expect(response.status).toBe(201);
-    expect(json).toEqual({
+    expect(json).toMatchObject({
       order_id: "order-1",
       order_number: 42,
       total_amount: 5000,
       delivery_fee: 0,
     });
+    expect(typeof json.whatsapp_text).toBe("string");
+    expect(json.whatsapp_url).toBe(
+      `https://wa.me/5493454123456?text=${encodeURIComponent(json.whatsapp_text)}`,
+    );
 
     expect(mock.insertedRows.some((r) => r.table === "customers")).toBe(false);
     expect(
@@ -240,7 +257,11 @@ describe("POST /api/orders", () => {
         table: "orders",
         match: (calls) => hasEqColumn(calls, "id"),
         result: {
-          data: { ...ORDERS_RE_QUERY_ROW, delivery_fee: 1500 },
+          data: {
+            ...ORDERS_RE_QUERY_ROW,
+            delivery_fee: 1500,
+            delivery_type: "delivery",
+          },
           error: null,
         },
       },
