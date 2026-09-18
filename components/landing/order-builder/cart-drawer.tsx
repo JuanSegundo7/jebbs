@@ -117,7 +117,15 @@ export function CartDrawer({
       <DrawerTrigger asChild>
         <button
           type="button"
-          className="diner-rail transition-opacity duration-150 disabled:opacity-45 data-[open=true]:pointer-events-none data-[open=true]:opacity-0"
+          // disabled:opacity-45 vivía en el <button> entero -- eso incluye
+          // diner-rail (el fondo casi opaco de la barra), así que un
+          // carrito vacío bajaba la opacidad de TODA la barra al 45% y
+          // dejaba ver el contenido de la página de atrás con claridad
+          // (reportado real, con screenshot: texto de la sección de menú
+          // superpuesto con "Tu pedido"/"Carrito vacío"). El estado
+          // "no accionable" ahora se comunica solo en la píldora "Ver
+          // pedido", no en el fondo de la barra entera.
+          className="diner-rail group transition-opacity duration-150 data-[open=true]:pointer-events-none data-[open=true]:opacity-0"
           data-open={open}
           disabled={isEmpty}
         >
@@ -128,7 +136,7 @@ export function CartDrawer({
                 {itemCount > 0 ? `${itemCount} · ${formatArs(total)}` : "Carrito vacío"}
               </span>
             </div>
-            <span className="diner-btn diner-btn-primary pointer-events-none ml-auto">
+            <span className="diner-btn diner-btn-primary pointer-events-none ml-auto group-disabled:opacity-45">
               <MessageCircle className="size-4" aria-hidden />
               Ver pedido
             </span>
