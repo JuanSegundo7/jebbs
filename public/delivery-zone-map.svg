@@ -1,4 +1,21 @@
 <svg xmlns="http://www.w3.org/2000/svg" class="zmap" viewBox="0 0 1654 966" role="img" aria-label="Mapa de zonas de envio de Jebbs Burger's: City Bell y La Plata">
+<style>
+.zone{cursor:pointer;transition:opacity 200ms cubic-bezier(0.16,1,0.3,1)}
+.zone.dim{opacity:.26}
+.zone path{fill:var(--zc);fill-opacity:var(--zo,.34);stroke:var(--zc);stroke-width:3.6;stroke-opacity:1;stroke-linejoin:round}
+.zone[data-zone="z1"]{--zc:#F2B21C;--zo:.30}
+.zone[data-zone="z2"]{--zc:#E2622C;--zo:.36}
+.zone[data-zone="z3"]{--zc:#A3331F;--zo:.42}
+.zone[data-zone="z4"]{--zc:#6E2650;--zo:.50}
+.ztag circle{fill:var(--zc);stroke:#FBF7EE;stroke-width:2.6}
+.ztag .num{fill:#100E0C;font-size:24px;letter-spacing:0;text-anchor:middle}
+.ztag .lbl{fill:#2A211A;font-size:22px;letter-spacing:.14em;text-anchor:middle;paint-order:stroke;stroke:#FBF7EE;stroke-width:5px;stroke-linejoin:round}
+.pin{filter:drop-shadow(0 0 8px rgba(242,178,28,.55))}
+.pin path{fill:#F2B21C;stroke:#2A211A;stroke-width:3}
+.pin circle{fill:#2A211A}
+.pin text{fill:#2A211A;font-size:23px;letter-spacing:.18em;text-anchor:middle;paint-order:stroke;stroke:#FBF7EE;stroke-width:5.5px;stroke-linejoin:round}
+text{font-family:sans-serif;font-weight:700}
+</style>
           <title id="zmT">Mapa de las zonas de envío, de City Bell al casco urbano de La Plata</title>
           <desc id="zmD">Mapa callejero real del corredor Arturo Seguí, Villa Elisa, City Bell, Savoia, Gonnet, Gorina, José Hernández, Ringuelet, Tolosa y La Plata, con los límites de cada barrio pintados en cuatro colores según la zona de envío.</desc>
           <defs><clipPath id="zmClip"><rect x="0" y="0" width="1654" height="966"></rect></clipPath></defs>

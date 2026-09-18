@@ -1258,6 +1258,7 @@
   padding: 8px;
 }
 @utility diner-zrow {
+  @apply diner-elevated;
   display: flex;
   flex-direction: column;
   align-items: flex-start;
@@ -1266,10 +1267,26 @@
   height: 100%;
   text-align: left;
   background: var(--slab);
-  border: 1px solid var(--line);
   border-left: 4px solid var(--zc, var(--cheddar));
   border-radius: 3px;
   padding: 14px 16px;
+  transition:
+    box-shadow 200ms cubic-bezier(0.16, 1, 0.3, 1),
+    opacity 200ms cubic-bezier(0.16, 1, 0.3, 1);
+  /* Fila resaltada (mouse encima de ella o de su zona en el mapa,
+     sincronizado por delivery-zone-map.tsx vía data-active/data-dim en vez
+     del style={{opacity}} inline que tenía antes). Glow de acento: mismo
+     box-shadow en dos capas de diner-elevated + una sombra de color grande
+     con el --zc de esta zona, combinadas con una coma en una sola
+     declaración (no backdrop-filter, no dos propiedades separadas). */
+  &[data-active="true"] {
+    box-shadow:
+      0 16px 32px rgba(0, 0, 0, 0.3),
+      0 0 24px -4px var(--zc);
+  }
+  &[data-dim="true"] {
+    opacity: 0.4;
+  }
 }
 @utility diner-zname {
   font-family: var(--font-condensed);
