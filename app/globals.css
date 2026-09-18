@@ -861,6 +861,58 @@
   margin-block: 10px;
 }
 
+/* Depth de reposo para superficies estáticas (cards, paneles) -- borde
+   especular arriba (--line-2, más brillante que el --line del resto del
+   borde) + sombra en dos capas, mismos valores que diner-ticket/diner-sheet
+   ya probaron. Nunca agrega backdrop-filter -- esta sesión ya determinó,
+   dos veces, que un panel grande translúcido se ve mal contra el fondo
+   carbón (el ticket de checkout). Esto es profundidad real, no vidrio. */
+@utility diner-elevated {
+  border: 1px solid var(--line);
+  border-top-color: var(--line-2);
+  box-shadow: 0 16px 32px rgba(0, 0, 0, 0.3);
+}
+
+/* Movimiento para cualquier cosa clickeable/hovereable -- misma curva que
+   Card.interactive de jebbs-dashboard (cubic-bezier(0.16,1,0.3,1), la
+   "resorte" que pide el skill apple-design para gestos de reposición).
+   Propiedades explícitas, nunca `transition: all`. */
+@utility diner-interactive {
+  transition:
+    transform 200ms cubic-bezier(0.16, 1, 0.3, 1),
+    box-shadow 200ms cubic-bezier(0.16, 1, 0.3, 1),
+    border-color 200ms cubic-bezier(0.16, 1, 0.3, 1),
+    background-color 150ms ease-out;
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.35);
+    border-top-color: var(--cream);
+  }
+  &:active {
+    transform: scale(0.985);
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.25);
+  }
+}
+
+/* Variante sutil para filas de lista densas (menu-row/menu-row-compact) --
+   en una lista de 10-20 filas el translateY de diner-interactive se siente
+   como jitter, no como depth. Solo aclara borde/fondo en hover y da
+   feedback de presión con un scale chico, misma curva para que se sienta
+   como el mismo gesto que el resto de la página. */
+@utility diner-interactive-subtle {
+  transition:
+    border-color 200ms cubic-bezier(0.16, 1, 0.3, 1),
+    background-color 150ms ease-out;
+  &:hover {
+    border-color: var(--line-2);
+    background-color: rgba(246, 239, 225, 0.03);
+  }
+  &:active {
+    transform: scale(0.99);
+    transition-duration: 100ms;
+  }
+}
+
 /* Fila de TOTAL -- en cheddar, mismo tratamiento que el total del rail
    fijo del carrito (cart-drawer.tsx), para que se lea como el mismo
    número en dos lugares, no como dos sistemas distintos. */
