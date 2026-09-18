@@ -145,4 +145,17 @@ describe("BurgerPicker customize panel -- extras with quantity", () => {
     fireEvent.click(headerToggle);
     expect(screen.queryByText(/Bacon/)).toBeNull();
   });
+
+  it("shows the untruncated summary inside the panel while it's still expanded", () => {
+    const bacon = makeExtra();
+    render(<Harness burgers={[makeBurger()]} toppingExtras={[bacon]} />);
+
+    fireEvent.click(screen.getByRole("button", { name: "Agregar Clásica" }));
+    fireEvent.click(screen.getByRole("button", { name: /Ver los \d+ extras/ }));
+    fireEvent.click(screen.getByRole("button", { name: "Agregar Bacon" }));
+
+    // Panel is never collapsed in this test -- before this change, the
+    // summary was only rendered in the collapsed header.
+    expect(screen.getByText("+ Bacon")).toBeTruthy();
+  });
 });

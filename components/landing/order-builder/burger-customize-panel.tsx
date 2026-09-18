@@ -5,6 +5,7 @@ import { Minus, Plus } from "lucide-react";
 import { cn } from "@/lib/utils";
 import type { Extra } from "@/lib/types";
 import type { SelectedBurger } from "@/lib/types/combo-types";
+import { summarizeBurger } from "@/lib/order/customization-summary";
 import { formatArs } from "./currency";
 
 // lib/order/cart-request.ts ExtraRefSchema.quantity: max 20.
@@ -49,6 +50,10 @@ export function BurgerCustomizePanel({
 
   return (
     <div className="space-y-3 border-t border-[var(--line)] pt-3">
+      <p className="font-body text-xs leading-[1.5] text-[var(--ash-bright)]">
+        {summarizeBurger(item) ?? "Sin modificar"}
+      </p>
+
       <div className="flex items-center justify-between">
         <span className="font-condensed text-xs font-bold tracking-[.08em] text-[var(--ash)] uppercase">
           Carne
