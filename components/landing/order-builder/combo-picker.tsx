@@ -148,7 +148,7 @@ export function ComboPicker({
         {selectedCombos.map((instance) => (
           <div
             key={instance.id}
-            className="space-y-4 rounded-xl border border-[var(--line)] bg-[var(--slab)] p-3"
+            className="diner-elevated space-y-4 rounded-xl bg-[var(--slab)] p-3"
           >
             <div className="flex items-center justify-between">
               <span className="font-condensed text-sm font-bold tracking-[.03em] text-[var(--cream)] uppercase">

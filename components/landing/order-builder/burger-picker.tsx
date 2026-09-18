@@ -166,7 +166,7 @@ export function BurgerPicker({
               return (
                 <div
                   key={item.id}
-                  className="space-y-3 rounded-xl border border-[var(--line)] bg-[var(--slab)] p-3"
+                  className="diner-elevated space-y-3 rounded-xl bg-[var(--slab)] p-3"
                 >
                   <div className="flex items-center justify-between gap-2">
                     <button

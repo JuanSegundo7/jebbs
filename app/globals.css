@@ -1202,14 +1202,15 @@
   border: 1px solid var(--line);
 }
 @utility diner-card {
+  @apply diner-elevated;
   background: var(--soot);
   padding: 24px;
 }
 
 /* .rev (ref-style.css:176-177) */
 @utility diner-rev {
+  @apply diner-elevated;
   background: var(--slab);
-  border: 1px solid var(--line);
   border-radius: 4px;
   padding: 22px;
   display: flex;
@@ -1224,8 +1225,8 @@
    de JS y no hace falta que sea interactivo pieza por pieza para que
    "aparezca el mapa", que es el reclamo explícito del dueño. */
 @utility diner-zonemap-frame {
+  @apply diner-elevated;
   background: var(--soot);
-  border: 1px solid var(--line);
   border-radius: 4px;
   padding: 8px;
 }
