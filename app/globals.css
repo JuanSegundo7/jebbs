@@ -1007,6 +1007,13 @@
   letter-spacing: 0.08em;
   text-transform: uppercase;
   cursor: pointer;
+  /* Glow ambiente permanente, no solo al hover -- es la conversión final
+     de todo el flujo (checkout), mismo criterio de jerarquía que el CTA
+     del hero/rail (apple-design §16.6 "Simplicity — not minimalism":
+     "every element earns its place", este gana el suyo). Utility propia
+     (un solo consumidor, confirm-button.tsx) así que se suma directo acá
+     en vez de una clase aparte como diner-cta-glow de abajo. */
+  box-shadow: 0 0 32px -8px rgba(242, 178, 28, 0.35);
   /* Mismas propiedades/curva que diner-interactive (elevación en hover +
      escala en press), fusionadas a mano con la transición de color que ya
      tenía -- este botón usa :not(:disabled) en vez de los :hover/:active
@@ -1020,18 +1027,69 @@
   &:hover:not(:disabled) {
     background: var(--cheddar-dim);
     transform: translateY(-2px);
-    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.35);
+    box-shadow:
+      0 20px 40px rgba(0, 0, 0, 0.35),
+      0 0 40px -6px rgba(242, 178, 28, 0.45);
   }
   &:active:not(:disabled) {
     transform: scale(0.98);
-    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.25);
+    box-shadow:
+      0 8px 16px rgba(0, 0, 0, 0.25),
+      0 0 26px -6px rgba(242, 178, 28, 0.4);
   }
   &:disabled {
     background: var(--slab);
     color: var(--ash-dim);
     cursor: not-allowed;
     opacity: 1;
+    /* Sin glow cuando no se puede confirmar -- el brillo es una promesa de
+       acción disponible, no un adorno fijo. */
+    box-shadow: none;
   }
+}
+
+/* Glow ambiente permanente para los dos CTAs de conversión más importantes
+   de la página fuera del checkout: "Armar mi pedido" del hero y "Ver
+   pedido" del rail fijo (hero.tsx / cart-drawer.tsx). apple-design §16.6
+   ("Simplicity — not minimalism": no todo puede ser el foco, cada elemento
+   gana su lugar) es la razón para NO tocar diner-btn-primary en sí --
+   ese mismo estilo también viste "Agregar al pedido" en menu-item-sheet
+   (una acción secundaria dentro de un Drawer, no una superficie principal
+   de la página), así que el glow se suma como clase aparte solo en los
+   dos lugares que lo ganan, no en la utility compartida.
+   :hover/:active repiten a mano el box-shadow oscuro que ya pone
+   diner-interactive (elevación probada del pase anterior) pero sumando
+   ":not(:disabled)" -- misma especificidad de un :hover a secas más una
+   pseudo-clase extra, así que esta regla le gana el empate de box-shadow a
+   diner-interactive sin depender del orden en que Tailwind emite las dos
+   utilities. */
+@utility diner-cta-glow {
+  box-shadow: 0 0 32px -8px rgba(242, 178, 28, 0.35);
+  &:hover:not(:disabled) {
+    box-shadow:
+      0 20px 40px rgba(0, 0, 0, 0.35),
+      0 0 40px -6px rgba(242, 178, 28, 0.45);
+  }
+  &:active:not(:disabled) {
+    box-shadow:
+      0 8px 16px rgba(0, 0, 0, 0.25),
+      0 0 26px -6px rgba(242, 178, 28, 0.4);
+  }
+}
+
+/* Sombra "hero" para la foto principal (hero.tsx) -- más grande y con más
+   blur que diner-elevated a propósito: es literalmente lo primero que se
+   ve en la página, así que tiene que leerse como la pieza más elevada
+   (apple-design §12 "Materials & depth": "Bigger surfaces should read as
+   thicker: stronger blur + a deeper shadow than small chips"). Segunda
+   capa en --cheddar muy tenue para conectarla con la identidad de marca
+   sin competir con el badge ember de diner-shot-caption. Sin
+   backdrop-filter -- la superficie ya es opaca (bg-[var(--soot)] +
+   <Image>/fallback SVG). */
+@utility diner-hero-shot {
+  box-shadow:
+    0 40px 80px -20px rgba(0, 0, 0, 0.55),
+    0 0 60px -24px rgba(242, 178, 28, 0.25);
 }
 
 /* ============================================================

@@ -49,7 +49,10 @@ export function Hero({ featuredBurger }: HeroProps) {
           </p>
 
           <div className="mt-[26px] flex flex-wrap justify-center gap-3 md:justify-start">
-            <a href="#menu" className="diner-btn diner-btn-primary">
+            {/* diner-cta-glow: glow ambiente permanente, no solo al hover --
+                es el CTA principal de toda la página (apple-design §16.6,
+                ver comentario de la utility en globals.css). */}
+            <a href="#menu" className="diner-btn diner-btn-primary diner-cta-glow">
               Armar mi pedido
             </a>
             <a
@@ -62,7 +65,10 @@ export function Hero({ featuredBurger }: HeroProps) {
         </div>
 
         <figure className="relative mx-auto mb-3 w-full max-w-sm md:mb-0">
-          <div className="relative aspect-square w-full overflow-hidden rounded-[4px] border border-[var(--line)] bg-[var(--soot)]">
+          {/* diner-hero-shot: sombra "hero" (apple-design §12) -- la pieza
+              más elevada de la página, ver comentario de la utility en
+              globals.css. */}
+          <div className="diner-hero-shot relative aspect-square w-full overflow-hidden rounded-[4px] border border-[var(--line)] bg-[var(--soot)]">
             {featuredBurger?.image_url ? (
               <Image
                 src={featuredBurger.image_url}

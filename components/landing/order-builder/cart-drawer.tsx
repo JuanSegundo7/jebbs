@@ -136,7 +136,12 @@ export function CartDrawer({
                 {itemCount > 0 ? `${itemCount} · ${formatArs(total)}` : "Carrito vacío"}
               </span>
             </div>
-            <span className="diner-btn diner-btn-primary pointer-events-none ml-auto group-disabled:opacity-45">
+            {/* diner-cta-glow: glow ambiente permanente, no solo al hover --
+                es el CTA de conversión del rail fijo (apple-design §16.6,
+                ver comentario de la utility en globals.css). El
+                group-disabled:opacity-45 ya existente atenúa el glow junto
+                con el resto del botón cuando el carrito está vacío. */}
+            <span className="diner-btn diner-btn-primary diner-cta-glow pointer-events-none ml-auto group-disabled:opacity-45">
               <MessageCircle className="size-4" aria-hidden />
               Ver pedido
             </span>
