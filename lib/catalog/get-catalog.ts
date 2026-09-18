@@ -65,7 +65,8 @@ async function fetchExtras(supabase: SupabaseClient): Promise<Extra[]> {
     .from("extras")
     .select("*")
     .eq("is_available", true)
-    .order("category", { ascending: true });
+    .order("category", { ascending: true })
+    .order("name", { ascending: true });
 
   if (error) throw error;
   return (data ?? []) as Extra[];
