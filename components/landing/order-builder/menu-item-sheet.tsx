@@ -62,14 +62,19 @@ export function MenuItemSheet({
             add/stepper action) never ends up below the fold on a short
             phone screen. */}
         <div className="diner-wrap min-h-0 flex-1 overflow-y-auto">
-          <div className="relative aspect-[16/9] overflow-hidden rounded-xl">
+          {/* Altura fija (no aspect-ratio atado al ancho): en pantallas
+              anchas un 4:3 a todo el ancho del drawer se volvía enorme y
+              empujaba el precio/descripción/botón fuera de vista, forzando
+              scroll para llegar a "Agregar al pedido". object-contain (no
+              cover) para que la foto se vea completa, no recortada. */}
+          <div className="relative h-[180px] w-full overflow-hidden rounded-xl bg-[var(--slab)] sm:h-[220px]">
             {imageUrl ? (
               <Image
                 src={imageUrl}
                 alt={name}
                 fill
                 sizes="(max-width:768px) 100vw, 768px"
-                className="object-cover"
+                className="object-contain"
               />
             ) : (
               <div className="flex h-full w-full items-center justify-center bg-[var(--slab)]">
