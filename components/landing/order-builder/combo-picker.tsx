@@ -5,6 +5,7 @@ import { cn } from "@/lib/utils";
 import type { Burger, Extra } from "@/lib/types";
 import type { ComboWithSlots } from "@/lib/types/combo-types";
 import type { useComboSelection } from "@/hooks/use-combo-selection";
+import { comboDescriptionText } from "@/lib/catalog/menu-description";
 import { formatArs } from "./currency";
 import { MenuCategoryHeader } from "./menu-category-header";
 
@@ -60,6 +61,7 @@ export function ComboPicker({
         <div>
           {combos.map((combo) => {
             const count = comboCountFor(combo.id);
+            const description = comboDescriptionText(combo);
             return (
               <div
                 key={combo.id}
@@ -79,9 +81,9 @@ export function ComboPicker({
                       {formatArs(combo.price)}
                     </span>
                   </div>
-                  {combo.description && (
-                    <p className="mt-1 line-clamp-2 font-body text-[0.94rem] leading-[1.4] text-[var(--ash)]">
-                      {combo.description}
+                  {description && (
+                    <p className="mt-1 line-clamp-2 font-body text-[0.94rem] leading-[1.45] tracking-[0.005em] text-[var(--ash-bright)]">
+                      {description}
                     </p>
                   )}
                 </div>

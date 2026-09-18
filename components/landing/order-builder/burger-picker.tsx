@@ -5,6 +5,7 @@ import { Beef, ChevronDown, Minus, Plus, Trash2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import type { Burger, Extra } from "@/lib/types";
 import type { useBurgerSelection } from "@/hooks/use-burger-selection";
+import { burgerDescriptionText } from "@/lib/catalog/menu-description";
 import { summarizeBurger } from "@/lib/order/customization-summary";
 import { formatArs } from "./currency";
 import { MenuCategoryHeader } from "./menu-category-header";
@@ -60,6 +61,7 @@ export function BurgerPicker({
         <div>
           {burgers.map((burger) => {
             const count = countFor(burger.id);
+            const description = burgerDescriptionText(burger);
             return (
               <div
                 key={burger.id}
@@ -91,9 +93,9 @@ export function BurgerPicker({
                       {formatArs(burger.base_price)}
                     </span>
                   </div>
-                  {burger.description && (
-                    <p className="mt-1 font-body text-[0.94rem] leading-[1.4] text-[var(--ash)]">
-                      {burger.description}
+                  {description && (
+                    <p className="mt-1 line-clamp-2 font-body text-[0.94rem] leading-[1.45] tracking-[0.005em] text-[var(--ash-bright)]">
+                      {description}
                     </p>
                   )}
                 </div>

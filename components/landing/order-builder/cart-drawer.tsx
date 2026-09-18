@@ -78,7 +78,7 @@ function CartLine({
           </span>
         </div>
         {summary && (
-          <p className="mt-0.5 font-body text-[13px] leading-snug text-[#C9BFAE]">
+          <p className="mt-0.5 font-body text-[13px] leading-snug text-[var(--ash-bright)]">
             {summary}
           </p>
         )}
