@@ -807,9 +807,12 @@
    ya no hace falta, y un blur de 44px sobre una superficie de 80vh es
    costo de GPU real en un flujo mobile-first. */
 @utility diner-sheet {
+  @apply diner-elevated;
   background-color: var(--soot);
-  border: 1px solid var(--line);
-  border-top-color: var(--line-2);
+  /* Sombra propia (hacia arriba, no hacia abajo como diner-elevated): este
+     sheet se ancla al piso de la pantalla, así que la luz que lo separa
+     del contenido de atrás tiene que proyectarse para arriba. Mismo valor
+     que ya estaba probado acá, solo centralizando el borde especular. */
   box-shadow: 0 -24px 60px rgba(0, 0, 0, 0.55);
 }
 
@@ -819,13 +822,22 @@
    -- feedback real ("todo lo demás ocupa mucho", "se ve muy pequeño el
    detalle"). El contenido no cambió, solo su peso relativo. */
 @utility diner-ticket {
+  @apply diner-elevated;
   position: relative;
   background-color: var(--slab);
   color: var(--cream);
   font-family: var(--font-body);
   padding: 16px;
-  border: 1px solid var(--line-2);
   border-radius: 14px;
+  /* diner-elevated solo ilumina el borde de arriba (--line-2) y deja los
+     otros tres lados en --line; este ticket ya tenía los 4 lados en
+     --line-2 (contorno entero más brillante, no solo arriba) -- se
+     preserva ese valor exacto para que la migración no cambie nada
+     visualmente. */
+  border-color: var(--line-2);
+  /* Sombra propia, más grande que la genérica de diner-elevated: este
+     ticket es la superficie más "flotante" de la página (checkout), ya
+     probada a este valor exacto -- solo centralizando el borde especular. */
   box-shadow: 0 20px 40px rgba(0, 0, 0, 0.35);
   & ::selection {
     background: var(--cheddar);
