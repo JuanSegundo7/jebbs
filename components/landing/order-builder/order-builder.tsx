@@ -2,6 +2,7 @@
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import type { Catalog } from "@/lib/catalog/get-catalog";
+import { splitStorefrontExtras } from "@/lib/catalog/storefront-extras";
 import { useCart } from "@/hooks/use-cart";
 import { useCheckout } from "@/hooks/use-checkout";
 import { BurgerPicker } from "./burger-picker";
@@ -32,9 +33,11 @@ export function OrderBuilder({ catalog, deliveryFeeArs }: OrderBuilderProps) {
     deliveryFee: isDelivery ? deliveryFeeArs : 0,
   });
 
-  const drinkExtras = catalog.extras.filter((e) => e.category === "drink");
-  const sideExtras = catalog.extras.filter((e) => e.category === "sides");
-  const toppingExtras = catalog.extras.filter((e) => e.category === "extra");
+  const {
+    drinks: drinkExtras,
+    sides: sideExtras,
+    toppings: toppingExtras,
+  } = splitStorefrontExtras(catalog);
   // Bebidas y sides tab: standalone drinks + sides, both handled by the same
   // generic useSidesSelection (it prices/selects any Extra regardless of
   // category) -- only the display grouping is category-aware (SidePicker).
