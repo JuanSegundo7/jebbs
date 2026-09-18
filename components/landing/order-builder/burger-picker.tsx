@@ -8,6 +8,7 @@ import type { Burger, Extra } from "@/lib/types";
 import type { useBurgerSelection } from "@/hooks/use-burger-selection";
 import { burgerDescriptionText } from "@/lib/catalog/menu-description";
 import { summarizeBurger } from "@/lib/order/customization-summary";
+import { BurgerCustomizePanel } from "./burger-customize-panel";
 import { formatArs } from "./currency";
 import { MenuCategoryHeader } from "./menu-category-header";
 import { MenuItemSheet } from "./menu-item-sheet";
@@ -224,95 +225,14 @@ export function BurgerPicker({
                   </div>
 
                   {expanded && (
-                    <div className="space-y-3 border-t border-[var(--line)] pt-3">
-                      <div className="flex items-center justify-between">
-                        <span className="font-condensed text-xs font-bold tracking-[.08em] text-[var(--ash)] uppercase">
-                          Carne
-                        </span>
-                        <div className="flex items-center gap-1">
-                          <button
-                            type="button"
-                            className="diner-stepper-btn"
-                            onClick={() => updateMeatCount(item.id, -1)}
-                            aria-label="Menos carne"
-                          >
-                            <Minus />
-                          </button>
-                          <span className="numeric w-6 text-center text-sm text-[var(--cream)]">
-                            {item.meatCount}
-                          </span>
-                          <button
-                            type="button"
-                            className="diner-stepper-btn"
-                            onClick={() => updateMeatCount(item.id, 1)}
-                            aria-label="Más carne"
-                          >
-                            <Plus />
-                          </button>
-                        </div>
-                      </div>
-
-                      <div className="flex items-center justify-between">
-                        <span className="font-condensed text-xs font-bold tracking-[.08em] text-[var(--ash)] uppercase">
-                          Papas
-                        </span>
-                        <div className="flex items-center gap-1">
-                          <button
-                            type="button"
-                            className="diner-stepper-btn"
-                            onClick={() => updateFriesQuantity(item.id, -1)}
-                            aria-label="Menos papas"
-                          >
-                            <Minus />
-                          </button>
-                          <span className="numeric w-6 text-center text-sm text-[var(--cream)]">
-                            {item.friesQuantity}
-                          </span>
-                          <button
-                            type="button"
-                            className="diner-stepper-btn"
-                            onClick={() => updateFriesQuantity(item.id, 1)}
-                            aria-label="Más papas"
-                          >
-                            <Plus />
-                          </button>
-                        </div>
-                      </div>
-
-                      <label className="flex items-center gap-2 font-body text-sm text-[var(--ash)]">
-                        <input
-                          type="checkbox"
-                          checked={item.isVeggie ?? false}
-                          onChange={() => toggleVeggie(item.id)}
-                        />
-                        Version veggie
-                      </label>
-
-                      {toppingExtras.length > 0 && (
-                        <div className="flex flex-wrap gap-2">
-                          {toppingExtras.map((extra) => {
-                            const active = item.selectedExtras.some(
-                              (e) => e.extra.id === extra.id,
-                            );
-                            return (
-                              <button
-                                key={extra.id}
-                                type="button"
-                                onClick={() => toggleExtra(item.id, extra)}
-                                className={cn(
-                                  "rounded-full border px-3 py-1 font-condensed text-[11px] font-bold tracking-[.04em] uppercase",
-                                  active
-                                    ? "border-[var(--cheddar)] bg-[var(--cheddar)] text-[var(--coal)]"
-                                    : "border-[var(--line-2)] text-[var(--ash)]",
-                                )}
-                              >
-                                {extra.name} (+{formatArs(extra.price)})
-                              </button>
-                            );
-                          })}
-                        </div>
-                      )}
-                    </div>
+                    <BurgerCustomizePanel
+                      item={item}
+                      toppingExtras={toppingExtras}
+                      onMeatChange={(delta) => updateMeatCount(item.id, delta)}
+                      onFriesChange={(delta) => updateFriesQuantity(item.id, delta)}
+                      onToggleVeggie={() => toggleVeggie(item.id)}
+                      onToggleExtra={(extra) => toggleExtra(item.id, extra)}
+                    />
                   )}
                 </div>
               );
