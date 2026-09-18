@@ -2,7 +2,7 @@
 
 import type { useCart } from "@/hooks/use-cart";
 import type { UseCheckoutState } from "@/hooks/use-checkout";
-import { Separator } from "@/components/ui/separator";
+import { formatArs } from "@/components/landing/order-builder/currency";
 import { ConfirmButton } from "./confirm-button";
 import { CustomerNameField } from "./customer-name-field";
 import { DeliveryDetailsForm } from "./delivery-details-form";
@@ -23,10 +23,14 @@ interface CheckoutPanelProps {
 // POST /api/orders + WhatsApp handoff, built from `cart` + `checkout`
 // directly via lib/order/build-cart-request.ts.
 //
-// Restyled as a paper ticket (reference site: jebbs-burgers.vercel.app,
-// checkout section): --paper background, Courier Prime, no glass/blur.
-// Every child below only changed classes/styles -- none of the
-// selection/validation logic moved.
+// Checkout card in the same dark/cheddar identity as the rest of the
+// page (2nd revision -- the light "paper ticket" faithful to the
+// reference site read as a jarring white rectangle against the coal
+// background regardless of exact tone, per real feedback). The totals
+// block (Subtotal/Envío/Total) lives INSIDE the card -- it used to live
+// in cart-drawer.tsx's DrawerFooter, which read as two competing totals
+// in two different visual systems. None of the selection/validation
+// logic moved.
 export function CheckoutPanel({ cart, checkout, deliveryFeeArs }: CheckoutPanelProps) {
   const {
     fulfillmentType,
@@ -41,18 +45,25 @@ export function CheckoutPanel({ cart, checkout, deliveryFeeArs }: CheckoutPanelP
     setCustomerName,
   } = checkout;
   const isDelivery = fulfillmentType === "delivery";
+  const fee = isDelivery ? deliveryFeeArs : 0;
 
   return (
-    // ref-style.css:199-200 .ticket -- padding real 26px 24px 18px, sin
-    // radio (el efecto "boleta" viene del .tear/box-shadow, no de un radio).
-    <div className="diner-ticket space-y-4 px-6 pt-[26px] pb-[18px] shadow-[0_26px_60px_rgba(0,0,0,.6)]">
+    <div className="diner-ticket">
+      <header>
+        <h3 className="diner-ticket-title">Jebb&apos;s Burger&apos;s</h3>
+        <p className="diner-ticket-sub">Comprobante de pedido</p>
+      </header>
+      <hr className="diner-rule" />
+
       <CustomerNameField value={customerName} onChange={setCustomerName} />
 
-      <FulfillmentToggle value={fulfillmentType} onChange={setFulfillmentType} />
+      <div className="diner-field">
+        <FulfillmentToggle value={fulfillmentType} onChange={setFulfillmentType} />
+      </div>
 
       {isDelivery && (
         <>
-          <Separator className="bg-[var(--paper-line)]" />
+          <hr className="diner-rule" />
           <DeliveryDetailsForm
             phone={phone}
             onPhoneChange={setPhone}
@@ -64,9 +75,18 @@ export function CheckoutPanel({ cart, checkout, deliveryFeeArs }: CheckoutPanelP
         </>
       )}
 
-      {isDelivery && <DeliveryFeeLine deliveryFeeArs={deliveryFeeArs} />}
-
-      <Separator className="bg-[var(--paper-line)]" />
+      <hr className="diner-rule" />
+      <div className="space-y-1.5 font-body text-sm text-[var(--cream)]">
+        <div className="flex items-center justify-between">
+          <span>Subtotal</span>
+          <span className="numeric">{formatArs(cart.total)}</span>
+        </div>
+        {isDelivery && <DeliveryFeeLine deliveryFeeArs={deliveryFeeArs} />}
+        <div className="diner-ttot pt-1">
+          <span>Total</span>
+          <span className="numeric">{formatArs(cart.total + fee)}</span>
+        </div>
+      </div>
 
       <ConfirmButton cart={cart} checkout={checkout} />
     </div>

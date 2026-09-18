@@ -1,8 +1,5 @@
 "use client";
 
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-
 interface DeliveryDetailsFormProps {
   phone: string;
   onPhoneChange: (value: string) => void;
@@ -17,12 +14,10 @@ interface DeliveryDetailsFormProps {
 // spec.md Domain 3; notes are optional. This is UI-only -- the server
 // (WU4) is the real enforcement boundary (PHONE_REQUIRED_FOR_DELIVERY / R11).
 //
-// Styled as ticket lines (reference site: jebbs-burgers.vercel.app,
-// checkout section) -- Courier Prime, underline-only inputs. Logic untouched.
-const ticketInputClass =
-  "h-9 rounded-none border-0 border-b border-[var(--paper-line)] bg-transparent px-1 font-ticket text-[var(--paper-ink)] placeholder:text-[var(--paper-line)] focus-visible:ring-0";
-const ticketLabelClass = "font-ticket text-xs tracking-[.08em] text-[var(--paper-ink)] uppercase";
-
+// Native <label>/<input>, not shadcn's Input/Label -- see the same note
+// in customer-name-field.tsx: those primitives are used only in checkout
+// in this repo and carry iOS/glass bleed-through no `diner-*` utility can
+// beat (dark: variants always win against a plain @utility class here).
 export function DeliveryDetailsForm({
   phone,
   onPhoneChange,
@@ -32,46 +27,49 @@ export function DeliveryDetailsForm({
   onNotesChange,
 }: DeliveryDetailsFormProps) {
   return (
-    <div className="space-y-3" data-testid="delivery-address-form">
-      <div className="space-y-1.5">
-        <Label htmlFor="checkout-phone" className={ticketLabelClass}>
+    <div data-testid="delivery-address-form">
+      <div className="diner-field">
+        <label htmlFor="checkout-phone" className="diner-field-label">
           Teléfono
-        </Label>
-        <Input
+        </label>
+        <input
           id="checkout-phone"
           type="tel"
           required
+          autoComplete="tel"
+          inputMode="numeric"
           value={phone}
           onChange={(e) => onPhoneChange(e.target.value)}
           placeholder="Ej: 3454123456"
-          className={ticketInputClass}
+          className="diner-field-input"
         />
       </div>
 
-      <div className="space-y-1.5">
-        <Label htmlFor="checkout-address" className={ticketLabelClass}>
+      <div className="diner-field">
+        <label htmlFor="checkout-address" className="diner-field-label">
           Dirección
-        </Label>
-        <Input
+        </label>
+        <input
           id="checkout-address"
           required
+          autoComplete="street-address"
           value={address}
           onChange={(e) => onAddressChange(e.target.value)}
           placeholder="Calle, número, barrio"
-          className={ticketInputClass}
+          className="diner-field-input"
         />
       </div>
 
-      <div className="space-y-1.5">
-        <Label htmlFor="checkout-notes" className={ticketLabelClass}>
+      <div className="diner-field">
+        <label htmlFor="checkout-notes" className="diner-field-label">
           Notas (opcional)
-        </Label>
-        <Input
+        </label>
+        <input
           id="checkout-notes"
           value={notes}
           onChange={(e) => onNotesChange(e.target.value)}
           placeholder="Timbre, piso, entre calles..."
-          className={ticketInputClass}
+          className="diner-field-input"
         />
       </div>
     </div>

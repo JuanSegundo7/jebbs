@@ -1,8 +1,5 @@
 "use client";
 
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-
 interface CustomerNameFieldProps {
   value: string;
   onChange: (value: string) => void;
@@ -13,25 +10,28 @@ interface CustomerNameFieldProps {
 // delivery-specific, so it's rendered unconditionally, above the
 // pickup/delivery toggle.
 //
-// Styled as a line on a paper ticket (reference site: jebbs-burgers.vercel.app,
-// checkout section) -- Courier Prime, no pill/glass chrome, a single
-// underline instead of a bordered box. Logic untouched.
+// Native <label>/<input> instead of shadcn's Input/Label: those two are
+// used ONLY inside checkout in this repo, and they carry iOS/glass
+// bleed-through (focus-visible:ios-shadow-md, selection:bg-primary in
+// orange, aria-invalid:border-destructive in red) that a `diner-*`
+// utility can never override -- Tailwind's `dark:` variant classes on the
+// shadcn primitives always win specificity against a plain `@utility`
+// class, and this app is hardcoded to dark mode. Native elements sidestep
+// the whole class of bugs instead of overriding it piece by piece.
 export function CustomerNameField({ value, onChange }: CustomerNameFieldProps) {
   return (
-    <div className="space-y-1.5">
-      <Label
-        htmlFor="checkout-customer-name"
-        className="font-ticket text-xs tracking-[.08em] text-[var(--paper-ink)] uppercase"
-      >
+    <div className="diner-field">
+      <label htmlFor="checkout-customer-name" className="diner-field-label">
         Nombre
-      </Label>
-      <Input
+      </label>
+      <input
         id="checkout-customer-name"
         required
+        autoComplete="name"
         value={value}
         onChange={(e) => onChange(e.target.value)}
         placeholder="Tu nombre"
-        className="h-9 rounded-none border-0 border-b border-[var(--paper-line)] bg-transparent px-1 font-ticket text-[var(--paper-ink)] placeholder:text-[var(--paper-line)] focus-visible:ring-0"
+        className="diner-field-input"
       />
     </div>
   );

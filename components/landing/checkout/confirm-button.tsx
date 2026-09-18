@@ -2,7 +2,6 @@
 
 import { useState } from "react";
 import { Loader2, MessageCircle } from "lucide-react";
-import { Button } from "@/components/ui/button";
 import { useSingleFlight } from "@/hooks/use-single-flight";
 import {
   buildCreateWebOrderRequest,
@@ -63,15 +62,21 @@ export function ConfirmButton({ cart, checkout }: ConfirmButtonProps) {
     window.location.assign(data.whatsapp_url);
   });
 
+  const missingFieldsMessage =
+    checkout.fulfillmentType === "delivery"
+      ? "Completá nombre, teléfono y dirección para confirmar"
+      : "Completá tu nombre para confirmar";
+
   return (
     <div className="space-y-2">
-      {/* ref-style.css:226-230 .tsend -- verde de "enviar", no el ember de
-          marca: #1D7A46/hover #1F8C4F/disabled #7C8A80. Es la única
-          superficie de la página que no usa la paleta cheddar/ember, a
-          propósito (leerse como "acción de enviar", no como CTA de marca). */}
-      <Button
-        size="lg"
-        className="w-full rounded-none bg-[#1D7A46] font-ticket font-bold tracking-[.1em] text-[#F3FBF5] uppercase hover:bg-[#1F8C4F] disabled:bg-[#7C8A80] disabled:opacity-100"
+      {/* diner-send -- cheddar, misma convención que diner-btn-primary
+          (el CTA "Ver pedido" del rail). Native <button>, no el Button de
+          shadcn: ese primitivo trae sombras/ring del sistema iOS/glass que
+          no pertenecen a esta identidad -- mismo motivo que los inputs
+          nativos en customer-name-field.tsx/delivery-details-form.tsx. */}
+      <button
+        type="button"
+        className="diner-send"
         disabled={!checkout.canConfirm || isPending}
         onClick={() => run()}
       >
@@ -81,10 +86,16 @@ export function ConfirmButton({ cart, checkout }: ConfirmButtonProps) {
           <MessageCircle className="size-4" aria-hidden />
         )}
         Confirmar pedido
-      </Button>
+      </button>
+
+      {!checkout.canConfirm && !isPending && (
+        <p className="text-center font-body text-xs text-[var(--ash)]">
+          {missingFieldsMessage}
+        </p>
+      )}
 
       {error && (
-        <p className="font-ticket text-xs text-[var(--ember)]" role="alert">
+        <p className="font-body text-xs text-[var(--ember)]" role="alert">
           {error}
         </p>
       )}
@@ -92,7 +103,7 @@ export function ConfirmButton({ cart, checkout }: ConfirmButtonProps) {
       {whatsappUrl && (
         <a
           href={whatsappUrl}
-          className="block text-center font-ticket text-xs text-[var(--paper-ink)] underline underline-offset-2"
+          className="block text-center font-body text-xs text-[var(--cheddar)] underline underline-offset-2"
         >
           Si no te redirigió, tocá acá para abrir WhatsApp
         </a>

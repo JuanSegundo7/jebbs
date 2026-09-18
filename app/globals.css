@@ -770,13 +770,174 @@
   border: 1px solid rgba(242, 178, 28, 0.5);
 }
 
-/* Superficie de "ticket de papel" del checkout -- Courier Prime, sin
-   glass/blur, bordes finos. Aplicada en checkout-panel.tsx. */
+/* Superficie del checkout -- SEGUNDA REVISIÓN: el "ticket de papel" claro
+   fiel a ref-style.css se veía como un rectángulo blanco pegado en medio
+   de una página carbón, sin importar que el tono fuera técnicamente
+   correcto contra la referencia (feedback real del dueño, dos veces). Se
+   abandona la metáfora de papel a propósito y se retintan estas mismas
+   utilities (mismos nombres, misma estructura JSX en los componentes) a
+   la paleta oscura/cheddar que ya usa el resto de la página -- mismo
+   patrón visual que las cards de "seleccionados" en burger-picker.tsx
+   (border border-[var(--line)] bg-[var(--slab)]), no un sistema aparte. */
+/* Superficie opaca del sheet del carrito (cart-drawer.tsx). Reemplaza
+   `modal-surface` (glass translúcido, ~18% transparente) SOLO para este
+   Drawer: era el fondo de la barra fija de arrastre + header + lista de
+   ítems, y a esa opacidad la página de atrás (tabs del menú, chips de
+   precio) se transparentaba lo suficiente como para leerse "solapada"
+   sobre el carrito -- reportado real, con screenshot. `Drawer`/
+   `DrawerContent` (components/ui/drawer.tsx) tienen un solo consumidor en
+   todo el repo (cart-drawer.tsx), y `dialog.tsx` -- el otro componente que
+   usa `modal-surface`/`scrim` -- no tiene ningún importador; este cambio
+   no le toca la translucidez a nada más. --soot (no --slab, que ya usa
+   diner-ticket) para que el ticket de checkout se siga leyendo "elevado"
+   sobre el sheet, no aplastado contra el mismo tono. Sin backdrop-filter:
+   ya no hace falta, y un blur de 44px sobre una superficie de 80vh es
+   costo de GPU real en un flujo mobile-first. */
+@utility diner-sheet {
+  background-color: var(--soot);
+  border: 1px solid var(--line);
+  border-top-color: var(--line-2);
+  box-shadow: 0 -24px 60px rgba(0, 0, 0, 0.55);
+}
+
+/* Padding/márgenes de este bloque bajados a propósito (3ra revisión): con
+   los valores originales el ticket dominaba la pantalla y el detalle de
+   personalización de cada línea del carrito se leía chico en comparación
+   -- feedback real ("todo lo demás ocupa mucho", "se ve muy pequeño el
+   detalle"). El contenido no cambió, solo su peso relativo. */
 @utility diner-ticket {
-  background-color: var(--paper);
-  color: var(--paper-ink);
-  font-family: var(--font-ticket);
-  border: 1px solid var(--paper-line);
+  position: relative;
+  background-color: var(--slab);
+  color: var(--cream);
+  font-family: var(--font-body);
+  padding: 16px;
+  border: 1px solid var(--line-2);
+  border-radius: 14px;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.35);
+  & ::selection {
+    background: var(--cheddar);
+    color: var(--coal);
+  }
+}
+
+/* Encabezado del checkout. */
+@utility diner-ticket-title {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: 1rem;
+  line-height: 1.15;
+  text-align: center;
+  letter-spacing: 0.02em;
+  color: var(--cream);
+}
+@utility diner-ticket-sub {
+  margin: 3px 0 0;
+  text-align: center;
+  font-family: var(--font-condensed);
+  font-size: 0.72rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--ash);
+}
+
+/* Regla punteada entre secciones -- reemplaza al Separator sólido de
+   shadcn, que no soporta dashed y no trae margen propio. */
+@utility diner-rule {
+  border: 0;
+  border-top: 1px dashed var(--line-2);
+  margin-block: 10px;
+}
+
+/* Fila de TOTAL -- en cheddar, mismo tratamiento que el total del rail
+   fijo del carrito (cart-drawer.tsx), para que se lea como el mismo
+   número en dos lugares, no como dos sistemas distintos. */
+@utility diner-ttot {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  font-family: var(--font-condensed);
+  font-weight: 700;
+  font-size: 1.05rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--cheddar);
+  font-variant-numeric: tabular-nums;
+}
+
+/* Campo de formulario. */
+@utility diner-field {
+  margin-top: 10px;
+}
+@utility diner-field-label {
+  display: block;
+  margin-bottom: 4px;
+  font-family: var(--font-condensed);
+  font-size: 0.72rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--ash);
+}
+/* Caja real de input -- esto reemplaza el border-b transparente que
+   hacía que los inputs se fundieran con el fondo, causa principal de
+   "poco espaciado" reportada. */
+@utility diner-field-input {
+  width: 100%;
+  padding: 11px 10px;
+  font-family: var(--font-body);
+  font-size: 0.95rem;
+  line-height: 1.3;
+  color: var(--cream);
+  background: var(--coal);
+  border: 1px solid var(--line-2);
+  border-radius: 8px;
+  outline: none;
+  &::placeholder {
+    color: var(--ash-dim);
+  }
+  &:focus-visible {
+    border-color: var(--cheddar);
+    box-shadow: inset 0 0 0 1px var(--cheddar);
+  }
+}
+
+/* Botón de confirmar -- cheddar, mismo tratamiento que diner-btn-primary
+   (el CTA "Ver pedido" del rail), no el verde "acción de enviar" prestado
+   del sitio de referencia -- ahora que el checkout entero es parte de la
+   misma identidad oscura/cheddar, un botón verde aislado desentonaría más
+   de lo que ayudaría a distinguir la acción. */
+@utility diner-send {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  margin-top: 12px;
+  padding: 12px;
+  background: var(--cheddar);
+  color: var(--coal);
+  border: 0;
+  border-radius: 10px;
+  font-family: var(--font-condensed);
+  font-weight: 700;
+  font-size: 1.05rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition:
+    background-color 150ms ease-out,
+    transform 100ms ease-out;
+  &:hover:not(:disabled) {
+    background: var(--cheddar-dim);
+  }
+  &:active:not(:disabled) {
+    transform: scale(0.98);
+  }
+  &:disabled {
+    background: var(--slab);
+    color: var(--ash-dim);
+    cursor: not-allowed;
+    opacity: 1;
+  }
 }
 
 /* ============================================================

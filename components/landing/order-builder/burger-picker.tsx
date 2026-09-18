@@ -1,10 +1,11 @@
 "use client";
 
 import Image from "next/image";
-import { Beef, Minus, Plus, Trash2 } from "lucide-react";
+import { Beef, ChevronDown, Minus, Plus, Trash2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import type { Burger, Extra } from "@/lib/types";
 import type { useBurgerSelection } from "@/hooks/use-burger-selection";
+import { summarizeBurger } from "@/lib/order/customization-summary";
 import { formatArs } from "./currency";
 import { MenuCategoryHeader } from "./menu-category-header";
 
@@ -125,6 +126,9 @@ export function BurgerPicker({
 
       {selectedBurgers.length > 0 && (
         <div className="space-y-2">
+          <p className="font-condensed text-xs font-bold tracking-[.16em] text-[var(--ash)] uppercase">
+            Personalizá tu pedido
+          </p>
           {selectedBurgers.map((item) => {
             const expanded = expandedBurger === item.id;
             return (
@@ -135,10 +139,27 @@ export function BurgerPicker({
                 <div className="flex items-center justify-between gap-2">
                   <button
                     type="button"
-                    className="flex-1 text-left font-condensed text-sm font-bold tracking-[.03em] text-[var(--cream)] uppercase"
+                    className="flex min-w-0 flex-1 items-center gap-2 text-left"
                     onClick={() => toggleExpanded(item.id)}
+                    aria-expanded={expanded}
                   >
-                    {item.burger.name}
+                    <ChevronDown
+                      className={cn(
+                        "size-4 shrink-0 text-[var(--ash)] transition-transform",
+                        expanded && "rotate-180",
+                      )}
+                      aria-hidden
+                    />
+                    <span className="min-w-0 flex-1">
+                      <span className="block font-condensed text-sm font-bold tracking-[.03em] text-[var(--cream)] uppercase">
+                        {item.burger.name}
+                      </span>
+                      {!expanded && (
+                        <span className="block truncate font-body text-xs text-[var(--ash)]">
+                          {summarizeBurger(item) ?? "Sin modificar · tocá para personalizar"}
+                        </span>
+                      )}
+                    </span>
                   </button>
                   <div className="flex items-center gap-1">
                     <button

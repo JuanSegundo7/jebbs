@@ -44,8 +44,12 @@ export function OrderBuilder({ catalog, deliveryFeeArs }: OrderBuilderProps) {
   // cheddar fill on the active tab, slab background otherwise -- the
   // grouped-by-category *content* underneath each tab is now a printed-menu
   // list (BurgerPicker/ComboPicker/SidePicker), not a card grid.
+  // dark: variants repeat every override on purpose -- see the identical
+  // note in checkout/fulfillment-toggle.tsx. The base TabsTrigger ships
+  // dark:text-muted-foreground / dark:data-[state=active]:bg-input/30, and
+  // this app is hardcoded to dark mode, so a bare-only override loses.
   const tabTriggerClass =
-    "rounded-full px-4 py-1.5 font-condensed text-[12px] font-bold tracking-[.08em] text-[var(--ash)] uppercase data-[state=active]:bg-[var(--cheddar)] data-[state=active]:text-[var(--coal)] data-[state=active]:shadow-none";
+    "rounded-full px-4 py-1.5 font-condensed text-[12px] font-bold tracking-[.08em] text-[var(--ash)] uppercase data-[state=active]:bg-[var(--cheddar)] data-[state=active]:text-[var(--coal)] data-[state=active]:shadow-none dark:text-[var(--ash)] dark:data-[state=active]:bg-[var(--cheddar)] dark:data-[state=active]:text-[var(--coal)]";
 
   return (
     <div className="space-y-6">
@@ -85,7 +89,13 @@ export function OrderBuilder({ catalog, deliveryFeeArs }: OrderBuilderProps) {
         </TabsContent>
       </Tabs>
 
-      <CartDrawer cart={cart} checkout={checkout} deliveryFeeArs={deliveryFeeArs} />
+      <CartDrawer
+        cart={cart}
+        checkout={checkout}
+        deliveryFeeArs={deliveryFeeArs}
+        meatExtra={catalog.meatExtra}
+        friesExtra={catalog.friesExtra}
+      />
     </div>
   );
 }
