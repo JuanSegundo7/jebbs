@@ -81,6 +81,22 @@ export function BurgerCustomizePanel({
         </div>
       </div>
 
+      <button
+        type="button"
+        role="switch"
+        aria-checked={item.isVeggie ?? false}
+        onClick={onToggleVeggie}
+        className="menu-row-compact w-full border-b-0 text-left active:bg-white/[0.03]"
+      >
+        <span className="font-condensed text-[0.98rem] font-bold tracking-[.03em] text-[var(--cream)] uppercase">
+          Versión veggie
+        </span>
+        <span className="menu-leader" aria-hidden />
+        <span className={cn("diner-chip shrink-0", !item.isVeggie && "diner-chip-hollow")}>
+          {item.isVeggie ? "Sí" : "No"}
+        </span>
+      </button>
+
       <div className="flex items-center justify-between">
         <span className="font-condensed text-xs font-bold tracking-[.08em] text-[var(--ash)] uppercase">
           Papas
@@ -107,15 +123,6 @@ export function BurgerCustomizePanel({
           </button>
         </div>
       </div>
-
-      <label className="flex items-center gap-2 font-body text-sm text-[var(--ash)]">
-        <input
-          type="checkbox"
-          checked={item.isVeggie ?? false}
-          onChange={onToggleVeggie}
-        />
-        Version veggie
-      </label>
 
       {toppingExtras.length > 0 && (
         <div>

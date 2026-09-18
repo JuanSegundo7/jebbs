@@ -159,3 +159,17 @@ describe("BurgerPicker customize panel -- extras with quantity", () => {
     expect(screen.getByText("+ Bacon")).toBeTruthy();
   });
 });
+
+describe("BurgerPicker customize panel -- veggie toggle", () => {
+  it("starts unchecked and flips to checked when tapped", () => {
+    render(<Harness burgers={[makeBurger()]} />);
+
+    fireEvent.click(screen.getByRole("button", { name: "Agregar Clásica" }));
+
+    const veggieSwitch = screen.getByRole("switch", { name: /veggie/i });
+    expect(veggieSwitch.getAttribute("aria-checked")).toBe("false");
+
+    fireEvent.click(veggieSwitch);
+    expect(veggieSwitch.getAttribute("aria-checked")).toBe("true");
+  });
+});
