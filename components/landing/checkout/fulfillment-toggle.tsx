@@ -34,14 +34,17 @@ export function FulfillmentToggle({ value, onChange }: FulfillmentToggleProps) {
       <TabsList className="h-auto w-full rounded-lg border border-[var(--line-2)] bg-[var(--coal)] p-1">
         <TabsTrigger
           value="pickup"
-          className="h-auto rounded-md px-2 py-[8px] font-condensed text-[.8rem] tracking-[.08em] text-[var(--ash)] uppercase data-[state=active]:border-transparent data-[state=active]:bg-[var(--cheddar)] data-[state=active]:text-[var(--coal)] data-[state=active]:shadow-none focus-visible:ring-0 focus-visible:outline-[var(--cheddar)] dark:text-[var(--ash)] dark:data-[state=active]:border-transparent dark:data-[state=active]:bg-[var(--cheddar)] dark:data-[state=active]:text-[var(--coal)]"
+          // [transition-timing-function:...] -- misma curva cubic-bezier
+          // que las tabs de categoría (order-builder.tsx) y el resto del
+          // sistema de depth, para que el toggle se sienta consistente.
+          className="h-auto rounded-md px-2 py-[8px] font-condensed text-[.8rem] tracking-[.08em] text-[var(--ash)] uppercase [transition-timing-function:cubic-bezier(0.16,1,0.3,1)] data-[state=active]:border-transparent data-[state=active]:bg-[var(--cheddar)] data-[state=active]:text-[var(--coal)] data-[state=active]:shadow-none focus-visible:ring-0 focus-visible:outline-[var(--cheddar)] dark:text-[var(--ash)] dark:data-[state=active]:border-transparent dark:data-[state=active]:bg-[var(--cheddar)] dark:data-[state=active]:text-[var(--coal)]"
         >
           <Store className="size-3.5" aria-hidden />
           Retiro en el local
         </TabsTrigger>
         <TabsTrigger
           value="delivery"
-          className="h-auto rounded-md px-2 py-[8px] font-condensed text-[.8rem] tracking-[.08em] text-[var(--ash)] uppercase data-[state=active]:border-transparent data-[state=active]:bg-[var(--cheddar)] data-[state=active]:text-[var(--coal)] data-[state=active]:shadow-none focus-visible:ring-0 focus-visible:outline-[var(--cheddar)] dark:text-[var(--ash)] dark:data-[state=active]:border-transparent dark:data-[state=active]:bg-[var(--cheddar)] dark:data-[state=active]:text-[var(--coal)]"
+          className="h-auto rounded-md px-2 py-[8px] font-condensed text-[.8rem] tracking-[.08em] text-[var(--ash)] uppercase [transition-timing-function:cubic-bezier(0.16,1,0.3,1)] data-[state=active]:border-transparent data-[state=active]:bg-[var(--cheddar)] data-[state=active]:text-[var(--coal)] data-[state=active]:shadow-none focus-visible:ring-0 focus-visible:outline-[var(--cheddar)] dark:text-[var(--ash)] dark:data-[state=active]:border-transparent dark:data-[state=active]:bg-[var(--cheddar)] dark:data-[state=active]:text-[var(--coal)]"
         >
           <Truck className="size-3.5" aria-hidden />
           Envío a domicilio

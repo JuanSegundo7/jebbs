@@ -678,6 +678,7 @@
    grupo sin borde (usar `last:border-b-0` en el elemento, no acá, porque
    `@utility` no puede ver la posición del elemento en su padre). */
 @utility menu-row {
+  @apply diner-interactive-subtle;
   display: flex;
   align-items: center;
   /* ref-style.css:96 .row -- gap y padding 15px exactos */
@@ -691,6 +692,7 @@
    visual (nombre + leader-dots + precio + stepper) pero sin el padding de
    15px pensado para la miniatura de 60px del browsing principal. */
 @utility menu-row-compact {
+  @apply diner-interactive-subtle;
   display: flex;
   align-items: center;
   gap: 10px;
@@ -914,9 +916,14 @@
 @utility diner-interactive-subtle {
   transition:
     border-color 200ms cubic-bezier(0.16, 1, 0.3, 1),
-    background-color 150ms ease-out;
+    background-color 150ms ease-out,
+    transform 100ms cubic-bezier(0.16, 1, 0.3, 1);
+  /* --cream, no --line-2: filas como menu-row ya tienen su separador en
+     --line-2 en reposo (el más brillante de los dos tokens de línea), así
+     que "aclarar" el borde en hover necesita un tono más arriba todavía
+     para notarse -- mismo target que usa diner-interactive. */
   &:hover {
-    border-color: var(--line-2);
+    border-color: var(--cream);
     background-color: rgba(246, 239, 225, 0.03);
   }
   &:active {
@@ -1179,8 +1186,17 @@
   font-size: 1.15rem;
   line-height: 1;
   color: var(--cream);
+  transition:
+    color 150ms ease-out,
+    transform 100ms cubic-bezier(0.16, 1, 0.3, 1);
   &:hover {
     color: var(--cheddar);
+  }
+  /* Escala más marcada que diner-interactive (0.985) a propósito -- son
+     botones de 36px, el feedback de presión tiene que notarse más que en
+     un CTA grande para leerse como intencional y no como un temblor. */
+  &:active:not(:disabled) {
+    transform: scale(0.9);
   }
   &:disabled {
     opacity: 0.4;

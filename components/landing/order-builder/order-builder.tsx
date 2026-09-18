@@ -51,8 +51,14 @@ export function OrderBuilder({ catalog, deliveryFeeArs }: OrderBuilderProps) {
   // note in checkout/fulfillment-toggle.tsx. The base TabsTrigger ships
   // dark:text-muted-foreground / dark:data-[state=active]:bg-input/30, and
   // this app is hardcoded to dark mode, so a bare-only override loses.
+  // [transition-timing-function:...] -- misma curva que diner-interactive
+  // (cubic-bezier(0.16,1,0.3,1)) para que el cambio de tab active/inactive
+  // se sienta como el mismo gesto que el resto de la página. La base
+  // TabsTrigger (components/ui/tabs.tsx) ya trae `transition-[color,box-shadow]`
+  // sin timing-function propio (ease del navegador); esto solo agrega la
+  // curva, no pelea con transition-property.
   const tabTriggerClass =
-    "rounded-full px-4 py-1.5 font-condensed text-[12px] font-bold tracking-[.08em] text-[var(--ash)] uppercase data-[state=active]:bg-[var(--cheddar)] data-[state=active]:text-[var(--coal)] data-[state=active]:shadow-none dark:text-[var(--ash)] dark:data-[state=active]:bg-[var(--cheddar)] dark:data-[state=active]:text-[var(--coal)]";
+    "rounded-full px-4 py-1.5 font-condensed text-[12px] font-bold tracking-[.08em] text-[var(--ash)] uppercase [transition-timing-function:cubic-bezier(0.16,1,0.3,1)] data-[state=active]:bg-[var(--cheddar)] data-[state=active]:text-[var(--coal)] data-[state=active]:shadow-none dark:text-[var(--ash)] dark:data-[state=active]:bg-[var(--cheddar)] dark:data-[state=active]:text-[var(--coal)]";
 
   return (
     <div className="space-y-6">

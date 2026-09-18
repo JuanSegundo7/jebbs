@@ -86,7 +86,13 @@ export function BurgerCustomizePanel({
         role="switch"
         aria-checked={item.isVeggie ?? false}
         onClick={onToggleVeggie}
-        className="menu-row-compact w-full border-b-0 text-left active:bg-white/[0.03]"
+        // El único uso interactivo real de diner-chip (el resto son badges,
+        // sin hover) -- se le suma el movimiento de diner-interactive en
+        // valores sueltos (no la clase, para no pelear el `transition`
+        // shorthand que ya trae menu-row-compact vía diner-interactive-subtle:
+        // acá se anima solo transform/box-shadow, dejando intacta la
+        // transición de borde/fondo de la fila).
+        className="menu-row-compact w-full border-b-0 text-left transition-[transform,box-shadow] duration-200 [transition-timing-function:cubic-bezier(0.16,1,0.3,1)] hover:-translate-y-0.5 hover:shadow-[0_20px_40px_rgba(0,0,0,0.35)] active:scale-[0.985] active:bg-white/[0.03] active:shadow-[0_8px_16px_rgba(0,0,0,0.25)]"
       >
         <span className="font-condensed text-[0.98rem] font-bold tracking-[.03em] text-[var(--cream)] uppercase">
           Versión veggie
