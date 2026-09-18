@@ -128,6 +128,13 @@ describe("summarizeBurger", () => {
     expect(summarizeBurger(burger)).toBe("+ Bacon");
   });
 
+  it("reports an extra's quantity when greater than 1", () => {
+    const burger = makeSelectedBurger({
+      selectedExtras: [{ extra: makeExtra({ name: "Bacon" }), quantity: 3 }],
+    });
+    expect(summarizeBurger(burger)).toBe("+ 3x Bacon");
+  });
+
   it("joins multiple changes with ' · ' in a fixed order", () => {
     const burger = makeSelectedBurger({
       meatCount: 2,

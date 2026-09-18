@@ -686,6 +686,18 @@
   border-bottom: 1px dashed var(--line-2);
 }
 
+/* Variante compacta de menu-row para paneles anidados (personalización de
+   burger dentro de la card "Personalizá tu pedido") -- mismo lenguaje
+   visual (nombre + leader-dots + precio + stepper) pero sin el padding de
+   15px pensado para la miniatura de 60px del browsing principal. */
+@utility menu-row-compact {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding-block: 8px;
+  border-bottom: 1px dashed var(--line-2);
+}
+
 /* ref-style.css:109 .row.on -- resalte sutil cuando la fila tiene
    cantidad seleccionada (aplicar junto con menu-row cuando count > 0). */
 @utility menu-row-active {

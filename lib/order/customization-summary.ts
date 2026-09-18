@@ -23,7 +23,9 @@ function burgerParts(item: SelectedBurger, baseline: BurgerBaseline): string[] {
     parts.push(item.friesQuantity === 0 ? "sin papas" : `${item.friesQuantity} papas`);
   }
   if (item.isVeggie) parts.push("veggie");
-  for (const e of item.selectedExtras) parts.push(`+ ${e.extra.name}`);
+  for (const e of item.selectedExtras) {
+    parts.push(e.quantity > 1 ? `+ ${e.quantity}x ${e.extra.name}` : `+ ${e.extra.name}`);
+  }
 
   return parts;
 }

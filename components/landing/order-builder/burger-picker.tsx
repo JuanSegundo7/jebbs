@@ -39,6 +39,7 @@ export function BurgerPicker({
     updateFriesQuantity,
     toggleVeggie,
     toggleExtra,
+    updateExtraQuantity,
     toggleExpanded,
   } = selection;
 
@@ -232,6 +233,9 @@ export function BurgerPicker({
                       onFriesChange={(delta) => updateFriesQuantity(item.id, delta)}
                       onToggleVeggie={() => toggleVeggie(item.id)}
                       onToggleExtra={(extra) => toggleExtra(item.id, extra)}
+                      onExtraQuantityChange={(extraId, delta) =>
+                        updateExtraQuantity(item.id, extraId, delta)
+                      }
                     />
                   )}
                 </div>
