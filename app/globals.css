@@ -1000,14 +1000,24 @@
   letter-spacing: 0.08em;
   text-transform: uppercase;
   cursor: pointer;
+  /* Mismas propiedades/curva que diner-interactive (elevación en hover +
+     escala en press), fusionadas a mano con la transición de color que ya
+     tenía -- este botón usa :not(:disabled) en vez de los :hover/:active
+     planos de la utility compartida, y esa guarda hay que preservarla, así
+     que no se puede @apply diner-interactive directo (pisaría este
+     `transition` completo). */
   transition:
     background-color 150ms ease-out,
-    transform 100ms ease-out;
+    transform 200ms cubic-bezier(0.16, 1, 0.3, 1),
+    box-shadow 200ms cubic-bezier(0.16, 1, 0.3, 1);
   &:hover:not(:disabled) {
     background: var(--cheddar-dim);
+    transform: translateY(-2px);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.35);
   }
   &:active:not(:disabled) {
     transform: scale(0.98);
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.25);
   }
   &:disabled {
     background: var(--slab);
@@ -1064,6 +1074,7 @@
 
 /* .btn / .btn-primary / .btn-ghost (ref-style.css:60-66) */
 @utility diner-btn {
+  @apply diner-interactive;
   display: inline-flex;
   align-items: center;
   gap: 9px;
