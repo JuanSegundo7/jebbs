@@ -37,7 +37,16 @@ export function Hero({ featuredBurger }: HeroProps) {
           {/* TODO: copy real a confirmar con el dueño -- este es un punto de
               partida fiel al tono del sitio de referencia (Archivo Black +
               segunda línea en cheddar), no el texto final. */}
-          <h1 className="mt-3.5 text-center font-display text-[clamp(2.5rem,6.2vw,4.2rem)] leading-[0.94] tracking-[-0.015em] text-[var(--cream)] md:text-left">
+          {/* tracking-[-0.032em]: es el texto más grande de toda la página
+              (clamp hasta 4.2rem/67px, más grande que diner-sechead-title y
+              que cualquier token de la escala §15 en globals.css), así que
+              tiene que llevar el tracking más negativo del sitio -- antes
+              (-0.015em) era MENOS negativo que diner-sechead-title
+              (-0.01em original, ya subido a -0.024em en este pase) a pesar
+              de ser un heading más grande, al revés de lo que pide
+              apple-design §15. leading-[0.94] ya era el más apretado del
+              sitio -- eso ya cumplía, sin cambios. */}
+          <h1 className="mt-3.5 text-center font-display text-[clamp(2.5rem,6.2vw,4.2rem)] leading-[0.94] tracking-[-0.032em] text-[var(--cream)] md:text-left">
             Doble cheddar,
             <br />
             <span className="text-[var(--cheddar)]">sin vueltas.</span>
