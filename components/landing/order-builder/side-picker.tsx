@@ -41,34 +41,42 @@ function SidesGroup({ title, items, countFor, onAdd, onRemove }: SidesGroupProps
           return (
             <div
               key={extra.id}
-              className={cn("menu-row last:border-b-0", count > 0 && "menu-row-active")}
+              className={cn(
+                "flex items-center gap-[15px] border-b border-dashed border-[var(--hairline-strong)] py-[15px] transition-[border-color,background-color,transform] duration-200 ease-[cubic-bezier(0.16,1,0.3,1)] last:border-b-0 hover:border-[var(--foreground)] hover:bg-[color-mix(in_srgb,var(--foreground)_3%,transparent)] active:scale-[0.99]",
+                count > 0 && "bg-[linear-gradient(90deg,var(--accent-tint-16),transparent_60%)]",
+              )}
             >
               <div className="min-w-0 flex-1">
                 <div className="flex items-baseline">
-                  <span className="font-condensed text-[1.22rem] font-bold tracking-[.04em] text-[var(--cream)] uppercase">
+                  <span className="font-sans text-[1.22rem] font-bold text-[var(--foreground)]">
                     {extra.name}
                   </span>
-                  <span className="menu-leader" aria-hidden />
-                  <span className="numeric shrink-0 font-condensed text-[1.22rem] font-bold text-[var(--cheddar)]">
+                  <span
+                    className="mb-[0.3em] min-w-[1rem] flex-1 self-end border-b border-dotted border-[var(--muted-foreground-dim)]"
+                    aria-hidden
+                  />
+                  <span className="numeric shrink-0 font-sans text-[1.22rem] font-bold text-[var(--accent-brand)]">
                     {formatArs(extra.price)}
                   </span>
                 </div>
               </div>
 
-              <div className="diner-stepper">
+              <div className="flex shrink-0 items-center gap-0.5 rounded-[3px] border border-[var(--hairline)] bg-[var(--surface-2)]">
                 <button
                   type="button"
-                  className="diner-st"
+                  className="inline-flex h-9 w-9 items-center justify-center text-[var(--foreground)] transition-[color,transform] duration-150 [transition-timing-function:cubic-bezier(0.16,1,0.3,1)] hover:text-[var(--accent-brand)] active:scale-90 disabled:pointer-events-none disabled:opacity-40 [&_svg]:h-3.5 [&_svg]:w-3.5"
                   onClick={() => onRemove(extra.id)}
                   disabled={count === 0}
                   aria-label={`Quitar ${extra.name}`}
                 >
                   <Minus />
                 </button>
-                <output className="diner-qty">{count}</output>
+                <output className="numeric w-[26px] text-center font-sans text-[1.1rem] font-bold text-[var(--muted-foreground)]">
+                  {count}
+                </output>
                 <button
                   type="button"
-                  className="diner-st"
+                  className="inline-flex h-9 w-9 items-center justify-center text-[var(--foreground)] transition-[color,transform] duration-150 [transition-timing-function:cubic-bezier(0.16,1,0.3,1)] hover:text-[var(--accent-brand)] active:scale-90 disabled:pointer-events-none disabled:opacity-40 [&_svg]:h-3.5 [&_svg]:w-3.5"
                   onClick={() => onAdd(extra)}
                   aria-label={`Agregar ${extra.name}`}
                 >
@@ -122,26 +130,26 @@ export function SidePicker({ sides, selection }: SidePickerProps) {
           {selectedSides.map((side) => (
             <div
               key={side.id}
-              className="flex items-center justify-between gap-2 rounded-xl border border-[var(--line)] bg-[var(--slab)] p-3"
+              className="flex items-center justify-between gap-2 rounded-xl border border-[var(--hairline)] bg-[var(--surface-2)] p-3"
             >
-              <span className="font-condensed text-sm font-bold tracking-[.03em] text-[var(--cream)] uppercase">
+              <span className="font-sans text-sm font-bold text-[var(--foreground)]">
                 {side.extra.name}
               </span>
               <div className="flex items-center gap-1">
                 <button
                   type="button"
-                  className="diner-stepper-btn"
+                  className="inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-full border border-[var(--hairline-strong)] bg-[var(--surface-1)] text-[var(--accent-brand)] transition-[border-color,transform] duration-150 hover:border-[var(--accent-brand)] active:scale-[0.92] [&_svg]:h-3.5 [&_svg]:w-3.5"
                   onClick={() => updateQuantity(side.id, -1)}
                   aria-label="Quitar uno"
                 >
                   <Minus />
                 </button>
-                <span className="numeric w-6 text-center text-sm text-[var(--cream)]">
+                <span className="numeric w-6 text-center text-sm text-[var(--foreground)]">
                   {side.quantity}
                 </span>
                 <button
                   type="button"
-                  className="diner-stepper-btn"
+                  className="inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-full border border-[var(--hairline-strong)] bg-[var(--surface-1)] text-[var(--accent-brand)] transition-[border-color,transform] duration-150 hover:border-[var(--accent-brand)] active:scale-[0.92] [&_svg]:h-3.5 [&_svg]:w-3.5"
                   onClick={() => updateQuantity(side.id, 1)}
                   aria-label="Agregar uno"
                 >
@@ -149,7 +157,7 @@ export function SidePicker({ sides, selection }: SidePickerProps) {
                 </button>
                 <button
                   type="button"
-                  className="inline-flex size-7 items-center justify-center rounded-full text-[var(--ember)] transition-colors hover:bg-[var(--coal)]"
+                  className="inline-flex size-7 items-center justify-center rounded-full text-[var(--accent-brand)] transition-colors hover:bg-[var(--surface-0)]"
                   onClick={() => removeSide(side.id)}
                   aria-label="Eliminar"
                 >

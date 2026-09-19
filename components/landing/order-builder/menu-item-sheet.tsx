@@ -67,7 +67,7 @@ export function MenuItemSheet({
               empujaba el precio/descripción/botón fuera de vista, forzando
               scroll para llegar a "Agregar al pedido". object-contain (no
               cover) para que la foto se vea completa, no recortada. */}
-          <div className="relative h-[180px] w-full overflow-hidden rounded-xl bg-[var(--slab)] sm:h-[220px]">
+          <div className="relative h-[180px] w-full overflow-hidden rounded-xl bg-[var(--surface-2)] sm:h-[220px]">
             {imageUrl ? (
               <Image
                 src={imageUrl}
@@ -77,9 +77,9 @@ export function MenuItemSheet({
                 className="object-contain"
               />
             ) : (
-              <div className="flex h-full w-full items-center justify-center bg-[var(--slab)]">
+              <div className="flex h-full w-full items-center justify-center bg-[var(--surface-2)]">
                 <FallbackIcon
-                  className="size-12 text-[var(--ash-dim)]"
+                  className="size-12 text-[var(--muted-foreground-dim)]"
                   strokeWidth={1.25}
                   aria-hidden
                 />
@@ -88,17 +88,17 @@ export function MenuItemSheet({
           </div>
 
           <DrawerHeader className="px-0">
-            <DrawerTitle className="font-display text-[clamp(1.6rem,6vw,2.1rem)] leading-[1.05] tracking-[-0.01em] text-[var(--cream)]">
+            <DrawerTitle className="font-sans text-[clamp(1.6rem,6vw,2.1rem)] leading-[1.05] font-bold tracking-[-0.01em] text-[var(--foreground)]">
               {name}
             </DrawerTitle>
             {/* Its own line, no leader dots: those are a list idiom (name
                 connected to price across a row of many items) -- this is a
                 single item, so a plain price line reads correctly instead. */}
-            <p className="numeric font-condensed text-[1.35rem] font-bold text-[var(--cheddar)]">
+            <p className="numeric font-sans text-[1.35rem] font-bold text-[var(--accent-brand)]">
               {formatArs(price)}
             </p>
             {description && (
-              <DrawerDescription className="font-body text-[1rem] leading-[1.55] text-[var(--ash-bright)]">
+              <DrawerDescription className="font-sans text-[1rem] leading-[1.55] text-[var(--muted-foreground)]">
                 {description}
               </DrawerDescription>
             )}
@@ -111,26 +111,28 @@ export function MenuItemSheet({
           {count === 0 ? (
             <button
               type="button"
-              className="diner-btn diner-btn-primary w-full justify-center"
+              className="inline-flex w-full items-center justify-center gap-[9px] rounded-lg bg-[var(--accent-brand)] px-[22px] py-[13px] font-sans text-[1.06rem] font-semibold text-[var(--accent-contrast)] shadow-[var(--shadow-sm)] transition-[background-color,box-shadow,transform] duration-150 hover:bg-[var(--accent-hover)] hover:shadow-[var(--shadow-md)] active:scale-[0.97] disabled:pointer-events-none disabled:opacity-45"
               onClick={onAdd}
             >
               Agregar al pedido
             </button>
           ) : (
             <div className="flex items-center justify-between gap-3">
-              <div className="diner-stepper">
+              <div className="flex shrink-0 items-center gap-0.5 rounded-[3px] border border-[var(--hairline)] bg-[var(--surface-2)]">
                 <button
                   type="button"
-                  className="diner-st"
+                  className="inline-flex h-9 w-9 items-center justify-center text-[var(--foreground)] transition-[color,transform] duration-150 [transition-timing-function:cubic-bezier(0.16,1,0.3,1)] hover:text-[var(--accent-brand)] active:scale-90 disabled:pointer-events-none disabled:opacity-40 [&_svg]:h-3.5 [&_svg]:w-3.5"
                   onClick={onRemove}
                   aria-label={`Quitar ${name}`}
                 >
                   <Minus />
                 </button>
-                <output className="diner-qty">{count}</output>
+                <output className="numeric w-[26px] text-center font-sans text-[1.1rem] font-bold text-[var(--muted-foreground)]">
+                  {count}
+                </output>
                 <button
                   type="button"
-                  className="diner-st"
+                  className="inline-flex h-9 w-9 items-center justify-center text-[var(--foreground)] transition-[color,transform] duration-150 [transition-timing-function:cubic-bezier(0.16,1,0.3,1)] hover:text-[var(--accent-brand)] active:scale-90 disabled:pointer-events-none disabled:opacity-40 [&_svg]:h-3.5 [&_svg]:w-3.5"
                   onClick={onAdd}
                   aria-label={`Agregar ${name}`}
                 >
@@ -143,7 +145,7 @@ export function MenuItemSheet({
             </div>
           )}
           {footnote != null && (
-            <p className="mt-2 text-center font-body text-xs text-[var(--ash)]">
+            <p className="mt-2 text-center font-sans text-xs text-[var(--muted-foreground)]">
               {footnote}
             </p>
           )}

@@ -43,14 +43,13 @@ export function OrderBuilder({ catalog, deliveryFeeArs }: OrderBuilderProps) {
   // category) -- only the display grouping is category-aware (SidePicker).
   const drinksAndSides = [...drinkExtras, ...sideExtras];
 
-  // Tab pills restyled to the diner identity: condensed uppercase labels,
-  // cheddar fill on the active tab, slab background otherwise -- the
-  // grouped-by-category *content* underneath each tab is now a printed-menu
-  // list (BurgerPicker/ComboPicker/SidePicker), not a card grid.
-  // dark: variants repeat every override on purpose -- see the identical
-  // note in checkout/fulfillment-toggle.tsx. The base TabsTrigger ships
-  // dark:text-muted-foreground / dark:data-[state=active]:bg-input/30, and
-  // this app is hardcoded to dark mode, so a bare-only override loses.
+  // Re-estilo a la identidad real de jebbs-dashboard: tipografía nativa
+  // (font-sans, sin mayúscula/tracking condensado -- el dashboard no usa esa
+  // convención) y fondo/texto con la escalera de acento en vez de
+  // cheddar/coal. dark: variants repeat every override on purpose -- see the
+  // identical note in checkout/fulfillment-toggle.tsx. The base TabsTrigger
+  // ships dark:text-muted-foreground / dark:data-[state=active]:bg-input/30,
+  // and this app is hardcoded to dark mode, so a bare-only override loses.
   // [transition-timing-function:...] -- misma curva que diner-interactive
   // (cubic-bezier(0.16,1,0.3,1)) para que el cambio de tab active/inactive
   // se sienta como el mismo gesto que el resto de la página. La base
@@ -58,12 +57,12 @@ export function OrderBuilder({ catalog, deliveryFeeArs }: OrderBuilderProps) {
   // sin timing-function propio (ease del navegador); esto solo agrega la
   // curva, no pelea con transition-property.
   const tabTriggerClass =
-    "rounded-full px-4 py-1.5 font-condensed text-[12px] font-bold tracking-[.08em] text-[var(--ash)] uppercase [transition-timing-function:cubic-bezier(0.16,1,0.3,1)] data-[state=active]:bg-[var(--cheddar)] data-[state=active]:text-[var(--coal)] data-[state=active]:shadow-none dark:text-[var(--ash)] dark:data-[state=active]:bg-[var(--cheddar)] dark:data-[state=active]:text-[var(--coal)]";
+    "rounded-full px-4 py-1.5 font-sans text-[12px] font-semibold text-[var(--muted-foreground)] [transition-timing-function:cubic-bezier(0.16,1,0.3,1)] data-[state=active]:bg-[var(--accent-brand)] data-[state=active]:text-[var(--accent-contrast)] data-[state=active]:shadow-none dark:text-[var(--muted-foreground)] dark:data-[state=active]:bg-[var(--accent-brand)] dark:data-[state=active]:text-[var(--accent-contrast)]";
 
   return (
     <div className="space-y-6">
       <Tabs defaultValue="burgers">
-        <TabsList className="h-auto w-full flex-wrap justify-start gap-1 border border-[var(--line)] bg-[var(--soot)] p-1 sm:w-fit">
+        <TabsList className="h-auto w-full flex-wrap justify-start gap-1 border border-[var(--hairline)] bg-[var(--surface-1)] p-1 sm:w-fit">
           <TabsTrigger value="burgers" className={tabTriggerClass}>
             Hamburguesas
           </TabsTrigger>

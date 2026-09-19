@@ -83,8 +83,8 @@ export function ComboPicker({
                 <div
                   key={combo.id}
                   className={cn(
-                    "menu-row last:border-b-0",
-                    count > 0 && "menu-row-active",
+                    "flex items-center gap-[15px] border-b border-dashed border-[var(--hairline-strong)] py-[15px] transition-[border-color,background-color,transform] duration-200 ease-[cubic-bezier(0.16,1,0.3,1)] last:border-b-0 hover:border-[var(--foreground)] hover:bg-[color-mix(in_srgb,var(--foreground)_3%,transparent)] active:scale-[0.99]",
+                    count > 0 && "bg-[linear-gradient(90deg,var(--accent-tint-16),transparent_60%)]",
                   )}
                 >
                   <button
@@ -93,9 +93,9 @@ export function ComboPicker({
                     onClick={() => showDetail(combo)}
                     aria-haspopup="dialog"
                   >
-                    <div className="diner-thumb flex items-center justify-center">
+                    <div className="flex h-[60px] w-[60px] shrink-0 items-center justify-center overflow-hidden rounded-[3px] border border-[var(--hairline)] bg-[var(--surface-2)]">
                       <UtensilsCrossed
-                        className="size-6 text-[var(--ash-dim)]"
+                        className="size-6 text-[var(--muted-foreground-dim)]"
                         strokeWidth={1.25}
                         aria-hidden
                       />
@@ -103,36 +103,41 @@ export function ComboPicker({
 
                     <div className="min-w-0 flex-1">
                       <div className="flex items-baseline">
-                        <span className="font-condensed text-[1.22rem] font-bold tracking-[.04em] text-[var(--cream)] uppercase">
+                        <span className="font-sans text-[1.22rem] font-bold text-[var(--foreground)]">
                           {combo.name}
                         </span>
-                        <span className="menu-leader" aria-hidden />
-                        <span className="numeric shrink-0 font-condensed text-[1.22rem] font-bold text-[var(--cheddar)]">
+                        <span
+                          className="mb-[0.3em] min-w-[1rem] flex-1 self-end border-b border-dotted border-[var(--muted-foreground-dim)]"
+                          aria-hidden
+                        />
+                        <span className="numeric shrink-0 font-sans text-[1.22rem] font-bold text-[var(--accent-brand)]">
                           {formatArs(combo.price)}
                         </span>
                       </div>
                       {description && (
-                        <p className="mt-1 line-clamp-2 font-body text-[0.94rem] leading-[1.45] tracking-[0.005em] text-[var(--ash-bright)]">
+                        <p className="mt-1 line-clamp-2 font-sans text-[0.94rem] leading-[1.45] text-[var(--muted-foreground)]">
                           {description}
                         </p>
                       )}
                     </div>
                   </button>
 
-                  <div className="diner-stepper">
+                  <div className="flex shrink-0 items-center gap-0.5 rounded-[3px] border border-[var(--hairline)] bg-[var(--surface-2)]">
                     <button
                       type="button"
-                      className="diner-st"
+                      className="inline-flex h-9 w-9 items-center justify-center text-[var(--foreground)] transition-[color,transform] duration-150 [transition-timing-function:cubic-bezier(0.16,1,0.3,1)] hover:text-[var(--accent-brand)] active:scale-90 disabled:pointer-events-none disabled:opacity-40 [&_svg]:h-3.5 [&_svg]:w-3.5"
                       onClick={() => decrementCombo(combo.id)}
                       disabled={count === 0}
                       aria-label={`Quitar ${combo.name}`}
                     >
                       <Minus />
                     </button>
-                    <output className="diner-qty">{count}</output>
+                    <output className="numeric w-[26px] text-center font-sans text-[1.1rem] font-bold text-[var(--muted-foreground)]">
+                      {count}
+                    </output>
                     <button
                       type="button"
-                      className="diner-st"
+                      className="inline-flex h-9 w-9 items-center justify-center text-[var(--foreground)] transition-[color,transform] duration-150 [transition-timing-function:cubic-bezier(0.16,1,0.3,1)] hover:text-[var(--accent-brand)] active:scale-90 disabled:pointer-events-none disabled:opacity-40 [&_svg]:h-3.5 [&_svg]:w-3.5"
                       onClick={() => addCombo(combo)}
                       aria-label={`Agregar ${combo.name}`}
                     >
@@ -146,17 +151,14 @@ export function ComboPicker({
         </div>
 
         {selectedCombos.map((instance) => (
-          <div
-            key={instance.id}
-            className="diner-elevated space-y-4 rounded-xl bg-[var(--slab)] p-3"
-          >
+          <div key={instance.id} className="ios-glass space-y-4 rounded-xl p-3">
             <div className="flex items-center justify-between">
-              <span className="font-condensed text-sm font-bold tracking-[.03em] text-[var(--cream)] uppercase">
+              <span className="font-sans text-sm font-bold text-[var(--foreground)]">
                 {instance.combo.name}
               </span>
               <button
                 type="button"
-                className="inline-flex size-7 items-center justify-center rounded-full text-[var(--ember)] transition-colors hover:bg-[var(--coal)]"
+                className="inline-flex size-7 items-center justify-center rounded-full text-[var(--accent-brand)] transition-colors hover:bg-[var(--surface-0)]"
                 onClick={() => removeCombo(instance.id)}
                 aria-label="Eliminar combo"
               >
@@ -172,19 +174,19 @@ export function ComboPicker({
                 );
                 return (
                   <div key={slot.slotId} className="space-y-2">
-                    <p className="font-condensed text-xs font-bold tracking-[.08em] text-[var(--ash)] uppercase">
+                    <p className="text-overline text-[var(--muted-foreground)] uppercase">
                       Hamburguesas ({remaining} disponibles)
                     </p>
                     <ul className="space-y-1">
                       {slot.burgers.map((item) => (
                         <li
                           key={item.id}
-                          className="flex items-center justify-between font-body text-sm text-[var(--cream)]"
+                          className="flex items-center justify-between font-sans text-sm text-[var(--foreground)]"
                         >
                           <span>{item.burger.name}</span>
                           <button
                             type="button"
-                            className="text-[var(--ember)]"
+                            className="text-[var(--accent-brand)]"
                             onClick={() =>
                               removeBurgerFromSlot(
                                 instance.id,
@@ -213,7 +215,7 @@ export function ComboPicker({
                             <button
                               key={burger.id}
                               type="button"
-                              className="rounded-full border border-[var(--line-2)] px-3 py-1 font-condensed text-[11px] font-bold tracking-[.04em] text-[var(--ash)] uppercase"
+                              className="rounded-full border border-[var(--hairline-strong)] px-3 py-1 text-xs font-semibold text-[var(--muted-foreground)] transition-colors hover:border-[var(--accent-brand)] hover:text-[var(--accent-brand)]"
                               onClick={() =>
                                 addBurgerToSlot(
                                   instance.id,
@@ -240,7 +242,7 @@ export function ComboPicker({
 
                 return (
                   <div key={slot.slotId} className="space-y-2">
-                    <p className="font-condensed text-xs font-bold tracking-[.08em] text-[var(--ash)] uppercase">
+                    <p className="text-overline text-[var(--muted-foreground)] uppercase">
                       {label}
                     </p>
                     <div className="flex flex-wrap gap-2">
@@ -253,10 +255,10 @@ export function ComboPicker({
                             key={extra.id}
                             type="button"
                             className={cn(
-                              "rounded-full border px-3 py-1 font-condensed text-[11px] font-bold tracking-[.04em] uppercase",
+                              "rounded-full border px-3 py-1 text-xs font-semibold",
                               timesSelected > 0
-                                ? "border-[var(--cheddar)] bg-[var(--cheddar)] text-[var(--coal)]"
-                                : "border-[var(--line-2)] text-[var(--ash)]",
+                                ? "border-[var(--accent-brand)] bg-[var(--accent-brand)] text-[var(--accent-contrast)]"
+                                : "border-[var(--hairline-strong)] text-[var(--muted-foreground)]",
                             )}
                             onClick={() =>
                               timesSelected > 0
@@ -306,10 +308,10 @@ export function ComboPicker({
           }
         >
           <div className="mt-4">
-            <p className="mb-2 font-condensed text-xs font-bold tracking-[.16em] text-[var(--ash)] uppercase">
+            <p className="mb-2 text-overline text-[var(--muted-foreground)] uppercase">
               Qué incluye
             </p>
-            <ul className="space-y-1 font-body text-sm text-[var(--cream)]">
+            <ul className="space-y-1 font-sans text-sm text-[var(--foreground)]">
               {describeComboSlots(detail).map((line, i) => (
                 <li key={i}>{line}</li>
               ))}

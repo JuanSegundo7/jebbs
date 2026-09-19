@@ -29,7 +29,10 @@ export function DeliveryDetailsForm({
   return (
     <div data-testid="delivery-address-form">
       <div className="diner-field">
-        <label htmlFor="checkout-phone" className="diner-field-label">
+        <label
+          htmlFor="checkout-phone"
+          className="mb-1 block font-sans text-xs font-medium text-[var(--muted-foreground)]"
+        >
           Teléfono
         </label>
         <input
@@ -41,12 +44,15 @@ export function DeliveryDetailsForm({
           value={phone}
           onChange={(e) => onPhoneChange(e.target.value)}
           placeholder="Ej: 3454123456"
-          className="diner-field-input"
+          className="w-full rounded-lg border border-[var(--hairline)] bg-[var(--surface-1)] px-[10px] py-[11px] font-sans text-[0.95rem] leading-[1.3] text-[var(--foreground)] outline-none placeholder:text-[var(--muted-foreground-dim)] focus-visible:border-[var(--accent-brand)] focus-visible:shadow-[inset_0_0_0_1px_var(--accent-brand)]"
         />
       </div>
 
       <div className="diner-field">
-        <label htmlFor="checkout-address" className="diner-field-label">
+        <label
+          htmlFor="checkout-address"
+          className="mb-1 block font-sans text-xs font-medium text-[var(--muted-foreground)]"
+        >
           Dirección
         </label>
         <input
@@ -56,12 +62,15 @@ export function DeliveryDetailsForm({
           value={address}
           onChange={(e) => onAddressChange(e.target.value)}
           placeholder="Calle, número, barrio"
-          className="diner-field-input"
+          className="w-full rounded-lg border border-[var(--hairline)] bg-[var(--surface-1)] px-[10px] py-[11px] font-sans text-[0.95rem] leading-[1.3] text-[var(--foreground)] outline-none placeholder:text-[var(--muted-foreground-dim)] focus-visible:border-[var(--accent-brand)] focus-visible:shadow-[inset_0_0_0_1px_var(--accent-brand)]"
         />
       </div>
 
       <div className="diner-field">
-        <label htmlFor="checkout-notes" className="diner-field-label">
+        <label
+          htmlFor="checkout-notes"
+          className="mb-1 block font-sans text-xs font-medium text-[var(--muted-foreground)]"
+        >
           Notas (opcional)
         </label>
         <input
@@ -69,7 +78,7 @@ export function DeliveryDetailsForm({
           value={notes}
           onChange={(e) => onNotesChange(e.target.value)}
           placeholder="Timbre, piso, entre calles..."
-          className="diner-field-input"
+          className="w-full rounded-lg border border-[var(--hairline)] bg-[var(--surface-1)] px-[10px] py-[11px] font-sans text-[0.95rem] leading-[1.3] text-[var(--foreground)] outline-none placeholder:text-[var(--muted-foreground-dim)] focus-visible:border-[var(--accent-brand)] focus-visible:shadow-[inset_0_0_0_1px_var(--accent-brand)]"
         />
       </div>
     </div>

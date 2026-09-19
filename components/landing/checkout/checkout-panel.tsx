@@ -48,12 +48,20 @@ export function CheckoutPanel({ cart, checkout, deliveryFeeArs }: CheckoutPanelP
   const fee = isDelivery ? deliveryFeeArs : 0;
 
   return (
-    <div className="diner-ticket">
+    // Re-estilo a la identidad real: `diner-ticket` (superficie "ticket de
+    // papel" cheddar/slab) se retintó siguiendo el mismo criterio que
+    // `diner-sheet` (ver mapeo del plan) -- superficie opaca sin
+    // backdrop-filter, borde hairline con top especular, sombra real.
+    <div className="relative rounded-[14px] border border-[var(--hairline)] bg-[var(--surface-1)] p-4 font-sans text-[var(--foreground)] shadow-[var(--shadow-lg)] [border-top-color:var(--hairline-strong)] selection:bg-[var(--accent-brand)] selection:text-[var(--accent-contrast)]">
       <header>
-        <h3 className="diner-ticket-title">Jebb&apos;s Burger&apos;s</h3>
-        <p className="diner-ticket-sub">Comprobante de pedido</p>
+        <h3 className="m-0 text-center font-sans text-base font-bold leading-[1.15] tracking-[0.02em] text-[var(--foreground)]">
+          Jebb&apos;s Burger&apos;s
+        </h3>
+        <p className="mt-[3px] text-center font-sans text-sm text-[var(--muted-foreground)]">
+          Comprobante de pedido
+        </p>
       </header>
-      <hr className="diner-rule" />
+      <hr className="my-2.5 border-0 border-t border-[var(--hairline)]" />
 
       <CustomerNameField value={customerName} onChange={setCustomerName} />
 
@@ -63,7 +71,7 @@ export function CheckoutPanel({ cart, checkout, deliveryFeeArs }: CheckoutPanelP
 
       {isDelivery && (
         <>
-          <hr className="diner-rule" />
+          <hr className="my-2.5 border-0 border-t border-[var(--hairline)]" />
           <DeliveryDetailsForm
             phone={phone}
             onPhoneChange={setPhone}
@@ -75,14 +83,14 @@ export function CheckoutPanel({ cart, checkout, deliveryFeeArs }: CheckoutPanelP
         </>
       )}
 
-      <hr className="diner-rule" />
-      <div className="space-y-1.5 font-body text-sm text-[var(--cream)]">
+      <hr className="my-2.5 border-0 border-t border-[var(--hairline)]" />
+      <div className="space-y-1.5 font-sans text-sm text-[var(--foreground)]">
         <div className="flex items-center justify-between">
           <span>Subtotal</span>
           <span className="numeric">{formatArs(cart.total)}</span>
         </div>
         {isDelivery && <DeliveryFeeLine deliveryFeeArs={deliveryFeeArs} />}
-        <div className="diner-ttot pt-1">
+        <div className="flex items-baseline justify-between pt-1 font-sans text-[1.05rem] font-bold text-[var(--accent-brand)] tabular-nums">
           <span>Total</span>
           <span className="numeric">{formatArs(cart.total + fee)}</span>
         </div>

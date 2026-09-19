@@ -115,7 +115,13 @@ describe("BurgerPicker customize panel -- extras with quantity", () => {
     fireEvent.click(addBaconBtn());
     fireEvent.click(addBaconBtn());
 
-    const row = screen.getByText("Bacon").closest(".menu-row-compact") as HTMLElement;
+    // Re-estilo visual (identidad jebbs-dashboard): la fila del extra ya no
+    // lleva la clase `menu-row-compact` (composite utility retirada de este
+    // componente, ver AGENTS.md del re-estilo) -- se sube por estructura
+    // (name -> su wrapper -> la fila entera) en vez de por className, así
+    // el test no depende de una clase de presentación.
+    const row = screen.getByText("Bacon").closest("div")
+      ?.parentElement as HTMLElement;
     expect(within(row).getByText("2")).toBeTruthy();
 
     // Query the header toggle while still expanded (its accessible name is

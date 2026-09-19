@@ -49,30 +49,30 @@ export function BurgerCustomizePanel({
   const selectedExtrasCount = item.selectedExtras.length;
 
   return (
-    <div className="space-y-3 border-t border-[var(--line)] pt-3">
-      <p className="font-body text-xs leading-[1.5] text-[var(--ash-bright)]">
+    <div className="space-y-3 border-t border-[var(--hairline)] pt-3">
+      <p className="font-sans text-xs leading-[1.5] text-[var(--muted-foreground)]">
         {summarizeBurger(item) ?? "Sin modificar"}
       </p>
 
       <div className="flex items-center justify-between">
-        <span className="font-condensed text-xs font-bold tracking-[.08em] text-[var(--ash)] uppercase">
+        <span className="text-overline text-[var(--muted-foreground)] uppercase">
           Carne
         </span>
         <div className="flex items-center gap-1">
           <button
             type="button"
-            className="diner-stepper-btn"
+            className="inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-full border border-[var(--hairline-strong)] bg-[var(--surface-2)] text-[var(--accent-brand)] transition-[border-color,transform] duration-150 hover:border-[var(--accent-brand)] active:scale-[0.92] [&_svg]:h-3.5 [&_svg]:w-3.5"
             onClick={() => onMeatChange(-1)}
             aria-label="Menos carne"
           >
             <Minus />
           </button>
-          <span className="numeric w-6 text-center text-sm text-[var(--cream)]">
+          <span className="numeric w-6 text-center text-sm text-[var(--foreground)]">
             {item.meatCount}
           </span>
           <button
             type="button"
-            className="diner-stepper-btn"
+            className="inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-full border border-[var(--hairline-strong)] bg-[var(--surface-2)] text-[var(--accent-brand)] transition-[border-color,transform] duration-150 hover:border-[var(--accent-brand)] active:scale-[0.92] [&_svg]:h-3.5 [&_svg]:w-3.5"
             onClick={() => onMeatChange(1)}
             aria-label="Más carne"
           >
@@ -86,42 +86,51 @@ export function BurgerCustomizePanel({
         role="switch"
         aria-checked={item.isVeggie ?? false}
         onClick={onToggleVeggie}
-        // El único uso interactivo real de diner-chip (el resto son badges,
-        // sin hover) -- se le suma el movimiento de diner-interactive en
+        // El único uso interactivo real del chip (el resto son badges, sin
+        // hover) -- se le suma el movimiento de diner-interactive en
         // valores sueltos (no la clase, para no pelear el `transition`
-        // shorthand que ya trae menu-row-compact vía diner-interactive-subtle:
-        // acá se anima solo transform/box-shadow, dejando intacta la
-        // transición de borde/fondo de la fila).
-        className="menu-row-compact w-full border-b-0 text-left transition-[transform,box-shadow] duration-200 [transition-timing-function:cubic-bezier(0.16,1,0.3,1)] hover:-translate-y-0.5 hover:shadow-[0_20px_40px_rgba(0,0,0,0.35)] active:scale-[0.985] active:bg-white/[0.03] active:shadow-[0_8px_16px_rgba(0,0,0,0.25)]"
+        // shorthand que ya trae la fila): acá se anima solo transform/
+        // box-shadow, dejando intacta la transición de borde/fondo propia.
+        className="flex w-full items-center gap-[10px] py-2 text-left transition-[transform,box-shadow] duration-200 [transition-timing-function:cubic-bezier(0.16,1,0.3,1)] hover:-translate-y-0.5 hover:shadow-[var(--shadow-md)] active:scale-[0.985] active:bg-[color-mix(in_srgb,var(--foreground)_3%,transparent)] active:shadow-[var(--shadow-sm)]"
       >
-        <span className="font-condensed text-[0.98rem] font-bold tracking-[.03em] text-[var(--cream)] uppercase">
+        <span className="font-sans text-[0.98rem] font-bold text-[var(--foreground)]">
           Versión veggie
         </span>
-        <span className="menu-leader" aria-hidden />
-        <span className={cn("diner-chip shrink-0", !item.isVeggie && "diner-chip-hollow")}>
+        <span
+          className="mb-[0.3em] min-w-[1rem] flex-1 self-end border-b border-dotted border-[var(--muted-foreground-dim)]"
+          aria-hidden
+        />
+        <span
+          className={cn(
+            "shrink-0 rounded-full px-2.5 py-0.5 text-xs font-semibold",
+            item.isVeggie
+              ? "bg-[var(--accent-brand)] text-[var(--accent-contrast)]"
+              : "border border-[var(--accent-brand)]/50 text-[var(--accent-brand)]",
+          )}
+        >
           {item.isVeggie ? "Sí" : "No"}
         </span>
       </button>
 
       <div className="flex items-center justify-between">
-        <span className="font-condensed text-xs font-bold tracking-[.08em] text-[var(--ash)] uppercase">
+        <span className="text-overline text-[var(--muted-foreground)] uppercase">
           Papas
         </span>
         <div className="flex items-center gap-1">
           <button
             type="button"
-            className="diner-stepper-btn"
+            className="inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-full border border-[var(--hairline-strong)] bg-[var(--surface-2)] text-[var(--accent-brand)] transition-[border-color,transform] duration-150 hover:border-[var(--accent-brand)] active:scale-[0.92] [&_svg]:h-3.5 [&_svg]:w-3.5"
             onClick={() => onFriesChange(-1)}
             aria-label="Menos papas"
           >
             <Minus />
           </button>
-          <span className="numeric w-6 text-center text-sm text-[var(--cream)]">
+          <span className="numeric w-6 text-center text-sm text-[var(--foreground)]">
             {item.friesQuantity}
           </span>
           <button
             type="button"
-            className="diner-stepper-btn"
+            className="inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-full border border-[var(--hairline-strong)] bg-[var(--surface-2)] text-[var(--accent-brand)] transition-[border-color,transform] duration-150 hover:border-[var(--accent-brand)] active:scale-[0.92] [&_svg]:h-3.5 [&_svg]:w-3.5"
             onClick={() => onFriesChange(1)}
             aria-label="Más papas"
           >
@@ -133,11 +142,11 @@ export function BurgerCustomizePanel({
       {toppingExtras.length > 0 && (
         <div>
           <div className="flex items-baseline justify-between">
-            <span className="font-condensed text-xs font-bold tracking-[.08em] text-[var(--ash)] uppercase">
+            <span className="text-overline text-[var(--muted-foreground)] uppercase">
               Extras
             </span>
             {selectedExtrasCount > 0 && (
-              <span className="numeric font-condensed text-xs text-[var(--ash-dim)]">
+              <span className="numeric font-sans text-xs text-[var(--muted-foreground-dim)]">
                 {selectedExtrasCount} agregado{selectedExtrasCount === 1 ? "" : "s"}
               </span>
             )}
@@ -148,31 +157,39 @@ export function BurgerCustomizePanel({
             return (
               <div
                 key={extra.id}
-                className={cn("menu-row-compact last:border-b-0", qty > 0 && "menu-row-active")}
+                className={cn(
+                  "flex items-center gap-[10px] border-b border-dashed border-[var(--hairline-strong)] py-2 transition-[border-color,background-color,transform] duration-200 ease-[cubic-bezier(0.16,1,0.3,1)] last:border-b-0 hover:border-[var(--foreground)] hover:bg-[color-mix(in_srgb,var(--foreground)_3%,transparent)] active:scale-[0.99]",
+                  qty > 0 && "bg-[linear-gradient(90deg,var(--accent-tint-16),transparent_60%)]",
+                )}
               >
                 <div className="flex min-w-0 flex-1 items-baseline">
-                  <span className="truncate font-condensed text-[0.98rem] font-bold tracking-[.03em] text-[var(--cream)] uppercase">
+                  <span className="truncate font-sans text-[0.98rem] font-bold text-[var(--foreground)]">
                     {extra.name}
                   </span>
-                  <span className="menu-leader" aria-hidden />
-                  <span className="numeric shrink-0 font-condensed text-[0.98rem] font-bold text-[var(--cheddar)]">
+                  <span
+                    className="mb-[0.3em] min-w-[1rem] flex-1 self-end border-b border-dotted border-[var(--muted-foreground-dim)]"
+                    aria-hidden
+                  />
+                  <span className="numeric shrink-0 font-sans text-[0.98rem] font-bold text-[var(--accent-brand)]">
                     +{formatArs(extra.price)}
                   </span>
                 </div>
-                <div className="diner-stepper">
+                <div className="flex shrink-0 items-center gap-0.5 rounded-[3px] border border-[var(--hairline)] bg-[var(--surface-2)]">
                   <button
                     type="button"
-                    className="diner-st"
+                    className="inline-flex h-9 w-9 items-center justify-center text-[var(--foreground)] transition-[color,transform] duration-150 [transition-timing-function:cubic-bezier(0.16,1,0.3,1)] hover:text-[var(--accent-brand)] active:scale-90 disabled:pointer-events-none disabled:opacity-40 [&_svg]:h-3.5 [&_svg]:w-3.5"
                     disabled={qty === 0}
                     onClick={() => onExtraQuantityChange(extra.id, -1)}
                     aria-label={`Quitar ${extra.name}`}
                   >
                     <Minus />
                   </button>
-                  <output className="diner-qty">{qty}</output>
+                  <output className="numeric w-[26px] text-center font-sans text-[1.1rem] font-bold text-[var(--muted-foreground)]">
+                    {qty}
+                  </output>
                   <button
                     type="button"
-                    className="diner-st"
+                    className="inline-flex h-9 w-9 items-center justify-center text-[var(--foreground)] transition-[color,transform] duration-150 [transition-timing-function:cubic-bezier(0.16,1,0.3,1)] hover:text-[var(--accent-brand)] active:scale-90 disabled:pointer-events-none disabled:opacity-40 [&_svg]:h-3.5 [&_svg]:w-3.5"
                     disabled={qty >= MAX_EXTRA_QUANTITY}
                     onClick={() =>
                       qty === 0 ? onToggleExtra(extra) : onExtraQuantityChange(extra.id, 1)
@@ -191,7 +208,7 @@ export function BurgerCustomizePanel({
               type="button"
               aria-expanded={showAllExtras}
               onClick={() => setShowAllExtras((v) => !v)}
-              className="w-full py-2 text-center font-condensed text-xs font-bold tracking-[.08em] text-[var(--cheddar)] uppercase"
+              className="w-full py-2 text-center text-overline text-[var(--accent-brand)] uppercase"
             >
               {showAllExtras ? "Ver menos" : `Ver los ${toppingExtras.length} extras`}
             </button>

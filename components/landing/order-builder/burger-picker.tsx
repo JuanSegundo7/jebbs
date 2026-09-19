@@ -82,8 +82,8 @@ export function BurgerPicker({
                 <div
                   key={burger.id}
                   className={cn(
-                    "menu-row last:border-b-0",
-                    count > 0 && "menu-row-active",
+                    "flex items-center gap-[15px] border-b border-dashed border-[var(--hairline-strong)] py-[15px] transition-[border-color,background-color,transform] duration-200 ease-[cubic-bezier(0.16,1,0.3,1)] last:border-b-0 hover:border-[var(--foreground)] hover:bg-[color-mix(in_srgb,var(--foreground)_3%,transparent)] active:scale-[0.99]",
+                    count > 0 && "bg-[linear-gradient(90deg,var(--accent-tint-16),transparent_60%)]",
                   )}
                 >
                   <button
@@ -92,7 +92,7 @@ export function BurgerPicker({
                     onClick={() => showDetail(burger)}
                     aria-haspopup="dialog"
                   >
-                    <div className="diner-thumb">
+                    <div className="relative h-[60px] w-[60px] shrink-0 overflow-hidden rounded-[3px] border border-[var(--hairline)] bg-[var(--surface-2)]">
                       {burger.image_url ? (
                         <Image
                           src={burger.image_url}
@@ -104,7 +104,7 @@ export function BurgerPicker({
                       ) : (
                         <div className="flex h-full w-full items-center justify-center">
                           <Beef
-                            className="size-6 text-[var(--ash-dim)]"
+                            className="size-6 text-[var(--muted-foreground-dim)]"
                             strokeWidth={1.25}
                             aria-hidden
                           />
@@ -114,36 +114,41 @@ export function BurgerPicker({
 
                     <div className="min-w-0 flex-1">
                       <div className="flex items-baseline">
-                        <span className="font-condensed text-[1.22rem] font-bold tracking-[.04em] text-[var(--cream)] uppercase">
+                        <span className="font-sans text-[1.22rem] font-bold text-[var(--foreground)]">
                           {burger.name}
                         </span>
-                        <span className="menu-leader" aria-hidden />
-                        <span className="numeric shrink-0 font-condensed text-[1.22rem] font-bold text-[var(--cheddar)]">
+                        <span
+                          className="mb-[0.3em] min-w-[1rem] flex-1 self-end border-b border-dotted border-[var(--muted-foreground-dim)]"
+                          aria-hidden
+                        />
+                        <span className="numeric shrink-0 font-sans text-[1.22rem] font-bold text-[var(--accent-brand)]">
                           {formatArs(burger.base_price)}
                         </span>
                       </div>
                       {description && (
-                        <p className="mt-1 line-clamp-2 font-body text-[0.94rem] leading-[1.45] tracking-[0.005em] text-[var(--ash-bright)]">
+                        <p className="mt-1 line-clamp-2 font-sans text-[0.94rem] leading-[1.45] text-[var(--muted-foreground)]">
                           {description}
                         </p>
                       )}
                     </div>
                   </button>
 
-                  <div className="diner-stepper">
+                  <div className="flex shrink-0 items-center gap-0.5 rounded-[3px] border border-[var(--hairline)] bg-[var(--surface-2)]">
                     <button
                       type="button"
-                      className="diner-st"
+                      className="inline-flex h-9 w-9 items-center justify-center text-[var(--foreground)] transition-[color,transform] duration-150 [transition-timing-function:cubic-bezier(0.16,1,0.3,1)] hover:text-[var(--accent-brand)] active:scale-90 disabled:pointer-events-none disabled:opacity-40 [&_svg]:h-3.5 [&_svg]:w-3.5"
                       onClick={() => decrementBurger(burger.id)}
                       disabled={count === 0}
                       aria-label={`Quitar ${burger.name}`}
                     >
                       <Minus />
                     </button>
-                    <output className="diner-qty">{count}</output>
+                    <output className="numeric w-[26px] text-center font-sans text-[1.1rem] font-bold text-[var(--muted-foreground)]">
+                      {count}
+                    </output>
                     <button
                       type="button"
-                      className="diner-st"
+                      className="inline-flex h-9 w-9 items-center justify-center text-[var(--foreground)] transition-[color,transform] duration-150 [transition-timing-function:cubic-bezier(0.16,1,0.3,1)] hover:text-[var(--accent-brand)] active:scale-90 disabled:pointer-events-none disabled:opacity-40 [&_svg]:h-3.5 [&_svg]:w-3.5"
                       onClick={() => addBurger(burger)}
                       aria-label={`Agregar ${burger.name}`}
                     >
@@ -158,16 +163,13 @@ export function BurgerPicker({
 
         {selectedBurgers.length > 0 && (
           <div className="space-y-2">
-            <p className="font-condensed text-xs font-bold tracking-[.16em] text-[var(--ash)] uppercase">
+            <p className="text-overline text-[var(--muted-foreground)] uppercase">
               Personalizá tu pedido
             </p>
             {selectedBurgers.map((item) => {
               const expanded = expandedBurger === item.id;
               return (
-                <div
-                  key={item.id}
-                  className="diner-elevated space-y-3 rounded-xl bg-[var(--slab)] p-3"
-                >
+                <div key={item.id} className="ios-glass space-y-3 rounded-xl p-3">
                   <div className="flex items-center justify-between gap-2">
                     <button
                       type="button"
@@ -177,17 +179,17 @@ export function BurgerPicker({
                     >
                       <ChevronDown
                         className={cn(
-                          "size-4 shrink-0 text-[var(--ash)] transition-transform",
+                          "size-4 shrink-0 text-[var(--muted-foreground)] transition-transform",
                           expanded && "rotate-180",
                         )}
                         aria-hidden
                       />
                       <span className="min-w-0 flex-1">
-                        <span className="block font-condensed text-sm font-bold tracking-[.03em] text-[var(--cream)] uppercase">
+                        <span className="block font-sans text-sm font-bold text-[var(--foreground)]">
                           {item.burger.name}
                         </span>
                         {!expanded && (
-                          <span className="block truncate font-body text-xs text-[var(--ash)]">
+                          <span className="block truncate font-sans text-xs text-[var(--muted-foreground)]">
                             {summarizeBurger(item) ??
                               "Sin modificar · tocá para personalizar"}
                           </span>
@@ -197,18 +199,18 @@ export function BurgerPicker({
                     <div className="flex items-center gap-1">
                       <button
                         type="button"
-                        className="diner-stepper-btn"
+                        className="inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-full border border-[var(--hairline-strong)] bg-[var(--surface-2)] text-[var(--accent-brand)] transition-[border-color,transform] duration-150 hover:border-[var(--accent-brand)] active:scale-[0.92] [&_svg]:h-3.5 [&_svg]:w-3.5"
                         onClick={() => updateQuantity(item.id, -1)}
                         aria-label="Quitar uno"
                       >
                         <Minus />
                       </button>
-                      <span className="numeric w-6 text-center text-sm text-[var(--cream)]">
+                      <span className="numeric w-6 text-center text-sm text-[var(--foreground)]">
                         {item.quantity}
                       </span>
                       <button
                         type="button"
-                        className="diner-stepper-btn"
+                        className="inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-full border border-[var(--hairline-strong)] bg-[var(--surface-2)] text-[var(--accent-brand)] transition-[border-color,transform] duration-150 hover:border-[var(--accent-brand)] active:scale-[0.92] [&_svg]:h-3.5 [&_svg]:w-3.5"
                         onClick={() => updateQuantity(item.id, 1)}
                         aria-label="Agregar uno"
                       >
@@ -216,7 +218,7 @@ export function BurgerPicker({
                       </button>
                       <button
                         type="button"
-                        className="inline-flex size-7 items-center justify-center rounded-full text-[var(--ember)] transition-colors hover:bg-[var(--coal)]"
+                        className="inline-flex size-7 items-center justify-center rounded-full text-[var(--accent-brand)] transition-colors hover:bg-[var(--surface-0)]"
                         onClick={() => removeBurger(item.id)}
                         aria-label="Eliminar"
                       >
@@ -265,12 +267,15 @@ export function BurgerPicker({
         >
           {detail.ingredients.length > 0 && (
             <div className="mt-4">
-              <p className="mb-2 font-condensed text-xs font-bold tracking-[.16em] text-[var(--ash)] uppercase">
+              <p className="mb-2 text-overline text-[var(--muted-foreground)] uppercase">
                 Ingredientes
               </p>
               <div className="flex flex-wrap gap-2">
                 {detail.ingredients.map((ing) => (
-                  <span key={ing} className="diner-chip diner-chip-hollow">
+                  <span
+                    key={ing}
+                    className="rounded-full border border-[var(--accent-brand)]/50 px-2.5 py-0.5 text-xs font-semibold text-[var(--accent-brand)]"
+                  >
                     {ing}
                   </span>
                 ))}

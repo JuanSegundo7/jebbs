@@ -66,19 +66,22 @@ function CartLine({
 }) {
   return (
     <div className="flex items-start gap-3">
-      <Icon className="mt-1 size-4 shrink-0 text-[var(--cheddar)]" aria-hidden />
+      <Icon className="mt-1 size-4 shrink-0 text-[var(--accent-brand)]" aria-hidden />
       <div className="min-w-0 flex-1">
         <div className="flex items-baseline">
-          <span className="font-condensed text-[1.05rem] font-bold tracking-[.03em] text-[var(--cream)] uppercase">
+          <span className="font-sans text-[1.05rem] font-bold text-[var(--foreground)]">
             {label}
           </span>
-          <span className="menu-leader" aria-hidden />
-          <span className="numeric shrink-0 font-condensed text-[1.05rem] font-bold text-[var(--cheddar)]">
+          <span
+            className="mb-[0.3em] min-w-[1rem] flex-1 self-end border-b border-dotted border-[var(--muted-foreground-dim)]"
+            aria-hidden
+          />
+          <span className="numeric shrink-0 font-sans text-[1.05rem] font-bold text-[var(--accent-brand)]">
             {formatArs(price)}
           </span>
         </div>
         {summary && (
-          <p className="mt-0.5 font-body text-[13px] leading-snug text-[var(--ash-bright)]">
+          <p className="mt-0.5 font-sans text-[13px] leading-snug text-[var(--muted-foreground)]">
             {summary}
           </p>
         )}
@@ -125,23 +128,30 @@ export function CartDrawer({
           // superpuesto con "Tu pedido"/"Carrito vacío"). El estado
           // "no accionable" ahora se comunica solo en la píldora "Ver
           // pedido", no en el fondo de la barra entera.
-          className="diner-rail group transition-opacity duration-150 data-[open=true]:pointer-events-none data-[open=true]:opacity-0"
+          // Re-estilo a la identidad real: `diner-rail` (fondo negro/mostaza a
+          // mano + blur hecho a mano) se reemplaza por `material-regular`
+          // (mismo criterio que site-header.tsx) + posicionamiento fijo
+          // literal, ya que la posición/altura no son parte del vocabulario
+          // de color/material.
+          className="material-regular group fixed inset-x-0 bottom-0 z-50 h-[var(--rail-h)] transition-opacity duration-150 data-[open=true]:pointer-events-none data-[open=true]:opacity-0"
           data-open={open}
           disabled={isEmpty}
         >
           <div className="diner-wrap flex h-full items-center gap-4">
             <div className="min-w-0 text-left">
-              <span className="diner-rail-k block">Tu pedido</span>
-              <span className="diner-rail-v block truncate">
+              <span className="text-overline block text-[var(--muted-foreground)] uppercase">
+                Tu pedido
+              </span>
+              <span className="numeric block truncate font-sans text-[1.28rem] font-bold text-[var(--foreground)]">
                 {itemCount > 0 ? `${itemCount} · ${formatArs(total)}` : "Carrito vacío"}
               </span>
             </div>
-            {/* diner-cta-glow: glow ambiente permanente, no solo al hover --
-                es el CTA de conversión del rail fijo (apple-design §16.6,
-                ver comentario de la utility en globals.css). El
+            {/* Glow ambiente permanente, no solo al hover -- es el CTA de
+                conversión del rail fijo (apple-design §16.6), mismo
+                tratamiento que el CTA del hero (hero.tsx). El
                 group-disabled:opacity-45 ya existente atenúa el glow junto
                 con el resto del botón cuando el carrito está vacío. */}
-            <span className="diner-btn diner-btn-primary diner-cta-glow pointer-events-none ml-auto group-disabled:opacity-45">
+            <span className="pointer-events-none ml-auto inline-flex items-center gap-[9px] rounded-lg bg-[var(--accent-brand)] px-[22px] py-[13px] font-sans text-[1.06rem] font-semibold text-[var(--accent-contrast)] shadow-[var(--shadow-md),0_0_32px_-8px_rgba(255,159,10,.35)] transition-[background-color,box-shadow,transform] duration-150 group-disabled:opacity-45 hover:bg-[var(--accent-hover)] active:scale-[0.97]">
               <MessageCircle className="size-4" aria-hidden />
               Ver pedido
             </span>
@@ -150,7 +160,7 @@ export function CartDrawer({
       </DrawerTrigger>
       <DrawerContent>
         <DrawerHeader className="diner-wrap">
-          <DrawerTitle className="font-display text-xl text-[var(--cream)]">
+          <DrawerTitle className="font-sans text-xl font-bold text-[var(--foreground)]">
             Tu pedido
           </DrawerTitle>
           <DrawerDescription>
@@ -181,7 +191,7 @@ export function CartDrawer({
         <div className="diner-wrap min-h-0 flex-1 overflow-y-auto">
           <div className="grid gap-6 md:grid-cols-[1fr_380px] md:items-start">
             <div>
-              <p className="mb-3 font-condensed text-xs font-bold tracking-[.16em] text-[var(--ash)] uppercase">
+              <p className="mb-3 text-overline text-[var(--muted-foreground)] uppercase">
                 Detalle
               </p>
               <div className="space-y-3">

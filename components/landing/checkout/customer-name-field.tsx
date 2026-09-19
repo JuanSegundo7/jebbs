@@ -21,7 +21,10 @@ interface CustomerNameFieldProps {
 export function CustomerNameField({ value, onChange }: CustomerNameFieldProps) {
   return (
     <div className="diner-field">
-      <label htmlFor="checkout-customer-name" className="diner-field-label">
+      <label
+        htmlFor="checkout-customer-name"
+        className="mb-1 block font-sans text-xs font-medium text-[var(--muted-foreground)]"
+      >
         Nombre
       </label>
       <input
@@ -31,7 +34,7 @@ export function CustomerNameField({ value, onChange }: CustomerNameFieldProps) {
         value={value}
         onChange={(e) => onChange(e.target.value)}
         placeholder="Tu nombre"
-        className="diner-field-input"
+        className="w-full rounded-lg border border-[var(--hairline)] bg-[var(--surface-1)] px-[10px] py-[11px] font-sans text-[0.95rem] leading-[1.3] text-[var(--foreground)] outline-none placeholder:text-[var(--muted-foreground-dim)] focus-visible:border-[var(--accent-brand)] focus-visible:shadow-[inset_0_0_0_1px_var(--accent-brand)]"
       />
     </div>
   );
