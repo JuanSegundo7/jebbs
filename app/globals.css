@@ -816,13 +816,18 @@
    sobre el sheet, no aplastado contra el mismo tono. Sin backdrop-filter:
    ya no hace falta, y un blur de 44px sobre una superficie de 80vh es
    costo de GPU real en un flujo mobile-first. */
+/* Único consumidor real: components/ui/drawer.tsx (DrawerContent) -- el
+   fondo del carrito y del panel de detalle de producto. Retinteado directo
+   (mismo criterio que diner-zonemap-frame/diner-rev): --soot era marrón
+   cálido del sistema viejo, quedaba asomando alrededor del ticket/cards
+   ya azules de adentro (reportado real). */
 @utility diner-sheet {
-  @apply diner-elevated;
-  background-color: var(--soot);
-  /* Sombra propia (hacia arriba, no hacia abajo como diner-elevated): este
-     sheet se ancla al piso de la pantalla, así que la luz que lo separa
-     del contenido de atrás tiene que proyectarse para arriba. Mismo valor
-     que ya estaba probado acá, solo centralizando el borde especular. */
+  border: 1px solid var(--hairline);
+  border-top-color: var(--hairline-strong);
+  background-color: var(--surface-1);
+  /* Sombra propia (hacia arriba, no hacia abajo): este sheet se ancla al
+     piso de la pantalla, así que la luz que lo separa del contenido de
+     atrás tiene que proyectarse para arriba. */
   box-shadow: 0 -24px 60px rgba(0, 0, 0, 0.55);
 }
 
@@ -1110,9 +1115,14 @@
 
 /* body -- fondo con gradiente radial sutil (ref-style.css:17-23), no un
    color plano. padding-bottom reserva el alto del rail fijo (WU2). */
+/* El fondo de <body> quedó afuera del re-estilo por sección (se trató como
+   "estructural": solo el padding-bottom que reserva la barra fija) -- pero
+   --coal/#1a1512 son marrones cálidos del sistema viejo, y quedaban
+   asomando detrás/entre secciones ya retinteadas a azul frío (reportado
+   real). --surface-0/--surface-2 son los tonos fríos reales del dashboard. */
 @utility diner-body {
-  background-color: var(--coal);
-  background-image: radial-gradient(120% 70% at 50% -10%, #1a1512 0%, var(--coal) 62%);
+  background-color: var(--surface-0);
+  background-image: radial-gradient(120% 70% at 50% -10%, var(--surface-2) 0%, var(--surface-0) 62%);
   padding-bottom: calc(var(--rail-h) + 8px);
 }
 
