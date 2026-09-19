@@ -22,11 +22,16 @@ import { useEffect, useRef, useState } from "react";
 //
 // Los nombres de zona y el costo de envío son de ejemplo -- se mantiene
 // el placeholder "a confirmar" ya usado en el resto de la página.
+// Colores: la paleta categórica del dashboard (--chart-1..4, ya validada
+// CVD-safe -- ver comentario de esa escala en globals.css) en vez de los 4
+// tonos mostaza/ember/bordó/violeta del diner. Tienen que coincidir con los
+// --zc de public/delivery-zone-map.svg (mismo valor hex en los dos lugares,
+// no hay una única fuente de verdad para esto).
 const ZONES = [
-  { zone: "z1", name: "City Bell", hoods: "Casco y alrededores", fee: "$1.500", color: "#F2B21C" },
-  { zone: "z2", name: "Gonnet", hoods: "Zona centro", fee: "$1.500", color: "#E2622C" },
-  { zone: "z3", name: "Ringuelet", hoods: "Y alrededores", fee: "$2.000", color: "#A3331F" },
-  { zone: "z4", name: "La Plata", hoods: "Casco urbano", fee: "$2.500", color: "#6E2650" },
+  { zone: "z1", name: "City Bell", hoods: "Casco y alrededores", fee: "$1.500", color: "#3987e5" },
+  { zone: "z2", name: "Gonnet", hoods: "Zona centro", fee: "$1.500", color: "#d95926" },
+  { zone: "z3", name: "Ringuelet", hoods: "Y alrededores", fee: "$2.000", color: "#199e70" },
+  { zone: "z4", name: "La Plata", hoods: "Casco urbano", fee: "$2.500", color: "#c98500" },
 ] as const;
 
 export function DeliveryZoneMap() {
@@ -92,14 +97,16 @@ export function DeliveryZoneMap() {
       <div className="diner-wrap">
         <div className="diner-sechead">
           <div>
-            <p className="diner-eyebrow">Zonas de envío</p>
-            <h2 className="diner-sechead-title">
+            <p className="font-sans text-sm font-semibold text-[var(--accent-brand)] uppercase">
+              Zonas de envío
+            </p>
+            <h2 className="font-sans text-[clamp(1.7rem,3.6vw,2.5rem)] leading-none tracking-[-0.01em] text-[var(--foreground)]">
               Hasta dónde llegamos{" "}
-              <span className="diner-chip diner-chip-hollow align-middle">
+              <span className="align-middle rounded-full border border-[var(--accent-brand)]/50 px-2.5 py-0.5 text-xs font-semibold text-[var(--accent-brand)]">
                 A confirmar
               </span>
             </h2>
-            <p className="diner-sechead-note">
+            <p className="mt-2 max-w-[60ch] text-[0.95rem] text-[var(--muted-foreground)]">
               El borde de cada barrio en el mapa es el límite real que figura
               en OpenStreetMap, no un dibujo aproximado. Falta confirmar a
               cuáles zonas llegan de verdad y cuánto cobran de envío en cada

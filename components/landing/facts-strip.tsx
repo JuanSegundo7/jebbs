@@ -8,25 +8,26 @@ const FACTS = [
   { icon: MapPin, label: "Gonnet y City Bell" },
 ] as const;
 
-// Franja de datos operativos (ref-style.css:73-79 .facts) -- grilla
-// dividida por líneas verticales de 1px sobre fondo --soot, no una lista
-// de chips flotantes. En mobile (ref: max-width:640px) las columnas se
-// apilan y el divisor pasa de vertical a horizontal.
+// Franja de datos operativos -- grilla dividida por líneas de 1px sobre
+// una superficie plana, no una lista de chips flotantes. En mobile las
+// columnas se apilan y el divisor pasa de vertical a horizontal. Re-estilo
+// a la identidad real de jebbs-dashboard: tipografía nativa (no condensada
+// mayúscula), --hairline en vez de --line, --accent-brand en los íconos.
 export function FactsStrip() {
   return (
-    <div className="border-b border-[var(--line)] bg-[var(--soot)]">
+    <div className="border-b border-[var(--hairline)] bg-[var(--surface-1)]">
       <div className="diner-wrap grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
         {FACTS.map(({ icon: Icon, label }, i) => (
           <div
             key={label}
             className={
-              "flex items-center justify-center gap-2 py-4 font-condensed text-[13px] font-semibold tracking-[.09em] text-[var(--ash)] uppercase " +
+              "flex items-center justify-center gap-2 py-4 font-sans text-sm font-medium text-[var(--muted-foreground)] " +
               (i > 0
-                ? "border-t border-[var(--line)] sm:border-t-0 sm:border-l"
+                ? "border-t border-[var(--hairline)] sm:border-t-0 sm:border-l"
                 : "")
             }
           >
-            <Icon className="size-4 text-[var(--cheddar)]" aria-hidden />
+            <Icon className="size-4 text-[var(--accent-brand)]" aria-hidden />
             {label}
           </div>
         ))}

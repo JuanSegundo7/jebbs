@@ -9,15 +9,18 @@ interface HeroProps {
   featuredBurger?: Burger | null;
 }
 
-// "Diner" hero -- transcripción fiel de ref-style.css:54-71 (.hero/.wrap/
-// h1/.lede/.cta/.btn/.shot): grid 1.05fr/.95fr con gap 44px, h1 en
-// clamp(2.5rem,6.2vw,4.2rem) leading .94, lede a 44ch, dos CTAs
-// (btn-primary + btn-ghost) y la foto con el badge ember flotando en el
-// borde inferior. Reemplaza el grid genérico max-w-5xl/md:grid-cols
-// anterior.
+// Re-estilo a la identidad real de jebbs-dashboard (naranja/frío sobre
+// negro azulado). Estructura/JSX/textos/imagen/props idénticos al pase
+// anterior -- solo cambian className y el degradé del badge. Tipografía:
+// font-sans en vez de Archivo Black/Barlow (el dashboard no tiene fuente
+// de display propia, usa la nativa del sistema en todos lados, ver
+// lib/fonts.ts); tracking negativo del h1 se mantiene (ya cumplía §15,
+// sigue siendo el texto más grande del sitio). Foto: ios-shadow-lg (la
+// sombra "hero" real del dashboard, Card depth="hero") en vez de la sombra
+// a mano diner-hero-shot.
 export function Hero({ featuredBurger }: HeroProps) {
   return (
-    <header id="top" className="relative scroll-mt-20 overflow-hidden border-b border-[var(--line)]">
+    <header id="top" className="relative scroll-mt-20 overflow-hidden border-b border-[var(--hairline)]">
       {/* Marca de agua decorativa: la ilustración real de ref-burger.svg
           siempre está presente en el hero (no solo como fallback de foto
           faltante) -- el catálogo real ya tiene fotos subidas, así que el
@@ -25,48 +28,42 @@ export function Hero({ featuredBurger }: HeroProps) {
           puramente decorativa; el nombre del producto ya lo dice el <h1>. */}
       <BurgerIllustration
         aria-hidden
-        className="pointer-events-none absolute -top-16 -right-16 hidden h-80 w-80 opacity-[0.12] md:block"
+        className="pointer-events-none absolute -top-16 -right-16 hidden h-80 w-80 opacity-[0.08] md:block"
       />
       <div className="diner-wrap relative grid gap-9 py-14 sm:py-20 md:grid-cols-[1.05fr_0.95fr] md:items-center md:gap-11 md:py-[56px]">
         <div>
           {/* TODO: confirmar con el dueño la ubicación real (barrio/zona) que va acá */}
-          <p className="diner-eyebrow text-center md:text-left">
+          <p className="text-center font-sans text-sm font-semibold tracking-wide text-[var(--accent-brand)] uppercase md:text-left">
             Delivery y take away · Gonnet y City Bell
           </p>
 
-          {/* TODO: copy real a confirmar con el dueño -- este es un punto de
-              partida fiel al tono del sitio de referencia (Archivo Black +
-              segunda línea en cheddar), no el texto final. */}
-          {/* tracking-[-0.032em]: es el texto más grande de toda la página
-              (clamp hasta 4.2rem/67px, más grande que diner-sechead-title y
-              que cualquier token de la escala §15 en globals.css), así que
-              tiene que llevar el tracking más negativo del sitio -- antes
-              (-0.015em) era MENOS negativo que diner-sechead-title
-              (-0.01em original, ya subido a -0.024em en este pase) a pesar
-              de ser un heading más grande, al revés de lo que pide
-              apple-design §15. leading-[0.94] ya era el más apretado del
-              sitio -- eso ya cumplía, sin cambios. */}
-          <h1 className="mt-3.5 text-center font-display text-[clamp(2.5rem,6.2vw,4.2rem)] leading-[0.94] tracking-[-0.032em] text-[var(--cream)] md:text-left">
+          {/* TODO: copy real a confirmar con el dueño. tracking-[-0.032em]
+              se mantiene: es el texto más grande del sitio (clamp hasta
+              4.2rem/67px), tiene que llevar el tracking más negativo (§15). */}
+          <h1 className="mt-3.5 text-center font-sans text-[clamp(2.5rem,6.2vw,4.2rem)] leading-[0.94] font-bold tracking-[-0.032em] text-[var(--foreground)] md:text-left">
             Doble cheddar,
             <br />
-            <span className="text-[var(--cheddar)]">sin vueltas.</span>
+            <span className="text-[var(--accent-brand)]">sin vueltas.</span>
           </h1>
 
-          <p className="mx-auto mt-[18px] max-w-[44ch] text-center font-body text-[1.09rem] leading-relaxed text-[var(--ash)] md:mx-0 md:text-left">
+          <p className="mx-auto mt-[18px] max-w-[44ch] text-center font-sans text-[1.09rem] leading-relaxed text-[var(--muted-foreground)] md:mx-0 md:text-left">
             Armá tu pedido y confirmalo por WhatsApp. Sin cuentas, sin apps —
             elegí, confirmá y listo.
           </p>
 
           <div className="mt-[26px] flex flex-wrap justify-center gap-3 md:justify-start">
-            {/* diner-cta-glow: glow ambiente permanente, no solo al hover --
-                es el CTA principal de toda la página (apple-design §16.6,
-                ver comentario de la utility en globals.css). */}
-            <a href="#menu" className="diner-btn diner-btn-primary diner-cta-glow">
+            {/* Glow ambiente permanente (apple-design §16.6): CTA principal
+                de toda la página, sombra en 2 capas + halo de acento
+                siempre visible, no solo al hover. */}
+            <a
+              href="#menu"
+              className="inline-flex items-center gap-1.5 rounded-lg bg-[var(--accent-brand)] px-[22px] py-[13px] font-sans text-[1.06rem] font-semibold text-[var(--accent-contrast)] shadow-[var(--shadow-md),0_0_32px_-8px_rgba(255,159,10,.35)] transition-[background-color,box-shadow,transform] duration-150 hover:bg-[var(--accent-hover)] active:scale-[0.97]"
+            >
               Armar mi pedido
             </a>
             <a
               href="#opiniones"
-              className="diner-btn diner-btn-ghost"
+              className="inline-flex items-center gap-1.5 rounded-lg border border-[var(--hairline-strong)] px-[22px] py-[13px] font-sans text-[1.06rem] font-semibold text-[var(--foreground)] transition-colors duration-150 hover:bg-[var(--accent-tint-08)] hover:border-[var(--accent-brand)] active:scale-[0.97]"
             >
               Ver opiniones
             </a>
@@ -74,10 +71,10 @@ export function Hero({ featuredBurger }: HeroProps) {
         </div>
 
         <figure className="relative mx-auto mb-3 w-full max-w-sm md:mb-0">
-          {/* diner-hero-shot: sombra "hero" (apple-design §12) -- la pieza
-              más elevada de la página, ver comentario de la utility en
-              globals.css. */}
-          <div className="diner-hero-shot relative aspect-square w-full overflow-hidden rounded-[4px] border border-[var(--line)] bg-[var(--soot)]">
+          {/* ios-shadow-lg + border-top especular: la pieza más elevada de
+              la página (apple-design §12, "bigger surfaces read thicker"),
+              mismo tratamiento que Card depth="hero" del dashboard. */}
+          <div className="ios-shadow-lg relative aspect-square w-full overflow-hidden rounded-2xl border border-[var(--hairline)] [border-top-color:var(--specular-strong)] bg-[var(--surface-1)]">
             {featuredBurger?.image_url ? (
               <Image
                 src={featuredBurger.image_url}
@@ -93,7 +90,7 @@ export function Hero({ featuredBurger }: HeroProps) {
               </div>
             )}
           </div>
-          <figcaption className="diner-shot-caption">
+          <figcaption className="absolute bottom-[-13px] left-0 bg-[var(--accent-brand)] px-2.5 py-1 font-sans text-xs font-semibold tracking-wide text-[var(--accent-contrast)] uppercase">
             {featuredBurger?.name ?? "Doble cheddar"}
           </figcaption>
         </figure>

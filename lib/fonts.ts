@@ -1,45 +1,25 @@
-import { Archivo_Black, Barlow, Barlow_Condensed, Courier_Prime } from "next/font/google";
+import { Geist_Mono, Pacifico } from "next/font/google";
 
-// Identidad "diner" de Jebbs Burger's, extraída del HTML real del sitio de
-// referencia (jebbs-burgers.vercel.app). Cuatro familias, cada una con un
-// rol fijo -- no se mezclan libremente:
-//   - Archivo Black  -> display (h1 del hero, h2 de headers de sección).
-//   - Barlow Condensed (600/700) -> todo lo "de marca": nav, nombres de
-//     producto, precios, headers de categoría, chips, labels. Siempre
-//     mayúscula + tracking generoso en el sitio de consumo, no acá.
-//   - Barlow (400/600, itálica) -> texto de cuerpo/descripciones.
-//   - Courier Prime (400/700) -> solo la sección de checkout (ticket).
-// Reemplazan a Geist Mono + Pacifico de la fase WU1: esa pareja pertenecía
-// al sistema glass/iOS genérico que este pase retira por completo.
-export const archivoBlack = Archivo_Black({
+// Identidad real de jebbs-dashboard (repo hermano, mismo negocio): sistema
+// tipográfico minimalista, no un set de 4 familias temáticas. --font-sans
+// (definida en globals.css) es la pila NATIVA del sistema operativo
+// (-apple-system/Segoe UI/etc, cero webfont para texto normal) -- Pacifico
+// queda reservado solo para la palabra de marca "Jebbs" (header/hero/footer),
+// y Geist Mono para números tabulares (precios, contadores). Esta pareja es
+// la que WU1 tenía originalmente, copiada verbatim de jebbs-dashboard, antes
+// del pase "diner" (Archivo Black/Barlow Condensed/Barlow/Courier Prime) que
+// este re-estilo retira.
+export const geistMono = Geist_Mono({
+  subsets: ["latin"],
+  variable: "--font-geist-mono",
+  display: "swap",
+  preload: false,
+});
+
+export const pacifico = Pacifico({
   subsets: ["latin"],
   weight: "400",
-  variable: "--font-archivo-black",
-  display: "swap",
-  preload: false,
-});
-
-export const barlowCondensed = Barlow_Condensed({
-  subsets: ["latin"],
-  weight: ["600", "700"],
-  variable: "--font-barlow-condensed",
-  display: "swap",
-  preload: false,
-});
-
-export const barlow = Barlow({
-  subsets: ["latin"],
-  weight: ["400", "600"],
-  style: ["normal", "italic"],
-  variable: "--font-barlow",
-  display: "swap",
-  preload: false,
-});
-
-export const courierPrime = Courier_Prime({
-  subsets: ["latin"],
-  weight: ["400", "700"],
-  variable: "--font-courier-prime",
+  variable: "--font-pacifico",
   display: "swap",
   preload: false,
 });

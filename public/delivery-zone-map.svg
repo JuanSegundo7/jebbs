@@ -3,14 +3,14 @@
 .zone{cursor:pointer;transition:opacity 200ms cubic-bezier(0.16,1,0.3,1)}
 .zone.dim{opacity:.26}
 .zone path{fill:var(--zc);fill-opacity:var(--zo,.34);stroke:var(--zc);stroke-width:3.6;stroke-opacity:1;stroke-linejoin:round}
-.zone[data-zone="z1"]{--zc:#F2B21C;--zo:.30}
-.zone[data-zone="z2"]{--zc:#E2622C;--zo:.36}
-.zone[data-zone="z3"]{--zc:#A3331F;--zo:.42}
-.zone[data-zone="z4"]{--zc:#6E2650;--zo:.50}
+.zone[data-zone="z1"]{--zc:#3987e5;--zo:.30}
+.zone[data-zone="z2"]{--zc:#d95926;--zo:.36}
+.zone[data-zone="z3"]{--zc:#199e70;--zo:.42}
+.zone[data-zone="z4"]{--zc:#c98500;--zo:.50}
 .ztag circle{fill:var(--zc);stroke:#FBF7EE;stroke-width:2.6}
 .ztag .num{fill:#100E0C;font-size:24px;letter-spacing:0;text-anchor:middle}
 .ztag .lbl{fill:#2A211A;font-size:22px;letter-spacing:.14em;text-anchor:middle;paint-order:stroke;stroke:#FBF7EE;stroke-width:5px;stroke-linejoin:round}
-.pin{filter:drop-shadow(0 0 8px rgba(242,178,28,.55))}
+.pin{filter:drop-shadow(0 0 8px rgba(255,159,10,.55))}
 .pin path{fill:#F2B21C;stroke:#2A211A;stroke-width:3}
 .pin circle{fill:#2A211A}
 .pin text{fill:#2A211A;font-size:23px;letter-spacing:.18em;text-anchor:middle;paint-order:stroke;stroke:#FBF7EE;stroke-width:5.5px;stroke-linejoin:round}

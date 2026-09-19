@@ -1,6 +1,6 @@
 import type React from "react";
 import type { Metadata } from "next";
-import { archivoBlack, barlow, barlowCondensed, courierPrime } from "@/lib/fonts";
+import { geistMono, pacifico } from "@/lib/fonts";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -20,10 +20,14 @@ export default function RootLayout({
   return (
     <html
       lang="es"
-      className={`dark ${archivoBlack.variable} ${barlowCondensed.variable} ${barlow.variable} ${courierPrime.variable}`}
+      className={`dark ${geistMono.variable} ${pacifico.variable}`}
       suppressHydrationWarning
     >
-      <body className="diner-body font-body antialiased min-h-screen text-[var(--cream)]">
+      {/* diner-body queda mientras el re-estilo avanza sección por sección
+          (reserva el padding-bottom para la barra fija del carrito, --rail-h
+          -- eso es estructural, no color); font-sans/text-foreground ya
+          apuntan a la identidad real del dashboard. */}
+      <body className="diner-body font-sans antialiased min-h-screen text-[var(--foreground)]">
         {children}
       </body>
     </html>
