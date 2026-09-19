@@ -1126,7 +1126,15 @@
   margin: 0;
 }
 
-/* .nav (ref-style.css:42) */
+/* .nav (ref-style.css:42) -- chrome flotante (sticky) sobre contenido que
+   scrollea, exactamente el caso que describe apple-design §12: "Scroll
+   edge effects, not hard dividers. Instead of a 1px border under a sticky
+   header, fade a small blur/gradient mask where content meets floating
+   chrome". El border-bottom de 1px se reemplaza por un degradé real hacia
+   abajo vía box-shadow (mismo --line-2 que ya usa el borde especular de
+   diner-elevated) en vez de una línea dura. background/backdrop-filter
+   quedan intactos -- ya están probados, la restricción dura de este pase
+   es no tocar blur/opacidad, solo el borde. */
 @utility diner-nav {
   position: sticky;
   top: 0;
@@ -1134,7 +1142,7 @@
   background: rgba(11, 10, 8, 0.88);
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
-  border-bottom: 1px solid var(--line);
+  box-shadow: 0 10px 16px -10px var(--line-2);
 }
 
 /* .btn / .btn-primary / .btn-ghost (ref-style.css:60-66) */
@@ -1383,6 +1391,10 @@
 
 /* .rail (ref-style.css:189-195) -- barra fija de precio+CTA siempre
    visible, reemplaza el FAB circular genérico que tenía CartDrawer. */
+/* Mismo caso que diner-nav pero espejado: chrome flotante fijo debajo del
+   contenido en vez de arriba (apple-design §12, mismo tratamiento --
+   degradé hacia arriba en vez de línea dura, background/backdrop-filter
+   sin tocar). */
 @utility diner-rail {
   position: fixed;
   left: 0;
@@ -1393,7 +1405,7 @@
   background: rgba(19, 17, 16, 0.96);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
-  border-top: 1px solid var(--line-2);
+  box-shadow: 0 -10px 16px -10px var(--line-2);
 }
 @utility diner-rail-k {
   font-family: var(--font-condensed);
