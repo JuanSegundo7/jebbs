@@ -97,7 +97,7 @@ export function ConfirmButton({ cart, checkout }: ConfirmButtonProps) {
       )}
 
       {error && (
-        <p className="font-sans text-xs text-[var(--accent-brand)]" role="alert">
+        <p className="font-sans text-xs text-[var(--destructive)]" role="alert">
           {error}
         </p>
       )}
