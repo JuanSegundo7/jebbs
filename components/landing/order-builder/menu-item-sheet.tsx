@@ -88,17 +88,17 @@ export function MenuItemSheet({
           </div>
 
           <DrawerHeader className="px-0">
-            <DrawerTitle className="font-sans text-[clamp(1.6rem,6vw,2.1rem)] leading-[1.05] font-bold tracking-[-0.01em] text-[var(--foreground)]">
+            <DrawerTitle className="font-display text-[clamp(1.6rem,6vw,2.1rem)] leading-[1.05] tracking-[-0.01em] text-[var(--foreground)]">
               {name}
             </DrawerTitle>
             {/* Its own line, no leader dots: those are a list idiom (name
                 connected to price across a row of many items) -- this is a
                 single item, so a plain price line reads correctly instead. */}
-            <p className="numeric font-sans text-[1.35rem] font-bold text-[var(--accent-brand)]">
+            <p className="numeric font-condensed text-[1.35rem] font-bold text-[var(--accent-brand)]">
               {formatArs(price)}
             </p>
             {description && (
-              <DrawerDescription className="font-sans text-[1rem] leading-[1.55] text-[var(--muted-foreground)]">
+              <DrawerDescription className="font-body text-[1rem] leading-[1.55] text-[var(--muted-foreground)]">
                 {description}
               </DrawerDescription>
             )}
@@ -111,7 +111,7 @@ export function MenuItemSheet({
           {count === 0 ? (
             <button
               type="button"
-              className="inline-flex w-full items-center justify-center gap-[9px] rounded-lg bg-[var(--accent-brand)] px-[22px] py-[13px] font-sans text-[1.06rem] font-semibold text-[var(--accent-contrast)] shadow-[var(--shadow-sm)] transition-[background-color,box-shadow,transform] duration-150 hover:bg-[var(--accent-hover)] hover:shadow-[var(--shadow-md)] active:scale-[0.97] disabled:pointer-events-none disabled:opacity-45"
+              className="inline-flex w-full items-center justify-center gap-[9px] rounded-lg bg-[var(--accent-brand)] px-[22px] py-[13px] font-condensed text-[1.06rem] font-bold tracking-[0.08em] text-[var(--accent-contrast)] uppercase shadow-[var(--shadow-sm)] transition-[background-color,box-shadow,transform] duration-150 hover:bg-[var(--accent-hover)] hover:shadow-[var(--shadow-md)] active:scale-[0.97] disabled:pointer-events-none disabled:opacity-45"
               onClick={onAdd}
             >
               Agregar al pedido
@@ -127,7 +127,7 @@ export function MenuItemSheet({
                 >
                   <Minus />
                 </button>
-                <output className="numeric w-[26px] text-center font-sans text-[1.1rem] font-bold text-[var(--muted-foreground)]">
+                <output className="numeric w-[26px] text-center font-condensed text-[1.1rem] font-bold text-[var(--muted-foreground)]">
                   {count}
                 </output>
                 <button
@@ -145,7 +145,7 @@ export function MenuItemSheet({
             </div>
           )}
           {footnote != null && (
-            <p className="mt-2 text-center font-sans text-xs text-[var(--muted-foreground)]">
+            <p className="mt-2 text-center font-body text-xs text-[var(--muted-foreground)]">
               {footnote}
             </p>
           )}

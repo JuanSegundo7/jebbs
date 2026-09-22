@@ -83,8 +83,8 @@ export function ComboPicker({
                 <div
                   key={combo.id}
                   className={cn(
-                    "flex items-center gap-[15px] border-b border-dashed border-[var(--hairline-strong)] py-[15px] transition-[border-color,background-color,transform] duration-200 ease-[cubic-bezier(0.16,1,0.3,1)] last:border-b-0 hover:border-[var(--foreground)] hover:bg-[color-mix(in_srgb,var(--foreground)_3%,transparent)] active:scale-[0.99]",
-                    count > 0 && "bg-[linear-gradient(90deg,var(--accent-tint-16),transparent_60%)]",
+                    "flex items-center gap-[15px] border-b border-dashed border-[var(--hairline-strong)] py-[15px] pl-0 transition-[border-color,background-color,transform,padding-left] duration-200 ease-[cubic-bezier(0.16,1,0.3,1)] last:border-b-0 hover:border-[var(--foreground)] hover:bg-[color-mix(in_srgb,var(--foreground)_3%,transparent)] active:scale-[0.99]",
+                    count > 0 && "bg-[linear-gradient(90deg,var(--accent-tint-16),transparent_60%)] pl-3",
                   )}
                 >
                   <button
@@ -103,19 +103,19 @@ export function ComboPicker({
 
                     <div className="min-w-0 flex-1">
                       <div className="flex items-baseline">
-                        <span className="font-sans text-[1.22rem] font-bold text-[var(--foreground)]">
+                        <span className="font-condensed text-[1.22rem] font-bold tracking-[.04em] text-[var(--foreground)] uppercase">
                           {combo.name}
                         </span>
                         <span
                           className="mb-[0.3em] min-w-[1rem] flex-1 self-end border-b border-dotted border-[var(--muted-foreground-dim)]"
                           aria-hidden
                         />
-                        <span className="numeric shrink-0 font-sans text-[1.22rem] font-bold text-[var(--accent-brand)]">
+                        <span className="numeric shrink-0 font-condensed text-[1.22rem] font-bold text-[var(--accent-brand)]">
                           {formatArs(combo.price)}
                         </span>
                       </div>
                       {description && (
-                        <p className="mt-1 line-clamp-2 font-sans text-[0.94rem] leading-[1.45] text-[var(--muted-foreground)]">
+                        <p className="mt-1 line-clamp-2 font-body text-[0.94rem] leading-[1.45] tracking-[0.005em] text-[var(--muted-foreground)]">
                           {description}
                         </p>
                       )}
@@ -132,7 +132,7 @@ export function ComboPicker({
                     >
                       <Minus />
                     </button>
-                    <output className="numeric w-[26px] text-center font-sans text-[1.1rem] font-bold text-[var(--muted-foreground)]">
+                    <output className="numeric w-[26px] text-center font-condensed text-[1.1rem] font-bold text-[var(--muted-foreground)]">
                       {count}
                     </output>
                     <button
@@ -153,7 +153,7 @@ export function ComboPicker({
         {selectedCombos.map((instance) => (
           <div key={instance.id} className="ios-glass space-y-4 rounded-xl p-3">
             <div className="flex items-center justify-between">
-              <span className="font-sans text-sm font-bold text-[var(--foreground)]">
+              <span className="font-condensed text-sm font-bold tracking-[.03em] text-[var(--foreground)] uppercase">
                 {instance.combo.name}
               </span>
               <button
@@ -174,14 +174,14 @@ export function ComboPicker({
                 );
                 return (
                   <div key={slot.slotId} className="space-y-2">
-                    <p className="text-overline text-[var(--muted-foreground)] uppercase">
+                    <p className="font-condensed text-xs font-bold tracking-[.08em] text-[var(--muted-foreground)] uppercase">
                       Hamburguesas ({remaining} disponibles)
                     </p>
                     <ul className="space-y-1">
                       {slot.burgers.map((item) => (
                         <li
                           key={item.id}
-                          className="flex items-center justify-between font-sans text-sm text-[var(--foreground)]"
+                          className="flex items-center justify-between font-body text-sm text-[var(--foreground)]"
                         >
                           <span>{item.burger.name}</span>
                           <button
@@ -215,7 +215,7 @@ export function ComboPicker({
                             <button
                               key={burger.id}
                               type="button"
-                              className="rounded-full border border-[var(--hairline-strong)] px-3 py-1 text-xs font-semibold text-[var(--muted-foreground)] transition-colors hover:border-[var(--accent-brand)] hover:text-[var(--accent-brand)]"
+                              className="rounded-full border border-[var(--hairline-strong)] px-3 py-1 font-condensed text-[11px] font-bold tracking-[.04em] text-[var(--muted-foreground)] uppercase transition-colors hover:border-[var(--accent-brand)] hover:text-[var(--accent-brand)]"
                               onClick={() =>
                                 addBurgerToSlot(
                                   instance.id,
@@ -242,7 +242,7 @@ export function ComboPicker({
 
                 return (
                   <div key={slot.slotId} className="space-y-2">
-                    <p className="text-overline text-[var(--muted-foreground)] uppercase">
+                    <p className="font-condensed text-xs font-bold tracking-[.08em] text-[var(--muted-foreground)] uppercase">
                       {label}
                     </p>
                     <div className="flex flex-wrap gap-2">
@@ -255,7 +255,7 @@ export function ComboPicker({
                             key={extra.id}
                             type="button"
                             className={cn(
-                              "rounded-full border px-3 py-1 text-xs font-semibold",
+                              "rounded-full border px-3 py-1 font-condensed text-[11px] font-bold tracking-[.04em] uppercase",
                               timesSelected > 0
                                 ? "border-[var(--accent-brand)] bg-[var(--accent-brand)] text-[var(--accent-contrast)]"
                                 : "border-[var(--hairline-strong)] text-[var(--muted-foreground)]",
@@ -308,10 +308,10 @@ export function ComboPicker({
           }
         >
           <div className="mt-4">
-            <p className="mb-2 text-overline text-[var(--muted-foreground)] uppercase">
+            <p className="mb-2 font-condensed text-xs font-bold tracking-[.16em] text-[var(--muted-foreground)] uppercase">
               Qué incluye
             </p>
-            <ul className="space-y-1 font-sans text-sm text-[var(--foreground)]">
+            <ul className="space-y-1 font-body text-sm text-[var(--foreground)]">
               {describeComboSlots(detail).map((line, i) => (
                 <li key={i}>{line}</li>
               ))}

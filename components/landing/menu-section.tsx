@@ -1,14 +1,14 @@
 import type { Catalog } from "@/lib/catalog/get-catalog";
+import type { DeliveryZone } from "@/lib/types";
 import { OrderBuilder } from "@/components/landing/order-builder/order-builder";
 
 interface MenuSectionProps {
   catalog: Catalog;
-  /** Passed through to OrderBuilder for its advisory total (WU3b wires the
-   * actual pickup/delivery toggle that decides whether this fee applies). */
-  deliveryFeeArs: number;
+  deliveryZones: DeliveryZone[];
+  minDeliveryFeeArs: number | null;
 }
 
-export function MenuSection({ catalog, deliveryFeeArs }: MenuSectionProps) {
+export function MenuSection({ catalog, deliveryZones, minDeliveryFeeArs }: MenuSectionProps) {
   return (
     <section id="menu" className="diner-section scroll-mt-20">
       <div className="diner-wrap">
@@ -18,12 +18,11 @@ export function MenuSection({ catalog, deliveryFeeArs }: MenuSectionProps) {
                 utilities globales compartidas con secciones fuera de
                 alcance (info-section, delivery-zone-map, reviews-section) --
                 no se tocan en globals.css, se reemplazan acá por sus
-                valores literales ya retinteados (mismo criterio que
-                diner-btn-primary en hero.tsx/site-header.tsx). text-overline
-                es el token de overline real del dashboard (ver
-                historial/page.tsx, order-column.tsx). */}
-            <p className="text-overline text-[var(--accent-brand)] uppercase">La carta</p>
-            <h2 className="mt-2.5 font-sans text-[clamp(1.7rem,3.6vw,2.5rem)] leading-none font-bold tracking-[-0.024em] text-[var(--foreground)]">
+                valores literales, tipografía "diner" restaurada por pedido
+                del dueño (mismo criterio que diner-btn-primary en
+                hero.tsx/site-header.tsx). */}
+            <p className="font-condensed text-[0.82rem] font-bold tracking-[0.18em] text-[var(--accent-brand)] uppercase">La carta</p>
+            <h2 className="mt-2.5 font-display text-[clamp(1.7rem,3.6vw,2.5rem)] leading-none tracking-[-0.024em] text-[var(--foreground)]">
               Elegí lo tuyo
             </h2>
             <p className="mt-2 max-w-[52ch] text-[var(--muted-foreground)]">
@@ -31,11 +30,15 @@ export function MenuSection({ catalog, deliveryFeeArs }: MenuSectionProps) {
               el ticket.
             </p>
           </div>
-          <span className="rounded-full border border-[var(--accent-brand)]/50 px-2.5 py-0.5 text-xs font-semibold text-[var(--accent-brand)]">
+          <span className="rounded-full border border-[var(--accent-brand)]/50 px-2.5 py-0.5 font-condensed text-[0.72rem] font-bold tracking-[0.14em] text-[var(--accent-brand)] uppercase">
             Precios a confirmar
           </span>
         </div>
-        <OrderBuilder catalog={catalog} deliveryFeeArs={deliveryFeeArs} />
+        <OrderBuilder
+          catalog={catalog}
+          deliveryZones={deliveryZones}
+          minDeliveryFeeArs={minDeliveryFeeArs}
+        />
       </div>
     </section>
   );

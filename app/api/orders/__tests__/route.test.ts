@@ -2,14 +2,14 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import type { NextRequest } from "next/server";
 
 // lib/env.ts throws at module load (DD3) -- must be set before anything
-// under test imports it transitively (route.ts imports it directly for
-// env.DELIVERY_FEE_ARS).
-process.env.DELIVERY_FEE_ARS = "1500";
+// under test imports it transitively.
 process.env.NEXT_PUBLIC_WHATSAPP_NUMBER = "5493454123456";
 
 const BURGER_ID = "11111111-1111-4111-8111-111111111111";
 const MEAT_EXTRA_ID = "22222222-2222-4222-8222-222222222222";
 const FRIES_EXTRA_ID = "33333333-3333-4333-8333-333333333333";
+const ZONE_ID = "44444444-4444-4444-8444-444444444444";
+const INACTIVE_ZONE_ID = "55555555-5555-4555-8555-555555555555";
 
 const CATALOG_FIXTURE = {
   burgers: [
@@ -30,7 +30,18 @@ const CATALOG_FIXTURE = {
   combos: [],
   meatExtra: { id: MEAT_EXTRA_ID, name: "Medallón", category: "extra", price: 800, is_available: true, created_at: "2024-01-01" },
   friesExtra: { id: FRIES_EXTRA_ID, name: "Papas fritas chicas", category: "fries", price: 500, is_available: true, created_at: "2024-01-01" },
-  deliveryFeeArs: 1500,
+  deliveryZones: [
+    {
+      id: ZONE_ID,
+      name: "City Bell",
+      description: null,
+      fee: 1500,
+      is_active: true,
+      sort_order: 1,
+      map_zone_key: "z1",
+    },
+  ],
+  minDeliveryFeeArs: 1500,
 };
 
 vi.mock("@/lib/catalog/get-catalog", () => ({
@@ -116,6 +127,9 @@ const ORDERS_RE_QUERY_ROW = {
   order_number: 42,
   total_amount: 5000,
   delivery_fee: 0,
+  delivery_zone_id: null,
+  delivery_zone_name: null,
+  delivery_fee_pending: false,
   created_at: "2026-01-15T15:05:00.000Z",
   customer_name: "Juan",
   customer: null,
@@ -152,10 +166,10 @@ function pickupBody() {
   };
 }
 
-function deliveryBody() {
+function deliveryBody(overrides: Record<string, unknown> = {}) {
   return {
     ...pickupBody(),
-    fulfillment: { type: "delivery", address: "San Martín 123" },
+    fulfillment: { type: "delivery", address: "San Martín 123", zone_id: ZONE_ID, ...overrides },
     customer: { name: "Juan", phone: "+54 9 345 412-3456" },
   };
 }
@@ -261,6 +275,8 @@ describe("POST /api/orders", () => {
             ...ORDERS_RE_QUERY_ROW,
             delivery_fee: 1500,
             delivery_type: "delivery",
+            delivery_zone_id: ZONE_ID,
+            delivery_zone_name: "City Bell",
           },
           error: null,
         },
@@ -285,7 +301,138 @@ describe("POST /api/orders", () => {
       customer_id: "cust-1",
       customer_address_id: "addr-1",
       delivery_type: "delivery",
+      // The zone's real fee (CATALOG_FIXTURE.deliveryZones) -- see the
+      // dedicated "stamps the active zone's own fee" test below, which
+      // uses a mismatched fixture fee to prove it isn't hardcoded/stale.
       delivery_fee: 1500,
+      delivery_zone_id: ZONE_ID,
+      delivery_zone_name: "City Bell",
+      delivery_fee_pending: false,
+    });
+  });
+
+  it("stamps the active zone's own fee, recomputed from the live catalog", async () => {
+    // CATALOG_FIXTURE's zone fee (1500) is swapped out for a different
+    // value here so a regression back to a hardcoded/stale fee would be
+    // caught by this assertion instead of passing by coincidence.
+    //
+    // Mutates the shared CATALOG_FIXTURE.deliveryZones in place (restored
+    // in `finally`) instead of vi.doMock/vi.doUnmock: doUnmock-ing a module
+    // also tears down the file's own top-level vi.mock() for it, leaving
+    // every later test in this file to hit the real getCatalog() (and a
+    // Supabase mock with no matching routes) -- a real bug hit while
+    // writing this test.
+    const originalZones = CATALOG_FIXTURE.deliveryZones;
+    CATALOG_FIXTURE.deliveryZones = [{ ...originalZones[0], fee: 3300 }];
+
+    try {
+      const mock = createSupabaseMock([
+        { table: "customers", match: (calls) => hasEqColumn(calls, "phone") && !hasInsert(calls), result: { data: null, error: null } },
+        { table: "customers", match: (calls) => calls.some((c) => c.method === "not") && !hasInsert(calls), result: { data: [], error: null } },
+        { table: "customers", match: (calls) => hasInsert(calls), result: { data: { id: "cust-1", name: "Juan" }, error: null } },
+        { table: "customer_addresses", match: (calls) => hasInsert(calls), result: { data: { id: "addr-1" }, error: null } },
+        { table: "orders", match: (calls) => hasInsert(calls), result: { data: { id: "order-1" }, error: null } },
+        { table: "order_items", match: (calls) => hasInsert(calls), result: { data: { id: "item-1" }, error: null } },
+        { table: "orders", match: (calls) => hasEqColumn(calls, "id"), result: { data: { ...ORDERS_RE_QUERY_ROW, delivery_fee: 3300, delivery_type: "delivery" }, error: null } },
+      ]);
+      setSupabaseMock(mock);
+
+      const { POST } = await import("@/app/api/orders/route");
+      const response = await POST(makeRequest(deliveryBody()));
+      const json = await response.json();
+
+      expect(response.status).toBe(201);
+      expect(json.delivery_fee).toBe(3300);
+
+      const orderInsert = mock.insertedRows.find((r) => r.table === "orders");
+      expect(orderInsert?.payload).toMatchObject({ delivery_fee: 3300 });
+    } finally {
+      CATALOG_FIXTURE.deliveryZones = originalZones;
+    }
+  });
+
+  it("an inactive/unknown zone id is rejected with 409 ZONE_UNAVAILABLE, no insert attempted", async () => {
+    const mock = createSupabaseMock([]);
+    setSupabaseMock(mock);
+
+    const { POST } = await import("@/app/api/orders/route");
+    const response = await POST(
+      makeRequest(deliveryBody({ zone_id: INACTIVE_ZONE_ID })),
+    );
+    const json = await response.json();
+
+    expect(response.status).toBe(409);
+    expect(json.error.code).toBe("ZONE_UNAVAILABLE");
+    expect(mock.insertedRows).toHaveLength(0);
+  });
+
+  it("zone_id: null creates the order with delivery_fee 0 and delivery_fee_pending true", async () => {
+    const mock = createSupabaseMock([
+      { table: "customers", match: (calls) => hasEqColumn(calls, "phone") && !hasInsert(calls), result: { data: null, error: null } },
+      { table: "customers", match: (calls) => calls.some((c) => c.method === "not") && !hasInsert(calls), result: { data: [], error: null } },
+      { table: "customers", match: (calls) => hasInsert(calls), result: { data: { id: "cust-1", name: "Juan" }, error: null } },
+      { table: "customer_addresses", match: (calls) => hasInsert(calls), result: { data: { id: "addr-1" }, error: null } },
+      { table: "orders", match: (calls) => hasInsert(calls), result: { data: { id: "order-1" }, error: null } },
+      { table: "order_items", match: (calls) => hasInsert(calls), result: { data: { id: "item-1" }, error: null } },
+      {
+        table: "orders",
+        match: (calls) => hasEqColumn(calls, "id"),
+        result: {
+          data: { ...ORDERS_RE_QUERY_ROW, delivery_type: "delivery", delivery_fee: 0, delivery_fee_pending: true },
+          error: null,
+        },
+      },
+    ]);
+    setSupabaseMock(mock);
+
+    const { POST } = await import("@/app/api/orders/route");
+    const response = await POST(makeRequest(deliveryBody({ zone_id: null })));
+    const json = await response.json();
+
+    expect(response.status).toBe(201);
+    expect(json.delivery_fee).toBe(0);
+
+    const orderInsert = mock.insertedRows.find((r) => r.table === "orders");
+    expect(orderInsert?.payload).toMatchObject({
+      delivery_fee: 0,
+      delivery_zone_id: null,
+      delivery_zone_name: null,
+      delivery_fee_pending: true,
+    });
+  });
+
+  it("pickup fulfillment ignores zone entirely -- delivery_zone_id/name null, delivery_fee_pending false", async () => {
+    const mock = createSupabaseMock([
+      {
+        table: "orders",
+        match: (calls) => hasInsert(calls),
+        result: { data: { id: "order-1" }, error: null },
+      },
+      {
+        table: "order_items",
+        match: (calls) => hasInsert(calls),
+        result: { data: { id: "item-1" }, error: null },
+      },
+      {
+        table: "orders",
+        match: (calls) => hasEqColumn(calls, "id"),
+        result: { data: ORDERS_RE_QUERY_ROW, error: null },
+      },
+    ]);
+    setSupabaseMock(mock);
+
+    const { POST } = await import("@/app/api/orders/route");
+    // pickupBody()'s fulfillment is { type: "pickup" } -- no zone_id key at
+    // all, since it's not part of the pickup branch of FulfillmentSchema.
+    const response = await POST(makeRequest(pickupBody()));
+
+    expect(response.status).toBe(201);
+    const orderInsert = mock.insertedRows.find((r) => r.table === "orders");
+    expect(orderInsert?.payload).toMatchObject({
+      delivery_fee: 0,
+      delivery_zone_id: null,
+      delivery_zone_name: null,
+      delivery_fee_pending: false,
     });
   });
 

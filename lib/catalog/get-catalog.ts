@@ -1,8 +1,7 @@
 import "server-only";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { createAdminClient } from "@/lib/supabase/admin";
-import { env } from "@/lib/env";
-import type { Burger, Extra } from "@/lib/types";
+import type { Burger, DeliveryZone, Extra } from "@/lib/types";
 import type { ComboSlotWithRules, ComboWithSlots } from "@/lib/types/combo-types";
 
 // R17 (design.md): meatExtra/friesExtra are matched by exact name because
@@ -19,7 +18,8 @@ export interface Catalog {
   combos: ComboWithSlots[]; // is_available = true; slot rules parsed
   meatExtra: Extra; // name === "Medallón", is_available IGNORED (R17)
   friesExtra: Extra; // name === "Papas fritas chicas", is_available IGNORED (R17)
-  deliveryFeeArs: number; // display only
+  deliveryZones: DeliveryZone[]; // is_active = true, ordered by sort_order then name
+  minDeliveryFeeArs: number | null; // cheapest active zone's fee; null if no zones are active
 }
 
 interface ComboSlotRuleRow {
@@ -58,6 +58,18 @@ async function fetchBurgers(supabase: SupabaseClient): Promise<Burger[]> {
 
   if (error) throw error;
   return (data ?? []) as Burger[];
+}
+
+async function fetchActiveDeliveryZones(supabase: SupabaseClient): Promise<DeliveryZone[]> {
+  const { data, error } = await supabase
+    .from("delivery_zones")
+    .select("*")
+    .eq("is_active", true)
+    .order("sort_order", { ascending: true })
+    .order("name", { ascending: true });
+
+  if (error) throw error;
+  return (data ?? []) as DeliveryZone[];
 }
 
 async function fetchExtras(supabase: SupabaseClient): Promise<Extra[]> {
@@ -174,7 +186,7 @@ async function fetchRequiredExtraByName(
 export async function getCatalog(): Promise<Catalog> {
   const supabase = createAdminClient();
 
-  const [burgers, extras, combos, meatExtra, friesExtra] = await Promise.all([
+  const [burgers, extras, combos, meatExtra, friesExtra, deliveryZones] = await Promise.all([
     fetchBurgers(supabase),
     fetchExtras(supabase),
     fetchCombos(supabase),
@@ -188,7 +200,15 @@ export async function getCatalog(): Promise<Catalog> {
       FRIES_EXTRA_NAME,
       "combo fries scaling will break",
     ),
+    fetchActiveDeliveryZones(supabase),
   ]);
+
+  // null (not 0/Infinity) when no zone is active -- callers use this to
+  // hide/disable the delivery option gracefully instead of quoting a fake
+  // "desde $0" or crashing.
+  const minDeliveryFeeArs = deliveryZones.length
+    ? Math.min(...deliveryZones.map((z) => z.fee))
+    : null;
 
   return {
     burgers,
@@ -196,6 +216,7 @@ export async function getCatalog(): Promise<Catalog> {
     combos,
     meatExtra,
     friesExtra,
-    deliveryFeeArs: env.DELIVERY_FEE_ARS,
+    deliveryZones,
+    minDeliveryFeeArs,
   };
 }

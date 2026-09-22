@@ -1,7 +1,7 @@
 import { Instagram, Star } from "lucide-react";
 
 // Reviews transcribed verbatim from the reference site (jebbs-burgers.vercel.app,
-// itself published for this same real business, "Jebbs Burger's"). Static
+// itself published for this same real business, "Jebbs Burgers"). Static
 // text, same as the reference site -- no live Google Reviews API here.
 //
 // VERIFICAR CON EL DUEÑO ANTES DE PUBLICAR: estos textos, nombres y fechas
@@ -27,19 +27,20 @@ const REVIEWS = [
 
 const INSTAGRAM_URL = "https://www.instagram.com/jebbsburgers/";
 
-// Re-estilo a la identidad real de jebbs-dashboard: tipografía nativa,
-// naranja/frío en vez de mostaza/carbón. diner-rev se retinta en
-// globals.css (era el último consumidor de diner-elevated en el sitio).
+// Colores de jebbs-dashboard (naranja/frío en vez de mostaza/carbón).
+// diner-rev se retinta en globals.css (era el último consumidor de
+// diner-elevated en el sitio). Tipografía "diner" restaurada por pedido
+// del dueño.
 export function ReviewsSection() {
   return (
     <section id="opiniones" className="diner-section scroll-mt-20 bg-[var(--surface-1)]">
       <div className="diner-wrap">
         <div className="diner-sechead">
           <div className="flex items-center gap-4">
-            <span className="font-sans text-[2rem] font-bold leading-none text-[var(--foreground)]">
+            <span className="font-display text-[2rem] leading-none text-[var(--foreground)]">
               10,2 mil
             </span>
-            <span className="font-sans text-sm font-semibold text-[var(--muted-foreground)] uppercase">
+            <span className="font-condensed text-sm font-semibold tracking-[.1em] text-[var(--muted-foreground)] uppercase">
               Nos siguen en Instagram
             </span>
           </div>
@@ -53,11 +54,11 @@ export function ReviewsSection() {
                   <Star key={i} className="size-3.5 fill-current" />
                 ))}
               </div>
-              <blockquote className="font-sans text-[0.97rem] leading-[1.62] text-[var(--foreground)]">
+              <blockquote className="font-body text-[0.97rem] leading-[1.62] text-[var(--foreground)]">
                 &ldquo;{review.text}&rdquo;
               </blockquote>
               <figcaption className="mt-auto border-t border-[var(--hairline)] pt-[13px]">
-                <b className="block font-sans text-sm font-semibold text-[var(--foreground)]">
+                <b className="block font-condensed text-[0.84rem] font-bold tracking-[.1em] text-[var(--foreground)] uppercase">
                   {review.author}
                 </b>
                 <span className="text-[0.79rem] text-[var(--muted-foreground-dim)]">{review.meta}</span>
@@ -70,7 +71,7 @@ export function ReviewsSection() {
           href={INSTAGRAM_URL}
           target="_blank"
           rel="noopener noreferrer"
-          className="mt-6 inline-flex items-center gap-2 font-sans text-sm font-semibold text-[var(--foreground)] transition-colors hover:text-[var(--accent-brand)]"
+          className="mt-6 inline-flex items-center gap-2 font-condensed text-sm font-bold tracking-[.06em] text-[var(--foreground)] uppercase transition-colors hover:text-[var(--accent-brand)]"
         >
           <Instagram className="size-4" aria-hidden />
           @jebbsburgers

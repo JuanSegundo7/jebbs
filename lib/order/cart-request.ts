@@ -58,6 +58,12 @@ const FulfillmentSchema = z.discriminatedUnion("type", [
       type: z.literal("delivery"),
       address: z.string().trim().min(8).max(200),
       notes: z.string().trim().max(200).optional(),
+      // Required, not .optional(): a stale/old client that doesn't send
+      // this must get a 400, never silently fall through to "pending"
+      // (design.md delivery-zones addendum). null === "no encuentro mi
+      // zona" -- the server stamps delivery_fee_pending in that case, it
+      // is never inferred from a missing key.
+      zone_id: z.string().uuid().nullable(),
     })
     .strict(),
 ]);

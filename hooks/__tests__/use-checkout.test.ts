@@ -44,7 +44,7 @@ describe("useCheckout", () => {
     expect(result.current.canConfirm).toBe(false);
   });
 
-  it("delivery + customerName + phone + address => canConfirm true", () => {
+  it("delivery + customerName + phone + address + zone => canConfirm true", () => {
     const { result } = renderHook(() => useCheckout());
 
     act(() => {
@@ -52,6 +52,7 @@ describe("useCheckout", () => {
       result.current.setCustomerName("Juan");
       result.current.setPhone("3454123456");
       result.current.setAddress("San Martín 123");
+      result.current.setDeliveryZoneId("zone-1");
     });
 
     expect(result.current.canConfirm).toBe(true);
@@ -63,5 +64,108 @@ describe("useCheckout", () => {
     act(() => result.current.setPaymentMethod("transfer"));
 
     expect(result.current.paymentMethod).toBe("transfer");
+  });
+
+  it("missingFields lists name-only for pickup, zone+name+phone+address for delivery", () => {
+    const { result } = renderHook(() => useCheckout());
+
+    expect(result.current.missingFields).toEqual(["name"]);
+
+    act(() => result.current.setFulfillmentType("delivery"));
+    expect(result.current.missingFields).toEqual(["zone", "name", "phone", "address"]);
+
+    act(() => {
+      result.current.setDeliveryZoneId("zone-1");
+      result.current.setCustomerName("Juan");
+      result.current.setPhone("3454123456");
+    });
+    expect(result.current.missingFields).toEqual(["address"]);
+  });
+
+  it("requestValidation returns false and bumps validationNonce while incomplete", () => {
+    const { result } = renderHook(() => useCheckout());
+    const initialNonce = result.current.validationNonce;
+
+    let outcome: boolean | undefined;
+    act(() => {
+      outcome = result.current.requestValidation();
+    });
+
+    expect(outcome).toBe(false);
+    expect(result.current.validationNonce).toBe(initialNonce + 1);
+
+    // Every failed tap bumps the nonce again -- the owner wants the field
+    // to re-focus on each press, not just the first one.
+    act(() => {
+      result.current.requestValidation();
+    });
+    expect(result.current.validationNonce).toBe(initialNonce + 2);
+  });
+
+  it("zone is missing only for delivery when neither a zone nor 'no encuentro mi zona' was chosen", () => {
+    const { result } = renderHook(() => useCheckout());
+
+    // Pickup never requires it, even before any zone-related setter is called.
+    expect(result.current.missingFields).not.toContain("zone");
+
+    act(() => result.current.setFulfillmentType("delivery"));
+    expect(result.current.missingFields).toEqual(["zone", "name", "phone", "address"]);
+
+    act(() => result.current.setDeliveryZoneId("zone-1"));
+    expect(result.current.missingFields).not.toContain("zone");
+  });
+
+  it("choosing zoneNotListed satisfies the zone requirement without a deliveryZoneId", () => {
+    const { result } = renderHook(() => useCheckout());
+
+    act(() => result.current.setFulfillmentType("delivery"));
+    act(() => result.current.setZoneNotListed(true));
+
+    expect(result.current.zoneNotListed).toBe(true);
+    expect(result.current.deliveryZoneId).toBeNull();
+    expect(result.current.missingFields).not.toContain("zone");
+  });
+
+  it("setDeliveryZoneId and setZoneNotListed are mutually exclusive", () => {
+    const { result } = renderHook(() => useCheckout());
+
+    act(() => {
+      result.current.setFulfillmentType("delivery");
+      result.current.setZoneNotListed(true);
+    });
+    expect(result.current.zoneNotListed).toBe(true);
+
+    act(() => result.current.setDeliveryZoneId("zone-1"));
+    expect(result.current.deliveryZoneId).toBe("zone-1");
+    expect(result.current.zoneNotListed).toBe(false);
+
+    act(() => result.current.setZoneNotListed(true));
+    expect(result.current.zoneNotListed).toBe(true);
+    expect(result.current.deliveryZoneId).toBeNull();
+  });
+
+  it("switching to pickup never requires a zone, even mid-selection", () => {
+    const { result } = renderHook(() => useCheckout());
+
+    act(() => result.current.setFulfillmentType("delivery"));
+    expect(result.current.missingFields).toContain("zone");
+
+    act(() => result.current.setFulfillmentType("pickup"));
+    expect(result.current.missingFields).not.toContain("zone");
+  });
+
+  it("requestValidation returns true and does not bump the nonce once complete", () => {
+    const { result } = renderHook(() => useCheckout());
+
+    act(() => result.current.setCustomerName("Juan"));
+    const nonceBefore = result.current.validationNonce;
+
+    let outcome: boolean | undefined;
+    act(() => {
+      outcome = result.current.requestValidation();
+    });
+
+    expect(outcome).toBe(true);
+    expect(result.current.validationNonce).toBe(nonceBefore);
   });
 });

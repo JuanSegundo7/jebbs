@@ -1,5 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
+  isMeatCountCustomized,
+  meatCountLabel,
   summarizeBurger,
   summarizeCombo,
   summarizeSide,
@@ -146,6 +148,52 @@ describe("summarizeBurger", () => {
       ],
     });
     expect(summarizeBurger(burger)).toBe("2 carnes · sin papas · veggie · + Bacon · + Cheddar");
+  });
+
+  // cart-drawer.tsx promotes the meat-count word into the item's NAME
+  // instead of leaving it in the summary line -- includeMeatCount: false is
+  // how it asks for the summary without that one part, so it isn't shown
+  // twice on the same row.
+  it("omits the meat-count part when includeMeatCount is false", () => {
+    const burger = makeSelectedBurger({ meatCount: 2, isVeggie: true });
+    expect(summarizeBurger(burger, { includeMeatCount: false })).toBe("veggie");
+  });
+
+  it("still omits meat count when it's the only change and includeMeatCount is false", () => {
+    expect(summarizeBurger(makeSelectedBurger({ meatCount: 2 }), { includeMeatCount: false })).toBeNull();
+  });
+});
+
+describe("meatCountLabel", () => {
+  it("names each tier on the menu's own ladder", () => {
+    expect(meatCountLabel(1)).toBe("Simple");
+    expect(meatCountLabel(2)).toBe("Doble");
+    expect(meatCountLabel(3)).toBe("Triple");
+    expect(meatCountLabel(4)).toBe("Cuádruple");
+    expect(meatCountLabel(5)).toBe("Quíntuple");
+    expect(meatCountLabel(6)).toBe("Séxtuple");
+  });
+
+  it("falls back to 'N carnes' past the named ladder", () => {
+    expect(meatCountLabel(7)).toBe("7 carnes");
+  });
+});
+
+describe("isMeatCountCustomized", () => {
+  it("is false when meatCount matches the burger's own default", () => {
+    expect(isMeatCountCustomized(makeSelectedBurger({ meatCount: 1 }))).toBe(false);
+  });
+
+  it("is true once meatCount differs from the burger's own default", () => {
+    expect(isMeatCountCustomized(makeSelectedBurger({ meatCount: 5 }))).toBe(true);
+  });
+
+  it("falls back to a default of 2 when the burger has no default_meat_quantity set", () => {
+    const burger = makeSelectedBurger({
+      burger: makeBurger({ default_meat_quantity: null as unknown as number }),
+      meatCount: 2,
+    });
+    expect(isMeatCountCustomized(burger)).toBe(false);
   });
 });
 

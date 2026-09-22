@@ -25,6 +25,8 @@ function baseOrder(overrides: Partial<OrderForWhatsapp> = {}): OrderForWhatsapp 
     delivery_type: "pickup",
     delivery_time: null,
     delivery_fee: 0,
+    delivery_zone_name: null,
+    delivery_fee_pending: false,
     payment_method: "cash",
     discount_type: "none",
     discount_value: 0,
@@ -93,6 +95,7 @@ Gracias por tu compra 🙌
       payment_method: "transfer",
       delivery_type: "delivery",
       delivery_fee: 1500,
+      delivery_zone_name: "City Bell",
       total_amount: 16500,
       customer: {
         // Present on the real join row shape, but formatOrderForWhatsapp
@@ -124,6 +127,7 @@ Gracias por tu compra 🙌
 🚚 *Envío a domicilio*
 📍 San Martín 123
    Timbre 2B
+🗺️ Zona: City Bell
 
 📦 *Detalle*
 • 1x Clásica — ${formatCurrency(15000)}
@@ -136,6 +140,37 @@ Gracias por tu compra 🙌
 *⚠️ POR FAVOR VERIFICAR QUE ESTÉ TODO CORRECTO EN LA ORDEN ⚠️*`;
 
     expect(formatOrderForWhatsapp(order)).toBe(expected);
+  });
+
+  it("delivery + delivery_fee_pending: 'a confirmar' zone line and 'Envío a confirmar' in totals, no Envío $amount", () => {
+    const order = baseOrder({
+      order_number: 507,
+      delivery_type: "delivery",
+      delivery_fee: 0,
+      delivery_fee_pending: true,
+      delivery_zone_name: null,
+      total_amount: 15000,
+      customer: {
+        phone: "3454123456",
+        customer_addresses: [{ id: "addr-1", address: "San Martín 123", notes: null }],
+      },
+      customer_address_id: "addr-1",
+      order_items: [
+        {
+          burger_name: "Clásica",
+          quantity: 1,
+          subtotal: 15000,
+          customizations: null,
+          extra_id: null,
+          order_item_extras: null,
+        },
+      ],
+    });
+
+    const result = formatOrderForWhatsapp(order);
+    expect(result).toContain("🗺️ Zona: a confirmar");
+    expect(result).toContain("Envío a confirmar");
+    expect(result).not.toMatch(/Envío \$/);
   });
 
   it("combo with slots: burger + fries line inside the slot, drink slot extra", () => {

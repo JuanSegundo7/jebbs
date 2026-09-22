@@ -22,9 +22,13 @@ export default async function HomePage() {
       <SiteHeader />
       <Hero featuredBurger={featuredBurger} />
       <FactsStrip />
-      <MenuSection catalog={catalog} deliveryFeeArs={catalog.deliveryFeeArs} />
+      <MenuSection
+        catalog={catalog}
+        deliveryZones={catalog.deliveryZones}
+        minDeliveryFeeArs={catalog.minDeliveryFeeArs}
+      />
       <InfoSection />
-      <DeliveryZoneMap />
+      <DeliveryZoneMap zones={catalog.deliveryZones} />
       <ReviewsSection />
       <SiteFooter />
     </main>

@@ -10,9 +10,9 @@ const FACTS = [
 
 // Franja de datos operativos -- grilla dividida por líneas de 1px sobre
 // una superficie plana, no una lista de chips flotantes. En mobile las
-// columnas se apilan y el divisor pasa de vertical a horizontal. Re-estilo
-// a la identidad real de jebbs-dashboard: tipografía nativa (no condensada
-// mayúscula), --hairline en vez de --line, --accent-brand en los íconos.
+// columnas se apilan y el divisor pasa de vertical a horizontal. Colores
+// de jebbs-dashboard (--hairline en vez de --line, --accent-brand en los
+// íconos); tipografía "diner" (font-condensed mayúscula) restaurada.
 export function FactsStrip() {
   return (
     <div className="border-b border-[var(--hairline)] bg-[var(--surface-1)]">
@@ -21,7 +21,7 @@ export function FactsStrip() {
           <div
             key={label}
             className={
-              "flex items-center justify-center gap-2 py-4 font-sans text-sm font-medium text-[var(--muted-foreground)] " +
+              "flex items-center justify-center gap-2 py-4 font-condensed text-[13px] font-semibold tracking-[.09em] text-[var(--muted-foreground)] uppercase " +
               (i > 0
                 ? "border-t border-[var(--hairline)] sm:border-t-0 sm:border-l"
                 : "")

@@ -1,4 +1,4 @@
-<svg xmlns="http://www.w3.org/2000/svg" class="zmap" viewBox="0 0 1654 966" role="img" aria-label="Mapa de zonas de envio de Jebbs Burger's: City Bell y La Plata">
+<svg xmlns="http://www.w3.org/2000/svg" class="zmap" viewBox="0 0 1654 966" role="img" aria-label="Mapa de zonas de envio de Jebbs Burgers: City Bell y La Plata">
 <style>
 .zone{cursor:pointer;transition:opacity 200ms cubic-bezier(0.16,1,0.3,1)}
 .zone.dim{opacity:.26}

@@ -37,6 +37,8 @@ export interface OrderForWhatsapp {
   delivery_type: "pickup" | "delivery";
   delivery_time: string | null;
   delivery_fee: number;
+  delivery_zone_name: string | null;
+  delivery_fee_pending: boolean;
   payment_method: "cash" | "transfer";
   discount_type: "amount" | "percentage" | "none" | null;
   discount_value: number;
@@ -80,6 +82,11 @@ export function formatOrderForWhatsapp(order: OrderForWhatsapp): string {
   if (isDelivery && address?.address) {
     deliveryLines.push(`📍 ${address.address}`);
     if (address.notes) deliveryLines.push(`   ${address.notes}`);
+  }
+  if (isDelivery) {
+    deliveryLines.push(
+      `🗺️ Zona: ${order.delivery_fee_pending ? "a confirmar" : (order.delivery_zone_name ?? "a confirmar")}`,
+    );
   }
   if (order.delivery_time) {
     deliveryLines.push(`🕐 ${isDelivery ? "Entregar" : "Retirar"} a las: *${order.delivery_time}*`);
@@ -204,7 +211,11 @@ export function formatOrderForWhatsapp(order: OrderForWhatsapp): string {
     const extrasTotal = item.order_item_extras?.reduce((s, e) => s + e.subtotal, 0) ?? 0;
     return sum + item.subtotal + extrasTotal;
   }, 0) : 0)}`);
-  if (order.delivery_fee > 0) totalParts.push(`Envío ${formatCurrency(order.delivery_fee)}`);
+  if (order.delivery_fee_pending) {
+    totalParts.push("Envío a confirmar");
+  } else if (order.delivery_fee > 0) {
+    totalParts.push(`Envío ${formatCurrency(order.delivery_fee)}`);
+  }
   if (order.discount_amount > 0) {
     const label = order.discount_type === "percentage" ? `Desc. ${order.discount_value}%` : "Desc.";
     totalParts.push(`${label} -${formatCurrency(order.discount_amount)}`);

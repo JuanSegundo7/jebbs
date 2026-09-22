@@ -1,5 +1,7 @@
 "use client";
 
+import { cn } from "@/lib/utils";
+
 interface DeliveryDetailsFormProps {
   phone: string;
   onPhoneChange: (value: string) => void;
@@ -7,7 +9,14 @@ interface DeliveryDetailsFormProps {
   onAddressChange: (value: string) => void;
   notes: string;
   onNotesChange: (value: string) => void;
+  /** See customer-name-field.tsx's `invalid` prop for the same contract. */
+  phoneInvalid?: boolean;
+  addressInvalid?: boolean;
 }
+
+const FIELD_CLASS =
+  "w-full rounded-lg border border-[var(--hairline)] bg-[var(--surface-1)] px-[10px] py-[11px] font-body text-[0.95rem] leading-[1.3] text-[var(--foreground)] outline-none placeholder:text-[var(--muted-foreground-dim)] focus-visible:border-[var(--accent-brand)] focus-visible:shadow-[inset_0_0_0_1px_var(--accent-brand)]";
+const FIELD_INVALID_CLASS = "border-[var(--destructive)] shadow-[inset_0_0_0_1px_var(--destructive)]";
 
 // Conditional form rendered only while fulfillmentType === "delivery"
 // (WU3b, tasks.md 5.1). Phone + address are required for delivery per
@@ -25,13 +34,15 @@ export function DeliveryDetailsForm({
   onAddressChange,
   notes,
   onNotesChange,
+  phoneInvalid = false,
+  addressInvalid = false,
 }: DeliveryDetailsFormProps) {
   return (
     <div data-testid="delivery-address-form">
       <div className="diner-field">
         <label
           htmlFor="checkout-phone"
-          className="mb-1 block font-sans text-xs font-medium text-[var(--muted-foreground)]"
+          className="mb-1 block font-condensed text-[0.72rem] tracking-[.14em] text-[var(--muted-foreground)] uppercase"
         >
           Teléfono
         </label>
@@ -44,14 +55,21 @@ export function DeliveryDetailsForm({
           value={phone}
           onChange={(e) => onPhoneChange(e.target.value)}
           placeholder="Ej: 3454123456"
-          className="w-full rounded-lg border border-[var(--hairline)] bg-[var(--surface-1)] px-[10px] py-[11px] font-sans text-[0.95rem] leading-[1.3] text-[var(--foreground)] outline-none placeholder:text-[var(--muted-foreground-dim)] focus-visible:border-[var(--accent-brand)] focus-visible:shadow-[inset_0_0_0_1px_var(--accent-brand)]"
+          aria-invalid={phoneInvalid}
+          aria-describedby={phoneInvalid ? "checkout-phone-error" : undefined}
+          className={cn(FIELD_CLASS, phoneInvalid && FIELD_INVALID_CLASS)}
         />
+        {phoneInvalid && (
+          <p id="checkout-phone-error" role="alert" className="mt-1 font-body text-[11px] text-[var(--destructive)]">
+            Falta tu teléfono
+          </p>
+        )}
       </div>
 
       <div className="diner-field">
         <label
           htmlFor="checkout-address"
-          className="mb-1 block font-sans text-xs font-medium text-[var(--muted-foreground)]"
+          className="mb-1 block font-condensed text-[0.72rem] tracking-[.14em] text-[var(--muted-foreground)] uppercase"
         >
           Dirección
         </label>
@@ -62,23 +80,30 @@ export function DeliveryDetailsForm({
           value={address}
           onChange={(e) => onAddressChange(e.target.value)}
           placeholder="Calle, número, barrio"
-          className="w-full rounded-lg border border-[var(--hairline)] bg-[var(--surface-1)] px-[10px] py-[11px] font-sans text-[0.95rem] leading-[1.3] text-[var(--foreground)] outline-none placeholder:text-[var(--muted-foreground-dim)] focus-visible:border-[var(--accent-brand)] focus-visible:shadow-[inset_0_0_0_1px_var(--accent-brand)]"
+          aria-invalid={addressInvalid}
+          aria-describedby={addressInvalid ? "checkout-address-error" : undefined}
+          className={cn(FIELD_CLASS, addressInvalid && FIELD_INVALID_CLASS)}
         />
+        {addressInvalid && (
+          <p id="checkout-address-error" role="alert" className="mt-1 font-body text-[11px] text-[var(--destructive)]">
+            Falta tu dirección
+          </p>
+        )}
       </div>
 
       <div className="diner-field">
         <label
           htmlFor="checkout-notes"
-          className="mb-1 block font-sans text-xs font-medium text-[var(--muted-foreground)]"
+          className="mb-1 block font-condensed text-[0.72rem] tracking-[.14em] text-[var(--muted-foreground)] uppercase"
         >
-          Notas (opcional)
+          Referencia (opcional)
         </label>
         <input
           id="checkout-notes"
           value={notes}
           onChange={(e) => onNotesChange(e.target.value)}
           placeholder="Timbre, piso, entre calles..."
-          className="w-full rounded-lg border border-[var(--hairline)] bg-[var(--surface-1)] px-[10px] py-[11px] font-sans text-[0.95rem] leading-[1.3] text-[var(--foreground)] outline-none placeholder:text-[var(--muted-foreground-dim)] focus-visible:border-[var(--accent-brand)] focus-visible:shadow-[inset_0_0_0_1px_var(--accent-brand)]"
+          className={FIELD_CLASS}
         />
       </div>
     </div>

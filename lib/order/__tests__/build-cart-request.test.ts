@@ -52,6 +52,7 @@ function pickupCheckout() {
     notes: "",
     customerName: "Juan",
     paymentMethod: "cash" as const,
+    deliveryZoneId: null,
   };
 }
 
@@ -194,7 +195,7 @@ describe("buildCreateWebOrderRequest", () => {
     expect(req.payment_method).toBe("cash");
   });
 
-  it("delivery: fulfillment carries trimmed address/notes, phone included", () => {
+  it("delivery: fulfillment carries trimmed address/notes, phone included, zone_id passed through", () => {
     const req = buildCreateWebOrderRequest(emptyCart(), {
       fulfillmentType: "delivery",
       phone: "  3454123456  ",
@@ -202,12 +203,14 @@ describe("buildCreateWebOrderRequest", () => {
       notes: "  Timbre 2B  ",
       customerName: "  Juan  ",
       paymentMethod: "transfer",
+      deliveryZoneId: "zone-1",
     });
 
     expect(req.fulfillment).toEqual({
       type: "delivery",
       address: "San Martín 123",
       notes: "Timbre 2B",
+      zone_id: "zone-1",
     });
     expect(req.customer).toEqual({ name: "Juan", phone: "3454123456" });
     expect(req.payment_method).toBe("transfer");
@@ -221,12 +224,29 @@ describe("buildCreateWebOrderRequest", () => {
       notes: "   ",
       customerName: "Juan",
       paymentMethod: "cash",
+      deliveryZoneId: "zone-1",
     });
 
     expect(req.fulfillment).toEqual({
       type: "delivery",
       address: "San Martín 123",
       notes: undefined,
+      zone_id: "zone-1",
     });
+  });
+
+  it("delivery: zone_id null ('no encuentro mi zona') is sent as null, not omitted", () => {
+    const req = buildCreateWebOrderRequest(emptyCart(), {
+      fulfillmentType: "delivery",
+      phone: "3454123456",
+      address: "San Martín 123",
+      notes: "",
+      customerName: "Juan",
+      paymentMethod: "cash",
+      deliveryZoneId: null,
+    });
+
+    expect(req.fulfillment).toMatchObject({ zone_id: null });
+    expect("zone_id" in (req.fulfillment as object)).toBe(true);
   });
 });

@@ -1,11 +1,12 @@
 import type React from "react";
 import type { Metadata } from "next";
-import { geistMono, pacifico } from "@/lib/fonts";
+import { archivoBlack, barlow, barlowCondensed, courierPrime } from "@/lib/fonts";
+import { BRAND_NAME } from "@/lib/brand";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "Jebbs Burger's",
-  description: "Pedí tu burger favorita de Jebbs Burger's y coordiná el retiro o la entrega por WhatsApp.",
+  title: BRAND_NAME,
+  description: `Pedí tu burger favorita de ${BRAND_NAME} y coordiná el retiro o la entrega por WhatsApp.`,
   icons: {
     icon: "/jebbs.jpg",
     apple: "/jebbs.jpg",
@@ -20,14 +21,14 @@ export default function RootLayout({
   return (
     <html
       lang="es"
-      className={`dark ${geistMono.variable} ${pacifico.variable}`}
+      className={`dark ${archivoBlack.variable} ${barlowCondensed.variable} ${barlow.variable} ${courierPrime.variable}`}
       suppressHydrationWarning
     >
-      {/* diner-body queda mientras el re-estilo avanza sección por sección
-          (reserva el padding-bottom para la barra fija del carrito, --rail-h
-          -- eso es estructural, no color); font-sans/text-foreground ya
-          apuntan a la identidad real del dashboard. */}
-      <body className="diner-body font-sans antialiased min-h-screen text-[var(--foreground)]">
+      {/* diner-body reserva el padding-bottom para la barra fija del
+          carrito (--rail-h) -- estructural, no color. Tipografía "diner"
+          (font-body = Barlow) restaurada por pedido del dueño; los colores
+          del re-estilo a jebbs-dashboard (--foreground, etc.) quedan. */}
+      <body className="diner-body font-body antialiased min-h-screen text-[var(--foreground)]">
         {children}
       </body>
     </html>

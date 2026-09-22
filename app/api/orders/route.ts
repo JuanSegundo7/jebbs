@@ -12,6 +12,10 @@ import {
   assertDeliveryAddressInvariant,
   OrderPersistInvariantError,
 } from "@/lib/order/assert-delivery-invariant";
+import {
+  DeliveryZoneUnavailableError,
+  resolveDeliveryFee,
+} from "@/lib/order/resolve-delivery-fee";
 import { createWebOrder } from "@/lib/order/create-web-order";
 import { checkRateLimit } from "@/lib/order/rate-limit";
 import { formatOrderForWhatsapp } from "@/lib/utils/format-order-whatsapp";
@@ -25,6 +29,7 @@ type ErrorCode =
   | "PHONE_REQUIRED_FOR_DELIVERY"
   | "ITEM_UNAVAILABLE"
   | "COMBO_RULE_VIOLATION"
+  | "ZONE_UNAVAILABLE"
   | "RATE_LIMITED"
   | "ORDER_PERSIST_FAILED";
 
@@ -128,8 +133,36 @@ export async function POST(request: NextRequest) {
       rehydrateSelection(req, catalog);
 
     // Step 6: server-stamped delivery fee (DD3) -- never the client's.
-    const deliveryFee =
-      req.fulfillment.type === "delivery" ? env.DELIVERY_FEE_ARS : 0;
+    // Pickup keeps the fee at 0 and the zone fields at null/false; delivery
+    // resolves the customer's chosen zone against the live catalog (never
+    // a flat env var -- prices now vary by zone, see delivery-zones
+    // addendum to design.md). An unknown/inactive zone id (catalog changed
+    // since the client's page load) is a 409, not a silent fallback.
+    let deliveryFee = 0;
+    let deliveryZoneId: string | null = null;
+    let deliveryZoneName: string | null = null;
+    let deliveryFeePending = false;
+    if (req.fulfillment.type === "delivery") {
+      try {
+        const resolved = resolveDeliveryFee(
+          catalog.deliveryZones,
+          req.fulfillment.zone_id,
+        );
+        deliveryFee = resolved.deliveryFee;
+        deliveryZoneId = resolved.deliveryZoneId;
+        deliveryZoneName = resolved.deliveryZoneName;
+        deliveryFeePending = resolved.deliveryFeePending;
+      } catch (zoneError) {
+        if (zoneError instanceof DeliveryZoneUnavailableError) {
+          return errorResponse(
+            "ZONE_UNAVAILABLE",
+            "The selected delivery zone is no longer available.",
+            409,
+          );
+        }
+        throw zoneError;
+      }
+    }
 
     // Step 7: recompute the total and the order_items payload from the
     // rehydrated selection + the server fee -- ignores any client-posted
@@ -171,6 +204,9 @@ export async function POST(request: NextRequest) {
       total,
       deliveryFee,
       deliveryType: req.fulfillment.type,
+      deliveryZoneId,
+      deliveryZoneName,
+      deliveryFeePending,
       customerName: req.customer.name,
       paymentMethod: req.payment_method,
       notes: req.notes ?? null,

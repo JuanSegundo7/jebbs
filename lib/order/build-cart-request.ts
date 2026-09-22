@@ -21,6 +21,10 @@ export interface CheckoutSelectionInput {
   notes: string;
   customerName: string;
   paymentMethod: "cash" | "transfer";
+  /** null = "no encuentro mi zona" (or not chosen yet) -- always sent for
+   * delivery, CreateWebOrderSchema rejects the payload otherwise (see
+   * cart-request.ts). Unused for pickup. */
+  deliveryZoneId: string | null;
 }
 
 function mapExtraRefs(extras: Array<{ extra: Extra; quantity: number }>) {
@@ -75,6 +79,7 @@ export function buildCreateWebOrderRequest(
           type: "delivery" as const,
           address: checkout.address.trim(),
           notes: checkout.notes.trim() || undefined,
+          zone_id: checkout.deliveryZoneId,
         });
 
   return {

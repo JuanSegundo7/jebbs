@@ -4,6 +4,7 @@ import { useMemo, useState } from "react";
 
 export type FulfillmentType = "pickup" | "delivery";
 export type PaymentMethod = "cash" | "transfer";
+export type CheckoutField = "zone" | "name" | "phone" | "address";
 
 export interface UseCheckoutState {
   fulfillmentType: FulfillmentType;
@@ -14,6 +15,14 @@ export interface UseCheckoutState {
   setAddress: (value: string) => void;
   notes: string;
   setNotes: (value: string) => void;
+  /** null = not chosen yet. Setting a real id clears zoneNotListed (the two
+   * are mutually exclusive -- see setZoneNotListed below). */
+  deliveryZoneId: string | null;
+  setDeliveryZoneId: (id: string | null) => void;
+  /** True only when the customer explicitly picked "no encuentro mi zona"
+   * in DeliveryZonePicker. Setting this to true clears deliveryZoneId. */
+  zoneNotListed: boolean;
+  setZoneNotListed: (value: boolean) => void;
   /**
    * Required by CreateWebOrderSchema's `customer.name` for BOTH pickup and
    * delivery (lib/order/cart-request.ts) -- unlike phone/address, this is
@@ -33,6 +42,17 @@ export interface UseCheckoutState {
    * logic here.
    */
   canConfirm: boolean;
+  /** Fields currently missing/invalid for the active fulfillment type, in
+   * the order they should be focused. Empty once canConfirm is true. */
+  missingFields: CheckoutField[];
+  /** Bumps every time requestValidation() finds something missing -- a
+   * nonce, not a boolean, so a checkout-panel effect fires on EVERY failed
+   * tap (the owner wants the button to re-focus the field each time it's
+   * pressed while still invalid, not just the first time). */
+  validationNonce: number;
+  /** Call from the confirm button's onClick. Returns true (proceed) when
+   * complete; otherwise bumps validationNonce and returns false. */
+  requestValidation: () => boolean;
 }
 
 /**
@@ -49,12 +69,46 @@ export function useCheckout(): UseCheckoutState {
   const [notes, setNotes] = useState("");
   const [customerName, setCustomerName] = useState("");
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>("cash");
+  const [deliveryZoneId, setDeliveryZoneIdState] = useState<string | null>(null);
+  const [zoneNotListed, setZoneNotListedState] = useState(false);
 
-  const canConfirm = useMemo(() => {
-    if (customerName.trim().length === 0) return false;
-    if (fulfillmentType === "pickup") return true;
-    return phone.trim().length > 0 && address.trim().length > 0;
-  }, [customerName, fulfillmentType, phone, address]);
+  // Mutually exclusive by construction, not by convention at each call
+  // site: picking a real zone always clears "no encuentro mi zona" and
+  // vice versa, regardless of which setter the picker calls.
+  const setDeliveryZoneId = (id: string | null) => {
+    setDeliveryZoneIdState(id);
+    if (id !== null) setZoneNotListedState(false);
+  };
+  const setZoneNotListed = (value: boolean) => {
+    setZoneNotListedState(value);
+    if (value) setDeliveryZoneIdState(null);
+  };
+
+  const missingFields = useMemo<CheckoutField[]>(() => {
+    const missing: CheckoutField[] = [];
+    // First -- it's the first thing the customer sees in step 1 of the
+    // cart wizard (order-preferences.tsx), and requestValidation's focus
+    // walk (customer-details-panel.tsx) focuses missingFields[0].
+    if (fulfillmentType === "delivery" && !deliveryZoneId && !zoneNotListed) {
+      missing.push("zone");
+    }
+    if (customerName.trim().length === 0) missing.push("name");
+    if (fulfillmentType === "delivery") {
+      if (phone.trim().length === 0) missing.push("phone");
+      if (address.trim().length === 0) missing.push("address");
+    }
+    return missing;
+  }, [customerName, fulfillmentType, phone, address, deliveryZoneId, zoneNotListed]);
+
+  const canConfirm = missingFields.length === 0;
+
+  const [validationNonce, setValidationNonce] = useState(0);
+
+  const requestValidation = () => {
+    if (missingFields.length === 0) return true;
+    setValidationNonce((n) => n + 1);
+    return false;
+  };
 
   return {
     fulfillmentType,
@@ -65,10 +119,17 @@ export function useCheckout(): UseCheckoutState {
     setAddress,
     notes,
     setNotes,
+    deliveryZoneId,
+    setDeliveryZoneId,
+    zoneNotListed,
+    setZoneNotListed,
     customerName,
     setCustomerName,
     paymentMethod,
     setPaymentMethod,
     canConfirm,
+    missingFields,
+    validationNonce,
+    requestValidation,
   };
 }

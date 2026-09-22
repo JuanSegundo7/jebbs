@@ -44,7 +44,8 @@ function makeCatalog(overrides: Partial<Catalog> = {}): Catalog {
     combos: [],
     meatExtra: { id: MEAT_EXTRA_ID, name: "Medallón", category: "extra", price: 800, is_available: true, created_at: "2024-01-01" },
     friesExtra: { id: FRIES_EXTRA_ID, name: "Papas fritas chicas", category: "fries", price: 500, is_available: true, created_at: "2024-01-01" },
-    deliveryFeeArs: 2000,
+    deliveryZones: [],
+    minDeliveryFeeArs: null,
     ...overrides,
   };
 }

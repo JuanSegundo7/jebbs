@@ -8,6 +8,9 @@ export interface CreateWebOrderArgs {
   total: number;
   deliveryFee: number;
   deliveryType: "pickup" | "delivery";
+  deliveryZoneId: string | null;
+  deliveryZoneName: string | null;
+  deliveryFeePending: boolean;
   customerName: string;
   paymentMethod: "cash" | "transfer";
   notes: string | null;
@@ -82,6 +85,9 @@ export async function createWebOrder(
       customer_address_id: args.customerAddressId,
       delivery_type: args.deliveryType,
       delivery_fee: args.deliveryFee,
+      delivery_zone_id: args.deliveryZoneId,
+      delivery_zone_name: args.deliveryZoneName,
+      delivery_fee_pending: args.deliveryFeePending,
       payment_method: args.paymentMethod,
       source: "web",
       commission_amount: 0,

@@ -3,8 +3,10 @@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import type { Catalog } from "@/lib/catalog/get-catalog";
 import { splitStorefrontExtras } from "@/lib/catalog/storefront-extras";
+import { resolveDeliveryFee } from "@/lib/order/resolve-delivery-fee";
 import { useCart } from "@/hooks/use-cart";
 import { useCheckout } from "@/hooks/use-checkout";
+import type { DeliveryZone } from "@/lib/types";
 import { BurgerPicker } from "./burger-picker";
 import { ComboPicker } from "./combo-picker";
 import { SidePicker } from "./side-picker";
@@ -12,10 +14,8 @@ import { CartDrawer } from "./cart-drawer";
 
 interface OrderBuilderProps {
   catalog: Catalog;
-  /** Display-only source for the fee line; the actual amount applied to
-   * the cart's advisory total depends on the checkout's fulfillment type
-   * (WU3b) -- pickup never adds it, delivery always does. */
-  deliveryFeeArs: number;
+  deliveryZones: DeliveryZone[];
+  minDeliveryFeeArs: number | null;
 }
 
 // Top-level order-builder for the landing (WU3 + WU3b). Owns both the cart
@@ -23,14 +23,35 @@ interface OrderBuilderProps {
 // address, phone, notes), and renders the pickers, the cart drawer, and the
 // checkout panel. The checkout panel's ConfirmButton (WU5) is what actually
 // submits to POST /api/orders and performs the WhatsApp handoff.
-export function OrderBuilder({ catalog, deliveryFeeArs }: OrderBuilderProps) {
+export function OrderBuilder({ catalog, deliveryZones, minDeliveryFeeArs }: OrderBuilderProps) {
   const checkout = useCheckout();
   const isDelivery = checkout.fulfillmentType === "delivery";
+
+  // Resolves the SAME way the server will (lib/order/resolve-delivery-fee.ts
+  // is the single source of truth for both) -- this total is advisory only
+  // (cart-drawer.tsx's own footer note), the server is the real authority.
+  // Wrapped in try/catch: a stale deliveryZoneId (catalog changed under the
+  // customer, e.g. a zone got deactivated between renders) must fall back
+  // to "a confirmar" here, not crash the whole order builder -- POST
+  // /api/orders is the place that actually rejects a bad zone id (409
+  // ZONE_UNAVAILABLE).
+  let resolvedDeliveryFee = 0;
+  let deliveryFeePending = false;
+  if (isDelivery) {
+    try {
+      const resolved = resolveDeliveryFee(deliveryZones, checkout.deliveryZoneId);
+      resolvedDeliveryFee = resolved.deliveryFee;
+      deliveryFeePending = resolved.deliveryFeePending;
+    } catch {
+      deliveryFeePending = true;
+    }
+  }
+
   const cart = useCart({
     meatExtra: catalog.meatExtra,
     friesExtra: catalog.friesExtra,
     deliveryType: checkout.fulfillmentType,
-    deliveryFee: isDelivery ? deliveryFeeArs : 0,
+    deliveryFee: resolvedDeliveryFee,
   });
 
   const {
@@ -43,10 +64,16 @@ export function OrderBuilder({ catalog, deliveryFeeArs }: OrderBuilderProps) {
   // category) -- only the display grouping is category-aware (SidePicker).
   const drinksAndSides = [...drinkExtras, ...sideExtras];
 
-  // Re-estilo a la identidad real de jebbs-dashboard: tipografía nativa
-  // (font-sans, sin mayúscula/tracking condensado -- el dashboard no usa esa
-  // convención) y fondo/texto con la escalera de acento en vez de
-  // cheddar/coal. dark: variants repeat every override on purpose -- see the
+  // "¿Le sumás algo?" candidates for the cart drawer -- same pool as the
+  // Bebidas y sides tab, minus whatever's already in the cart (addSide
+  // dedupes by extra.id, so this just avoids offering a "+" on something
+  // already selected).
+  const inCart = new Set(cart.sides.selectedSides.map((s) => s.extra.id));
+  const upsellExtras = drinksAndSides.filter((extra) => !inCart.has(extra.id));
+
+  // Colores de jebbs-dashboard (escalera de acento en vez de cheddar/coal);
+  // tipografía "diner" (font-condensed uppercase/tracking) restaurada por
+  // pedido del dueño. dark: variants repeat every override on purpose -- see the
   // identical note in checkout/fulfillment-toggle.tsx. The base TabsTrigger
   // ships dark:text-muted-foreground / dark:data-[state=active]:bg-input/30,
   // and this app is hardcoded to dark mode, so a bare-only override loses.
@@ -57,7 +84,7 @@ export function OrderBuilder({ catalog, deliveryFeeArs }: OrderBuilderProps) {
   // sin timing-function propio (ease del navegador); esto solo agrega la
   // curva, no pelea con transition-property.
   const tabTriggerClass =
-    "rounded-full px-4 py-1.5 font-sans text-[12px] font-semibold text-[var(--muted-foreground)] [transition-timing-function:cubic-bezier(0.16,1,0.3,1)] data-[state=active]:bg-[var(--accent-brand)] data-[state=active]:text-[var(--accent-contrast)] data-[state=active]:shadow-none dark:text-[var(--muted-foreground)] dark:data-[state=active]:bg-[var(--accent-brand)] dark:data-[state=active]:text-[var(--accent-contrast)]";
+    "rounded-full px-4 py-1.5 font-condensed text-[12px] font-bold tracking-[.08em] text-[var(--muted-foreground)] uppercase [transition-timing-function:cubic-bezier(0.16,1,0.3,1)] data-[state=active]:bg-[var(--accent-brand)] data-[state=active]:text-[var(--accent-contrast)] data-[state=active]:shadow-none dark:text-[var(--muted-foreground)] dark:data-[state=active]:bg-[var(--accent-brand)] dark:data-[state=active]:text-[var(--accent-contrast)]";
 
   return (
     <div className="space-y-6">
@@ -100,9 +127,14 @@ export function OrderBuilder({ catalog, deliveryFeeArs }: OrderBuilderProps) {
       <CartDrawer
         cart={cart}
         checkout={checkout}
-        deliveryFeeArs={deliveryFeeArs}
+        deliveryFeeArs={resolvedDeliveryFee}
+        deliveryFeePending={deliveryFeePending}
+        deliveryZones={deliveryZones}
+        minDeliveryFeeArs={minDeliveryFeeArs}
         meatExtra={catalog.meatExtra}
         friesExtra={catalog.friesExtra}
+        toppingExtras={toppingExtras}
+        upsellExtras={upsellExtras}
       />
     </div>
   );

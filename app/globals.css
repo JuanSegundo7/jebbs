@@ -108,7 +108,7 @@
 
   --radius: 14px;
 
-  /* Identidad "diner" de Jebbs Burger's -- paleta extraída del HTML real
+  /* Identidad "diner" de Jebbs Burgers -- paleta extraída del HTML real
      del sitio de referencia (jebbs-burgers.vercel.app), el mockup hecho
      para el mismo negocio. Reemplaza la identidad glass/iOS genérica de
      arriba como sistema visual de la landing (nav, hero, menú, info,
@@ -154,12 +154,12 @@
      no se leían como el mismo material que header/sidebar: dependían
      casi enteramente del hairline para notarse. */
   --material-thin:    rgba(19, 22, 29, 0.42);      /* contenido elevado */
-  --material-regular: rgba(19, 22, 29, 0.66);      /* chrome flotante   */
+  --material-regular: rgba(13, 15, 20, 0.9);       /* chrome flotante   */
   --material-thick:   rgba(11, 13, 18, 0.82);      /* sidebar, modales  */
   --well:             rgba(0, 0, 0, 0.30);         /* pozo hundido      */
 
   --blur-thin: 14px;
-  --blur-regular: 28px;
+  --blur-regular: 36px;
   --blur-thick: 44px;
   --blur-scrim: 6px;
   --material-saturate: 165%;
@@ -252,15 +252,9 @@
   --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI Variable", "Segoe UI",
     system-ui, Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif,
     "Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji";
-  /* Identidad real de jebbs-dashboard (re-estilo en curso, ver plan): fuente
-     nativa del sistema para todo (--font-sans, arriba), Pacifico solo para
-     la palabra de marca "Jebbs", Geist Mono para números tabulares. Convive
-     por ahora con --font-display/--font-condensed/--font-body/--font-ticket
-     de la identidad "diner" (abajo) mientras el re-estilo avanza sección por
-     sección -- se retiran cuando ninguna sección los use más. */
-  --font-brand: var(--font-pacifico), cursive;
-  --font-mono: var(--font-geist-mono), ui-monospace, SFMono-Regular, monospace;
-  /* Identidad "diner" -- 4 roles fijos, ver lib/fonts.ts. font-condensed es
+  /* El dueño prefirió la tipografía "diner" por sobre la nativa del
+     dashboard -- --font-sans (arriba) queda solo como fallback de Tailwind,
+     sin consumidores reales en la landing. 4 roles fijos, ver lib/fonts.ts. font-condensed es
      el caballito de batalla (nav, nombres de producto, precios, headers de
      categoría, chips, labels): se usa siempre en mayúscula con tracking
      generoso en el sitio de consumo, no acá. */
@@ -860,6 +854,70 @@
   }
 }
 
+/* Borde superior/inferior dentado -- carácter de comanda impresa (feedback
+   real del dueño). Un mask recorta la silueta a "medios círculos" repetidos
+   en el borde de arriba/abajo; un mask recorta también cualquier
+   box-shadow puesto en la misma capa, así que la sombra pasa a
+   filter: drop-shadow(), que sí sobrevive al recorte. Aplicado sobre
+   checkout-panel.tsx (el ticket real hoy) -- no sobre `diner-ticket`
+   arriba, que quedó sin consumidores desde el retint a la paleta del
+   dashboard. Degrada a tarjeta lisa (sin muescas, sombra normal) donde no
+   haya soporte de mask-image o con prefers-contrast: more -- un borde
+   recortado sin contorno sólido sería una regresión de contraste ahí. */
+@utility ticket-notched {
+  --notch: 7px;
+  /* Autocontenida a propósito (no combinar con las utilities `border`/
+     `rounded-*`/`shadow-*` de Tailwind en el mismo elemento): esas son
+     utilidades propias generadas aparte, y el orden de cascada entre una
+     @utility a mano y las utilities núcleo de Tailwind v4 no está
+     garantizado -- más simple que esta utility resuelva sola los 4 lados
+     y la sombra que arriesgarse a que un `border-top-color` suelto le
+     gane el empate. */
+  border-left: 1px solid var(--hairline);
+  border-right: 1px solid var(--hairline);
+  border-top: 0;
+  border-bottom: 0;
+  border-radius: 0;
+  box-shadow: none;
+  filter: drop-shadow(0 16px 32px rgba(0, 0, 0, 0.3));
+  @supports (mask-image: radial-gradient(circle, #000, #000)) {
+    mask-image:
+      radial-gradient(circle var(--notch) at var(--notch) 0, #0000 98%, #000 100%),
+      radial-gradient(circle var(--notch) at var(--notch) 100%, #0000 98%, #000 100%),
+      linear-gradient(#000, #000);
+    mask-size:
+      calc(var(--notch) * 2) var(--notch),
+      calc(var(--notch) * 2) var(--notch),
+      100% calc(100% - var(--notch) * 2);
+    mask-position:
+      0 0,
+      0 100%,
+      0 var(--notch);
+    mask-repeat: repeat-x, repeat-x, no-repeat;
+    -webkit-mask-image:
+      radial-gradient(circle var(--notch) at var(--notch) 0, #0000 98%, #000 100%),
+      radial-gradient(circle var(--notch) at var(--notch) 100%, #0000 98%, #000 100%),
+      linear-gradient(#000, #000);
+    -webkit-mask-size:
+      calc(var(--notch) * 2) var(--notch),
+      calc(var(--notch) * 2) var(--notch),
+      100% calc(100% - var(--notch) * 2);
+    -webkit-mask-position:
+      0 0,
+      0 100%,
+      0 var(--notch);
+    -webkit-mask-repeat: repeat-x, repeat-x, no-repeat;
+  }
+  @media (prefers-contrast: more) {
+    border: 1px solid var(--hairline-strong);
+    border-radius: 14px;
+    mask-image: none;
+    -webkit-mask-image: none;
+    filter: none;
+    box-shadow: var(--shadow-lg);
+  }
+}
+
 /* Encabezado del checkout. */
 @utility diner-ticket-title {
   margin: 0;
@@ -1396,10 +1454,31 @@
     opacity: 0.4;
   }
 }
+
+/* Zonas sin fee activo en el mapa de envíos (delivery-zone-map.tsx): un
+   data-zone="z1".."z4" (public/delivery-zone-map.svg) que no matchea el
+   map_zone_key de ninguna zona activa -- gris desaturado, sin affordance de
+   hover, en vez de desaparecer o (peor) seguir mostrando un precio caído.
+   Selector con más especificidad que `.zone path`/`.zone.dim` (estilo
+   inline embebido en el propio SVG) para ganar la cascada sin depender del
+   orden de inserción en el DOM una vez inyectado vía
+   dangerouslySetInnerHTML. */
+.zone.zone-off path {
+  fill: var(--muted-foreground-dim);
+  fill-opacity: 0.16;
+  stroke: var(--muted-foreground-dim);
+  stroke-opacity: 0.35;
+}
+.zone.zone-off {
+  pointer-events: none;
+}
+
 @utility diner-zname {
-  font-family: var(--font-sans);
-  font-weight: 600;
+  font-family: var(--font-condensed);
+  font-weight: 700;
   font-size: 0.95rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
   color: var(--foreground);
 }
 @utility diner-zhoods {
@@ -1408,9 +1487,10 @@
   line-height: 1.45;
 }
 @utility diner-zprice {
-  font-family: var(--font-mono);
+  font-family: var(--font-condensed);
   font-weight: 700;
-  font-size: 1.1rem;
+  font-size: 1.2rem;
+  letter-spacing: 0.06em;
   color: var(--muted-foreground);
   margin-top: auto;
   white-space: nowrap;

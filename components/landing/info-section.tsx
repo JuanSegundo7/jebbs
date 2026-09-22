@@ -3,14 +3,12 @@ import { Clock, MapPin, Phone } from "lucide-react";
 // Static shop info (hours/zone/contact) -- grilla con separador de 1px real
 // (fondo del contenedor, no gap+divide). No catalog/cart state.
 //
-// Re-estilo a la identidad real de jebbs-dashboard: tipografía nativa,
-// naranja/frío en vez de mostaza/carbón. diner-section/diner-wrap/
-// diner-sechead se mantienen (son layout puro, sin color) -- solo se
-// reemplazan las utilities con color/tipografía diner por clases literales,
-// mismo criterio que Hero/SiteHeader/MenuSection (diner-eyebrow/
-// diner-sechead-title/diner-cards-grid/diner-card/diner-chip son
-// compartidas con secciones todavía no re-estilizadas, así que no se tocan
-// en globals.css).
+// Colores de jebbs-dashboard (naranja/frío en vez de mostaza/carbón).
+// diner-section/diner-wrap/diner-sechead se mantienen (son layout puro, sin
+// color). Tipografía "diner" restaurada por pedido del dueño: valores
+// exactos de diner-eyebrow/diner-sechead-title/diner-chip-hollow en
+// globals.css, aplicados acá como clases literales porque esas utilities
+// siguen compartidas con otras secciones que ya tienen sus propios colores.
 const FACTS = [
   {
     icon: Clock,
@@ -43,10 +41,10 @@ export function InfoSection() {
       <div className="diner-wrap">
         <div className="diner-sechead">
           <div>
-            <p className="font-sans text-sm font-semibold text-[var(--accent-brand)] uppercase">
+            <p className="font-condensed text-[0.82rem] font-bold tracking-[0.18em] text-[var(--accent-brand)] uppercase">
               Antes de pedir
             </p>
-            <h2 className="font-sans text-[clamp(1.7rem,3.6vw,2.5rem)] leading-none tracking-[-0.01em] text-[var(--foreground)]">
+            <h2 className="mt-[10px] font-display text-[clamp(1.7rem,3.6vw,2.5rem)] leading-none tracking-[-0.024em] text-[var(--foreground)]">
               Horarios y contacto
             </h2>
           </div>
@@ -54,10 +52,10 @@ export function InfoSection() {
         <div className="grid grid-cols-1 gap-px overflow-hidden rounded-2xl border border-[var(--hairline)] bg-[var(--hairline)] sm:grid-cols-3">
           {FACTS.map(({ icon: Icon, title, chip, detail, sub }) => (
             <div key={title} className="bg-[var(--surface-2)] p-6">
-              <h3 className="mb-3 flex flex-wrap items-center gap-2 font-sans text-base font-semibold text-[var(--foreground)]">
+              <h3 className="mb-3 flex flex-wrap items-center gap-2 font-condensed text-[1.05rem] font-bold tracking-[.15em] text-[var(--foreground)] uppercase">
                 <Icon className="size-4 text-[var(--accent-brand)]" aria-hidden />
                 {title}
-                <span className="rounded-full border border-[var(--accent-brand)]/50 px-2.5 py-0.5 text-xs font-semibold text-[var(--accent-brand)]">
+                <span className="rounded-full border border-[var(--accent-brand)]/50 px-2.5 py-0.5 font-condensed text-[0.72rem] font-bold tracking-[0.14em] text-[var(--accent-brand)] uppercase">
                   {chip}
                 </span>
               </h3>

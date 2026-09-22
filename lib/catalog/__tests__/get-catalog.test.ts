@@ -2,7 +2,6 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 
 // lib/env.ts throws at module load (DD3), so it must be configured before
 // anything under test imports it transitively via get-catalog.ts.
-process.env.DELIVERY_FEE_ARS = "2000";
 process.env.NEXT_PUBLIC_WHATSAPP_NUMBER = "5493454123456";
 
 type QueryCall = { method: string; args: unknown[] };
@@ -121,6 +120,11 @@ function routesWithMeatAndFries(overrides: Partial<Route>[] = []): Route[] {
       table: "extras",
       match: (calls) => hasEq(calls, "name", "Papas fritas chicas"),
       result: { data: FRIES_EXTRA_ROW, error: null },
+    },
+    {
+      table: "delivery_zones",
+      match: () => true,
+      result: { data: [], error: null },
     },
   ];
 }
@@ -338,13 +342,37 @@ describe("getCatalog()", () => {
     );
   });
 
-  it("includes deliveryFeeArs from lib/env.ts in the returned catalog", async () => {
+  it("filters delivery zones by is_active = true and orders by sort_order then name", async () => {
+    const zoneRows = [
+      { id: "z-1", name: "City Bell", description: null, fee: 1500, is_active: true, sort_order: 1, map_zone_key: "z1" },
+      { id: "z-2", name: "La Plata", description: null, fee: 2500, is_active: true, sort_order: 2, map_zone_key: "z4" },
+    ];
+    const mock = createSupabaseMock(
+      routesWithMeatAndFries([
+        {
+          table: "delivery_zones",
+          match: (calls) => hasEq(calls, "is_active", true),
+          result: { data: zoneRows, error: null },
+        },
+      ]),
+    );
+    setSupabaseMock(mock);
+
+    const { getCatalog } = await import("@/lib/catalog/get-catalog");
+    const catalog = await getCatalog();
+
+    expect(catalog.deliveryZones).toEqual(zoneRows);
+    expect(catalog.minDeliveryFeeArs).toBe(1500);
+  });
+
+  it("minDeliveryFeeArs is null when no zones are active", async () => {
     const mock = createSupabaseMock(routesWithMeatAndFries());
     setSupabaseMock(mock);
 
     const { getCatalog } = await import("@/lib/catalog/get-catalog");
     const catalog = await getCatalog();
 
-    expect(catalog.deliveryFeeArs).toBe(2000);
+    expect(catalog.deliveryZones).toEqual([]);
+    expect(catalog.minDeliveryFeeArs).toBeNull();
   });
 });

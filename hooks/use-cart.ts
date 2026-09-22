@@ -57,6 +57,20 @@ export function useCart({
 
   const isEmpty = itemCount === 0;
 
+  // Excludes delivery fee/discount/adjustment -- `total` (below) is the one
+  // that includes those. Split out because checkout-panel.tsx was reading
+  // `total` (already fee-inclusive) into its "Subtotal" row and then adding
+  // the fee again for "Total", double-charging delivery on screen.
+  const subtotal = useMemo(() => {
+    return OrderPriceCalculator.calculateSubtotal(
+      burgers.selectedBurgers,
+      combos.selectedCombos,
+      sides.selectedSides,
+      meatExtra,
+      friesExtra,
+    );
+  }, [burgers.selectedBurgers, combos.selectedCombos, sides.selectedSides, meatExtra, friesExtra]);
+
   const total = useMemo(() => {
     return OrderPriceCalculator.calculateOrderTotal({
       selectedBurgers: burgers.selectedBurgers,
@@ -92,6 +106,7 @@ export function useCart({
     sides,
     itemCount,
     isEmpty,
+    subtotal,
     total,
     reset,
   };

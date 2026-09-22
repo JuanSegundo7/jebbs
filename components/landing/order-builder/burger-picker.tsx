@@ -82,8 +82,8 @@ export function BurgerPicker({
                 <div
                   key={burger.id}
                   className={cn(
-                    "flex items-center gap-[15px] border-b border-dashed border-[var(--hairline-strong)] py-[15px] transition-[border-color,background-color,transform] duration-200 ease-[cubic-bezier(0.16,1,0.3,1)] last:border-b-0 hover:border-[var(--foreground)] hover:bg-[color-mix(in_srgb,var(--foreground)_3%,transparent)] active:scale-[0.99]",
-                    count > 0 && "bg-[linear-gradient(90deg,var(--accent-tint-16),transparent_60%)]",
+                    "flex items-center gap-[15px] border-b border-dashed border-[var(--hairline-strong)] py-[15px] pl-0 transition-[border-color,background-color,transform,padding-left] duration-200 ease-[cubic-bezier(0.16,1,0.3,1)] last:border-b-0 hover:border-[var(--foreground)] hover:bg-[color-mix(in_srgb,var(--foreground)_3%,transparent)] active:scale-[0.99]",
+                    count > 0 && "bg-[linear-gradient(90deg,var(--accent-tint-16),transparent_60%)] pl-3",
                   )}
                 >
                   <button
@@ -114,19 +114,19 @@ export function BurgerPicker({
 
                     <div className="min-w-0 flex-1">
                       <div className="flex items-baseline">
-                        <span className="font-sans text-[1.22rem] font-bold text-[var(--foreground)]">
+                        <span className="font-condensed text-[1.22rem] font-bold tracking-[.04em] text-[var(--foreground)] uppercase">
                           {burger.name}
                         </span>
                         <span
                           className="mb-[0.3em] min-w-[1rem] flex-1 self-end border-b border-dotted border-[var(--muted-foreground-dim)]"
                           aria-hidden
                         />
-                        <span className="numeric shrink-0 font-sans text-[1.22rem] font-bold text-[var(--accent-brand)]">
+                        <span className="numeric shrink-0 font-condensed text-[1.22rem] font-bold text-[var(--accent-brand)]">
                           {formatArs(burger.base_price)}
                         </span>
                       </div>
                       {description && (
-                        <p className="mt-1 line-clamp-2 font-sans text-[0.94rem] leading-[1.45] text-[var(--muted-foreground)]">
+                        <p className="mt-1 line-clamp-2 font-body text-[0.94rem] leading-[1.45] tracking-[0.005em] text-[var(--muted-foreground)]">
                           {description}
                         </p>
                       )}
@@ -143,7 +143,7 @@ export function BurgerPicker({
                     >
                       <Minus />
                     </button>
-                    <output className="numeric w-[26px] text-center font-sans text-[1.1rem] font-bold text-[var(--muted-foreground)]">
+                    <output className="numeric w-[26px] text-center font-condensed text-[1.1rem] font-bold text-[var(--muted-foreground)]">
                       {count}
                     </output>
                     <button
@@ -163,7 +163,7 @@ export function BurgerPicker({
 
         {selectedBurgers.length > 0 && (
           <div className="space-y-2">
-            <p className="text-overline text-[var(--muted-foreground)] uppercase">
+            <p className="font-condensed text-xs font-bold tracking-[.16em] text-[var(--muted-foreground)] uppercase">
               Personalizá tu pedido
             </p>
             {selectedBurgers.map((item) => {
@@ -185,11 +185,11 @@ export function BurgerPicker({
                         aria-hidden
                       />
                       <span className="min-w-0 flex-1">
-                        <span className="block font-sans text-sm font-bold text-[var(--foreground)]">
+                        <span className="block font-condensed text-sm font-bold tracking-[.03em] text-[var(--foreground)] uppercase">
                           {item.burger.name}
                         </span>
                         {!expanded && (
-                          <span className="block truncate font-sans text-xs text-[var(--muted-foreground)]">
+                          <span className="block truncate font-body text-xs text-[var(--muted-foreground)]">
                             {summarizeBurger(item) ??
                               "Sin modificar · tocá para personalizar"}
                           </span>
@@ -267,14 +267,14 @@ export function BurgerPicker({
         >
           {detail.ingredients.length > 0 && (
             <div className="mt-4">
-              <p className="mb-2 text-overline text-[var(--muted-foreground)] uppercase">
+              <p className="mb-2 font-condensed text-xs font-bold tracking-[.16em] text-[var(--muted-foreground)] uppercase">
                 Ingredientes
               </p>
               <div className="flex flex-wrap gap-2">
                 {detail.ingredients.map((ing) => (
                   <span
                     key={ing}
-                    className="rounded-full border border-[var(--accent-brand)]/50 px-2.5 py-0.5 text-xs font-semibold text-[var(--accent-brand)]"
+                    className="rounded-full border border-[var(--accent-brand)]/50 px-2.5 py-0.5 font-condensed text-[0.72rem] font-bold tracking-[0.14em] text-[var(--accent-brand)] uppercase"
                   >
                     {ing}
                   </span>

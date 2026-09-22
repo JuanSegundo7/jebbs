@@ -1,15 +1,9 @@
 import { z } from "zod";
 
-// DD3 (design.md): DELIVERY_FEE_ARS unset/invalid is a BOOT FAILURE, not a
-// fallback to a hardcoded number. No default is provided on purpose -- an
-// unset var almost always means a misconfigured deploy, and quoting a wrong
-// fee to a customer with nobody in the loop is worse than a build that
-// refuses to ship.
+// DELIVERY_FEE_ARS (DD3) was removed once delivery pricing moved to the
+// per-zone `delivery_zones` table (see lib/order/resolve-delivery-fee.ts) --
+// there is no longer a single flat fee to boot-fail on.
 const EnvSchema = z.object({
-  DELIVERY_FEE_ARS: z
-    .string({ required_error: "DELIVERY_FEE_ARS is required" })
-    .regex(/^\d+$/, "DELIVERY_FEE_ARS must be a non-negative integer")
-    .transform((value) => Number.parseInt(value, 10)),
   // Digits only, no "+", 8-15 characters -- enough range for an Argentina
   // WhatsApp number with country/area code and no separators.
   NEXT_PUBLIC_WHATSAPP_NUMBER: z
@@ -40,7 +34,6 @@ export function loadEnv() {
   assertTimezone();
 
   const parsed = EnvSchema.safeParse({
-    DELIVERY_FEE_ARS: process.env.DELIVERY_FEE_ARS,
     NEXT_PUBLIC_WHATSAPP_NUMBER: process.env.NEXT_PUBLIC_WHATSAPP_NUMBER,
   });
 

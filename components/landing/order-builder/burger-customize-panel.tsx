@@ -50,12 +50,12 @@ export function BurgerCustomizePanel({
 
   return (
     <div className="space-y-3 border-t border-[var(--hairline)] pt-3">
-      <p className="font-sans text-xs leading-[1.5] text-[var(--muted-foreground)]">
+      <p className="font-body text-xs leading-[1.5] text-[var(--muted-foreground)]">
         {summarizeBurger(item) ?? "Sin modificar"}
       </p>
 
       <div className="flex items-center justify-between">
-        <span className="text-overline text-[var(--muted-foreground)] uppercase">
+        <span className="font-condensed text-xs font-bold tracking-[.08em] text-[var(--muted-foreground)] uppercase">
           Carne
         </span>
         <div className="flex items-center gap-1">
@@ -93,7 +93,7 @@ export function BurgerCustomizePanel({
         // box-shadow, dejando intacta la transición de borde/fondo propia.
         className="flex w-full items-center gap-[10px] py-2 text-left transition-[transform,box-shadow] duration-200 [transition-timing-function:cubic-bezier(0.16,1,0.3,1)] hover:-translate-y-0.5 hover:shadow-[var(--shadow-md)] active:scale-[0.985] active:bg-[color-mix(in_srgb,var(--foreground)_3%,transparent)] active:shadow-[var(--shadow-sm)]"
       >
-        <span className="font-sans text-[0.98rem] font-bold text-[var(--foreground)]">
+        <span className="font-condensed text-[0.98rem] font-bold tracking-[.03em] text-[var(--foreground)] uppercase">
           Versión veggie
         </span>
         <span
@@ -102,7 +102,7 @@ export function BurgerCustomizePanel({
         />
         <span
           className={cn(
-            "shrink-0 rounded-full px-2.5 py-0.5 text-xs font-semibold",
+            "shrink-0 rounded-full px-2.5 py-0.5 font-condensed text-[0.72rem] font-bold tracking-[0.14em] uppercase",
             item.isVeggie
               ? "bg-[var(--accent-brand)] text-[var(--accent-contrast)]"
               : "border border-[var(--accent-brand)]/50 text-[var(--accent-brand)]",
@@ -113,7 +113,7 @@ export function BurgerCustomizePanel({
       </button>
 
       <div className="flex items-center justify-between">
-        <span className="text-overline text-[var(--muted-foreground)] uppercase">
+        <span className="font-condensed text-xs font-bold tracking-[.08em] text-[var(--muted-foreground)] uppercase">
           Papas
         </span>
         <div className="flex items-center gap-1">
@@ -142,11 +142,11 @@ export function BurgerCustomizePanel({
       {toppingExtras.length > 0 && (
         <div>
           <div className="flex items-baseline justify-between">
-            <span className="text-overline text-[var(--muted-foreground)] uppercase">
+            <span className="font-condensed text-xs font-bold tracking-[.08em] text-[var(--muted-foreground)] uppercase">
               Extras
             </span>
             {selectedExtrasCount > 0 && (
-              <span className="numeric font-sans text-xs text-[var(--muted-foreground-dim)]">
+              <span className="numeric font-condensed text-xs text-[var(--muted-foreground-dim)]">
                 {selectedExtrasCount} agregado{selectedExtrasCount === 1 ? "" : "s"}
               </span>
             )}
@@ -158,19 +158,19 @@ export function BurgerCustomizePanel({
               <div
                 key={extra.id}
                 className={cn(
-                  "flex items-center gap-[10px] border-b border-dashed border-[var(--hairline-strong)] py-2 transition-[border-color,background-color,transform] duration-200 ease-[cubic-bezier(0.16,1,0.3,1)] last:border-b-0 hover:border-[var(--foreground)] hover:bg-[color-mix(in_srgb,var(--foreground)_3%,transparent)] active:scale-[0.99]",
+                  "-mx-3 flex items-center gap-[10px] border-b border-dashed border-[var(--hairline-strong)] px-3 py-2 transition-[border-color,background-color,transform] duration-200 ease-[cubic-bezier(0.16,1,0.3,1)] last:border-b-0 hover:border-[var(--foreground)] hover:bg-[color-mix(in_srgb,var(--foreground)_3%,transparent)] active:scale-[0.99]",
                   qty > 0 && "bg-[linear-gradient(90deg,var(--accent-tint-16),transparent_60%)]",
                 )}
               >
                 <div className="flex min-w-0 flex-1 items-baseline">
-                  <span className="truncate font-sans text-[0.98rem] font-bold text-[var(--foreground)]">
+                  <span className="truncate font-condensed text-[0.98rem] font-bold tracking-[.03em] text-[var(--foreground)] uppercase">
                     {extra.name}
                   </span>
                   <span
                     className="mb-[0.3em] min-w-[1rem] flex-1 self-end border-b border-dotted border-[var(--muted-foreground-dim)]"
                     aria-hidden
                   />
-                  <span className="numeric shrink-0 font-sans text-[0.98rem] font-bold text-[var(--accent-brand)]">
+                  <span className="numeric shrink-0 font-condensed text-[0.98rem] font-bold text-[var(--accent-brand)]">
                     +{formatArs(extra.price)}
                   </span>
                 </div>
@@ -184,7 +184,7 @@ export function BurgerCustomizePanel({
                   >
                     <Minus />
                   </button>
-                  <output className="numeric w-[26px] text-center font-sans text-[1.1rem] font-bold text-[var(--muted-foreground)]">
+                  <output className="numeric w-[26px] text-center font-condensed text-[1.1rem] font-bold text-[var(--muted-foreground)]">
                     {qty}
                   </output>
                   <button
@@ -208,7 +208,7 @@ export function BurgerCustomizePanel({
               type="button"
               aria-expanded={showAllExtras}
               onClick={() => setShowAllExtras((v) => !v)}
-              className="w-full py-2 text-center text-overline text-[var(--accent-brand)] uppercase"
+              className="w-full py-2 text-center font-condensed text-xs font-bold tracking-[.08em] text-[var(--accent-brand)] uppercase"
             >
               {showAllExtras ? "Ver menos" : `Ver los ${toppingExtras.length} extras`}
             </button>

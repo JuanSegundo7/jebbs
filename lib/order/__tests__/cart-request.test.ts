@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import { CreateWebOrderSchema } from "@/lib/order/cart-request";
 
 const BURGER_ID = "11111111-1111-1111-1111-111111111111";
+const ZONE_ID = "22222222-2222-2222-2222-222222222222";
 
 function validBurgerLine(overrides: Record<string, unknown> = {}) {
   return {
@@ -80,6 +81,7 @@ describe("CreateWebOrderSchema", () => {
         fulfillment: {
           type: "delivery",
           address: "Calle Falsa 123, Springfield",
+          zone_id: ZONE_ID,
         },
         customer: { name: "Juan" },
       }),
@@ -100,10 +102,71 @@ describe("CreateWebOrderSchema", () => {
         fulfillment: {
           type: "delivery",
           address: "Calle Falsa 123, Springfield",
+          zone_id: ZONE_ID,
         },
         customer: { name: "Juan", phone: "345 412 3456" },
       }),
     );
     expect(result.success).toBe(true);
+  });
+
+  it("rejects a delivery payload missing zone_id entirely (a stale client must get a 400, never silently become pending)", () => {
+    const result = CreateWebOrderSchema.safeParse(
+      validPayload({
+        fulfillment: {
+          type: "delivery",
+          address: "Calle Falsa 123, Springfield",
+        },
+        customer: { name: "Juan", phone: "345 412 3456" },
+      }),
+    );
+    expect(result.success).toBe(false);
+  });
+
+  it("accepts zone_id: null (explicit 'no encuentro mi zona')", () => {
+    const result = CreateWebOrderSchema.safeParse(
+      validPayload({
+        fulfillment: {
+          type: "delivery",
+          address: "Calle Falsa 123, Springfield",
+          zone_id: null,
+        },
+        customer: { name: "Juan", phone: "345 412 3456" },
+      }),
+    );
+    expect(result.success).toBe(true);
+  });
+
+  it("accepts zone_id as a valid uuid", () => {
+    const result = CreateWebOrderSchema.safeParse(
+      validPayload({
+        fulfillment: {
+          type: "delivery",
+          address: "Calle Falsa 123, Springfield",
+          zone_id: ZONE_ID,
+        },
+        customer: { name: "Juan", phone: "345 412 3456" },
+      }),
+    );
+    expect(result.success).toBe(true);
+  });
+
+  // "No money crosses the wire" guard (app/api/orders/route.ts step 6):
+  // zone_id is an id, not money -- confirm delivery_fee/total_amount are
+  // still rejected even on an otherwise-valid delivery payload.
+  it("still rejects a client-posted delivery_fee/total_amount on a delivery payload with a valid zone_id", () => {
+    const result = CreateWebOrderSchema.safeParse(
+      validPayload({
+        fulfillment: {
+          type: "delivery",
+          address: "Calle Falsa 123, Springfield",
+          zone_id: ZONE_ID,
+        },
+        customer: { name: "Juan", phone: "345 412 3456" },
+        delivery_fee: 2000,
+        total_amount: 1,
+      }),
+    );
+    expect(result.success).toBe(false);
   });
 });

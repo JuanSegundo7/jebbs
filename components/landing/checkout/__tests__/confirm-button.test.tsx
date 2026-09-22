@@ -63,7 +63,7 @@ describe("ConfirmButton", () => {
     );
 
     render(<Harness />);
-    const button = await screen.findByRole("button", { name: /confirmar pedido/i });
+    const button = await screen.findByRole("button", { name: /enviar pedido por whatsapp/i });
     expect(button.hasAttribute("disabled")).toBe(false);
 
     fireEvent.click(button);
@@ -86,7 +86,7 @@ describe("ConfirmButton", () => {
     } as Response);
 
     render(<Harness />);
-    const button = await screen.findByRole("button", { name: /confirmar pedido/i });
+    const button = await screen.findByRole("button", { name: /enviar pedido por whatsapp/i });
     fireEvent.click(button);
 
     const link = await screen.findByRole("link");

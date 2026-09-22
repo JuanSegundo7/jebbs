@@ -1,8 +1,9 @@
 "use client";
 
 import { useState } from "react";
-import { Loader2, MessageCircle } from "lucide-react";
+import { Loader2 } from "lucide-react";
 import { useSingleFlight } from "@/hooks/use-single-flight";
+import { WhatsappGlyph } from "@/components/landing/whatsapp-glyph";
 import {
   buildCreateWebOrderRequest,
   type CartSelectionInput,
@@ -11,7 +12,10 @@ import {
 
 interface ConfirmButtonProps {
   cart: CartSelectionInput;
-  checkout: CheckoutSelectionInput & { canConfirm: boolean };
+  checkout: CheckoutSelectionInput & {
+    canConfirm: boolean;
+    requestValidation: () => boolean;
+  };
 }
 
 interface OrderConfirmationResponse {
@@ -69,35 +73,39 @@ export function ConfirmButton({ cart, checkout }: ConfirmButtonProps) {
 
   return (
     <div className="space-y-2">
-      {/* Botón primario -- mismo tratamiento que diner-btn-primary/
-          diner-cta-glow (el CTA "Ver pedido" del rail), con el glow
-          permanente propio que ya tenía diner-send. Native <button>, no
-          el Button de shadcn: ese primitivo trae sombras/ring del sistema
-          iOS/glass que no pertenecen a esta identidad -- mismo motivo que
-          los inputs nativos en customer-name-field.tsx/
-          delivery-details-form.tsx. */}
+      {/* Siempre naranja, incluso "incompleto" -- un botón muerto (gris
+          sobre gris) leía como roto, no como "todavía falta algo" (feedback
+          real del dueño). Tocarlo con datos faltantes ya no lo deshabilita:
+          hace foco en el primer campo que falta y lo marca en rojo (ver
+          requestValidation en useCheckout + customer-name-field.tsx/
+          delivery-details-form.tsx). El único disabled real que queda es
+          "enviando" (isPending) -- ahí sí se opaca un poco, con el spinner. */}
       <button
         type="button"
-        className="mt-3 flex w-full cursor-pointer items-center justify-center gap-2 rounded-[10px] bg-[var(--accent-brand)] px-3 py-3 font-sans text-[1.05rem] font-semibold text-[var(--accent-contrast)] shadow-[0_0_32px_-8px_rgba(255,159,10,.35)] transition-[background-color,transform,box-shadow] duration-200 [transition-timing-function:cubic-bezier(0.16,1,0.3,1)] enabled:hover:-translate-y-0.5 enabled:hover:bg-[var(--accent-hover)] enabled:hover:shadow-[var(--shadow-md),0_0_40px_-6px_rgba(255,159,10,.45)] enabled:active:scale-[0.98] enabled:active:shadow-[var(--shadow-sm),0_0_26px_-6px_rgba(255,159,10,.4)] disabled:cursor-not-allowed disabled:bg-[var(--surface-2)] disabled:text-[var(--muted-foreground-dim)] disabled:shadow-none"
-        disabled={!checkout.canConfirm || isPending}
-        onClick={() => run()}
+        className="mt-3 flex w-full cursor-pointer items-center justify-center gap-2 rounded-[10px] bg-[var(--accent-brand)] px-3 py-3 font-condensed text-[1.05rem] font-bold tracking-[0.08em] text-[var(--accent-contrast)] uppercase shadow-[0_0_32px_-8px_rgba(255,159,10,.35)] transition-[background-color,transform,box-shadow,opacity] duration-200 [transition-timing-function:cubic-bezier(0.16,1,0.3,1)] hover:-translate-y-0.5 hover:bg-[var(--accent-hover)] hover:shadow-[var(--shadow-md),0_0_40px_-6px_rgba(255,159,10,.45)] active:scale-[0.98] active:shadow-[var(--shadow-sm),0_0_26px_-6px_rgba(255,159,10,.4)] disabled:cursor-not-allowed disabled:opacity-60"
+        disabled={isPending}
+        aria-busy={isPending}
+        onClick={() => {
+          if (!checkout.requestValidation()) return;
+          run();
+        }}
       >
         {isPending ? (
           <Loader2 className="size-4 animate-spin" aria-hidden />
         ) : (
-          <MessageCircle className="size-4" aria-hidden />
+          <WhatsappGlyph className="size-4" />
         )}
-        Confirmar pedido
+        Enviar pedido por WhatsApp
       </button>
 
       {!checkout.canConfirm && !isPending && (
-        <p className="text-center font-sans text-xs text-[var(--muted-foreground)]">
+        <p className="text-center font-body text-xs text-[var(--muted-foreground)]">
           {missingFieldsMessage}
         </p>
       )}
 
       {error && (
-        <p className="font-sans text-xs text-[var(--destructive)]" role="alert">
+        <p className="font-body text-xs text-[var(--destructive)]" role="alert">
           {error}
         </p>
       )}
@@ -105,7 +113,7 @@ export function ConfirmButton({ cart, checkout }: ConfirmButtonProps) {
       {whatsappUrl && (
         <a
           href={whatsappUrl}
-          className="block text-center font-sans text-xs text-[var(--accent-brand)] underline underline-offset-2"
+          className="block text-center font-body text-xs text-[var(--accent-brand)] underline underline-offset-2"
         >
           Si no te redirigió, tocá acá para abrir WhatsApp
         </a>

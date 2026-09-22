@@ -1,3 +1,5 @@
+import { BRAND_NAME } from "@/lib/brand";
+
 interface BurgerIllustrationProps {
   className?: string;
   /** Cuando la ilustración es puramente decorativa (p.ej. la marca de agua
@@ -26,7 +28,7 @@ export function BurgerIllustration({
       viewBox="0 0 320 300"
       role={ariaHidden ? undefined : "img"}
       aria-hidden={ariaHidden}
-      aria-label={ariaHidden ? undefined : "Una hamburguesa doble cheddar de Jebbs Burger's"}
+      aria-label={ariaHidden ? undefined : `Una hamburguesa doble cheddar de ${BRAND_NAME}`}
     >
       <defs>
         <radialGradient id="gGlow" cx="50%" cy="52%" r="50%">

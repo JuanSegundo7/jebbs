@@ -13,10 +13,33 @@ interface BurgerBaseline {
 // or every combo burger in a no_fries slot would falsely report "sin
 // papas", and every burger literally named "Veggie" would falsely report
 // "veggie" (use-combo-selection.ts auto-derives isVeggie from the name).
-function burgerParts(item: SelectedBurger, baseline: BurgerBaseline): string[] {
+// Same naming ladder the menu itself uses for meat-count tiers (e.g. "Triple
+// Jebbs" already means 3 patties by convention) -- reused here so a
+// customized burger reads with the SAME word a customer would recognize from
+// the menu, instead of a bare "5 carnes" note buried in the summary line.
+// Falls back to "N carnes" past the named ladder (nobody names a burger
+// "Séptuple" today, but a future 7-meat customization shouldn't crash).
+const MEAT_COUNT_WORDS: Record<number, string> = {
+  1: "Simple",
+  2: "Doble",
+  3: "Triple",
+  4: "Cuádruple",
+  5: "Quíntuple",
+  6: "Séxtuple",
+};
+
+export function meatCountLabel(count: number): string {
+  return MEAT_COUNT_WORDS[count] ?? `${count} carnes`;
+}
+
+function burgerParts(
+  item: SelectedBurger,
+  baseline: BurgerBaseline,
+  options: { includeMeatCount?: boolean } = {},
+): string[] {
   const parts: string[] = [];
 
-  if (item.meatCount !== baseline.meat) {
+  if (options.includeMeatCount !== false && item.meatCount !== baseline.meat) {
     parts.push(`${item.meatCount} carne${item.meatCount === 1 ? "" : "s"}`);
   }
   if (item.friesQuantity !== baseline.fries) {
@@ -35,13 +58,25 @@ function burgerParts(item: SelectedBurger, baseline: BurgerBaseline): string[] {
 // its own copy for that case (burger-picker.tsx nudges "tocá para
 // personalizar"; cart-drawer.tsx says nothing, since you can't customize
 // from the cart).
-export function summarizeBurger(item: SelectedBurger): string | null {
+export function summarizeBurger(
+  item: SelectedBurger,
+  options: { includeMeatCount?: boolean } = {},
+): string | null {
   const baseline: BurgerBaseline = {
     meat: item.burger.default_meat_quantity ?? 2,
     fries: item.burger.default_fries_quantity ?? 1,
   };
-  const parts = burgerParts(item, baseline);
+  const parts = burgerParts(item, baseline, options);
   return parts.length > 0 ? parts.join(" · ") : null;
+}
+
+// True exactly when burgerParts would have pushed the "N carnes" note --
+// same condition, exposed so a caller that promotes the meat count into the
+// item's NAME (cart-drawer.tsx) knows when to do so, without duplicating
+// the baseline-resolution logic here.
+export function isMeatCountCustomized(item: SelectedBurger): boolean {
+  const baseline = item.burger.default_meat_quantity ?? 2;
+  return item.meatCount !== baseline;
 }
 
 // Combo burgers auto-derive isVeggie from the name (use-combo-selection.ts)

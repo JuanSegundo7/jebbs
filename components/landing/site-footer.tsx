@@ -1,13 +1,14 @@
 import { Instagram, MessageCircle, MapPin } from "lucide-react";
 import { env } from "@/lib/env";
+import { BRAND_NAME } from "@/lib/brand";
 
 const INSTAGRAM_URL = "https://www.instagram.com/jebbsburgers/";
 
-// Re-estilo a la identidad real de jebbs-dashboard: tipografía nativa,
-// naranja/frío en vez de mostaza/carbón. Tres columnas planas, sin glass
-// card (igual que antes). El número de WhatsApp sale de
-// env.NEXT_PUBLIC_WHATSAPP_NUMBER (config real del proyecto), nunca un
-// número hardcodeado copiado del sitio de referencia.
+// Colores de jebbs-dashboard (naranja/frío en vez de mostaza/carbón). Tres
+// columnas planas, sin glass card (igual que antes). El número de WhatsApp
+// sale de env.NEXT_PUBLIC_WHATSAPP_NUMBER (config real del proyecto), nunca
+// un número hardcodeado copiado del sitio de referencia. Tipografía
+// "diner" (font-condensed) restaurada por pedido del dueño.
 export function SiteFooter() {
   const whatsappHref = `https://wa.me/${env.NEXT_PUBLIC_WHATSAPP_NUMBER}`;
 
@@ -15,7 +16,7 @@ export function SiteFooter() {
     <footer className="border-t border-[var(--hairline)] pt-10 pb-[30px]">
       <div className="diner-wrap flex flex-wrap items-start gap-[26px]">
         <div className="flex flex-col gap-[3px] text-[0.95rem] text-[var(--muted-foreground)]">
-          <b className="mb-1 font-sans text-[0.82rem] font-semibold tracking-[.06em] text-[var(--foreground)] uppercase">
+          <b className="mb-1 font-condensed text-[0.82rem] font-bold tracking-[.14em] text-[var(--foreground)] uppercase">
             Pedidos
           </b>
           <a
@@ -30,7 +31,7 @@ export function SiteFooter() {
         </div>
 
         <div className="flex flex-col gap-[3px] text-[0.95rem] text-[var(--muted-foreground)]">
-          <b className="mb-1 font-sans text-[0.82rem] font-semibold tracking-[.06em] text-[var(--foreground)] uppercase">
+          <b className="mb-1 font-condensed text-[0.82rem] font-bold tracking-[.14em] text-[var(--foreground)] uppercase">
             Redes
           </b>
           <a
@@ -45,7 +46,7 @@ export function SiteFooter() {
         </div>
 
         <div className="flex flex-col gap-[3px] text-[0.95rem] text-[var(--muted-foreground)]">
-          <b className="mb-1 font-sans text-[0.82rem] font-semibold tracking-[.06em] text-[var(--foreground)] uppercase">
+          <b className="mb-1 font-condensed text-[0.82rem] font-bold tracking-[.14em] text-[var(--foreground)] uppercase">
             Dónde
           </b>
           {/* TODO: copy real -- confirmar ubicación/horario exactos con el dueño */}
@@ -56,8 +57,8 @@ export function SiteFooter() {
         </div>
       </div>
 
-      <p className="diner-wrap mt-10 font-sans text-xs text-[var(--muted-foreground-dim)]">
-        © {new Date().getFullYear()} Jebbs Burger&apos;s
+      <p className="diner-wrap mt-10 font-condensed text-[11px] tracking-[.08em] text-[var(--muted-foreground-dim)] uppercase">
+        © {new Date().getFullYear()} {BRAND_NAME}
       </p>
     </footer>
   );

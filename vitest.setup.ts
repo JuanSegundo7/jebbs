@@ -23,3 +23,22 @@ afterEach(() => {
 // Stub it globally so server-only modules (lib/supabase/admin.ts,
 // lib/catalog/get-catalog.ts) can be unit tested directly.
 vi.mock("server-only", () => ({}));
+
+// jsdom has no matchMedia implementation -- vaul's Drawer reads it (to pick
+// its default direction/behavior) the moment it actually opens, which
+// cart-drawer.test.tsx is the first test file in this repo to do. Without
+// this, any test that opens a Drawer throws "window.matchMedia is not a
+// function" from inside vaul's own mount effect.
+Object.defineProperty(window, "matchMedia", {
+  writable: true,
+  value: (query: string) => ({
+    matches: false,
+    media: query,
+    onchange: null,
+    addListener: () => {},
+    removeListener: () => {},
+    addEventListener: () => {},
+    removeEventListener: () => {},
+    dispatchEvent: () => false,
+  }),
+});

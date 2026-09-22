@@ -48,8 +48,23 @@ function DrawerOverlay({
 function DrawerContent({
   className,
   children,
+  variant = 'sheet',
   ...props
-}: React.ComponentProps<typeof DrawerPrimitive.Content>) {
+}: React.ComponentProps<typeof DrawerPrimitive.Content> & {
+  /** 'sheet' (default) is today's exact behavior, byte-for-byte -- every
+   * existing consumer (menu-item-sheet.tsx) is unaffected. 'dialog' only
+   * hides the mobile drag handle at `md:` and up for `direction=bottom`
+   * (cart-drawer.tsx) -- real feedback said the handle is a mobile
+   * bottom-sheet affordance with no place in a desktop layout.
+   *
+   * This used to ALSO cap the width to a centered ~900px box on desktop,
+   * but that read as "doesn't use the full screen" against the owner's
+   * expectation that the cart keep occupying the full viewport width at
+   * every breakpoint (only its INTERNAL layout goes two-column on
+   * desktop) -- reverted. Width/position are back to being identical
+   * between variants; only the handle differs. */
+  variant?: 'sheet' | 'dialog'
+}) {
   return (
     <DrawerPortal data-slot="drawer-portal">
       <DrawerOverlay />
@@ -70,8 +85,10 @@ function DrawerContent({
           // no tenga consumidores hoy. Easing espejado en abrir/cerrar
           // (apple-design §7 "mirror the easing on reversible
           // transitions"): la misma pareja de curvas que dialog.tsx.
-          // menu-item-sheet.tsx reusa este mismo DrawerContent, así que el
-          // panel de detalle de producto hereda el mismo materialize.
+          // menu-item-sheet.tsx reusa este mismo DrawerContent (variant
+          // "sheet", el default), así que el panel de detalle de producto
+          // hereda el mismo materialize sin heredar el layout de escritorio
+          // de abajo.
           'group/drawer-content diner-sheet fixed z-50 flex h-auto flex-col',
           'data-[state=open]:animate-in data-[state=closed]:animate-out',
           'data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0',
@@ -86,7 +103,19 @@ function DrawerContent({
         )}
         {...props}
       >
-        <div className="mx-auto mt-4 hidden h-2 w-[100px] shrink-0 rounded-full bg-[var(--hairline-strong)] group-data-[vaul-drawer-direction=bottom]/drawer-content:block" />
+        <div
+          className={cn(
+            'mx-auto mt-4 hidden h-2 w-[100px] shrink-0 rounded-full bg-[var(--hairline-strong)] group-data-[vaul-drawer-direction=bottom]/drawer-content:block',
+            // !hidden, no un md:hidden a secas: ambas clases tienen la misma
+            // especificidad (una sola clase + un selector de grupo con
+            // :where(), que aporta cero) y Tailwind no garantiza qué orden
+            // de variantes gana el empate -- en la práctica ganaba
+            // group-data (la barrita se veía en desktop pese a este
+            // md:hidden). !important fuerza el resultado sin depender del
+            // orden de generación de utilities.
+            variant === 'dialog' && 'md:!hidden',
+          )}
+        />
         {children}
       </DrawerPrimitive.Content>
     </DrawerPortal>

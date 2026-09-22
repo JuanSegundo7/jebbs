@@ -42,20 +42,20 @@ function SidesGroup({ title, items, countFor, onAdd, onRemove }: SidesGroupProps
             <div
               key={extra.id}
               className={cn(
-                "flex items-center gap-[15px] border-b border-dashed border-[var(--hairline-strong)] py-[15px] transition-[border-color,background-color,transform] duration-200 ease-[cubic-bezier(0.16,1,0.3,1)] last:border-b-0 hover:border-[var(--foreground)] hover:bg-[color-mix(in_srgb,var(--foreground)_3%,transparent)] active:scale-[0.99]",
-                count > 0 && "bg-[linear-gradient(90deg,var(--accent-tint-16),transparent_60%)]",
+                "flex items-center gap-[15px] border-b border-dashed border-[var(--hairline-strong)] py-[15px] pl-0 transition-[border-color,background-color,transform,padding-left] duration-200 ease-[cubic-bezier(0.16,1,0.3,1)] last:border-b-0 hover:border-[var(--foreground)] hover:bg-[color-mix(in_srgb,var(--foreground)_3%,transparent)] active:scale-[0.99]",
+                count > 0 && "bg-[linear-gradient(90deg,var(--accent-tint-16),transparent_60%)] pl-3",
               )}
             >
               <div className="min-w-0 flex-1">
                 <div className="flex items-baseline">
-                  <span className="font-sans text-[1.22rem] font-bold text-[var(--foreground)]">
+                  <span className="font-condensed text-[1.22rem] font-bold tracking-[.04em] text-[var(--foreground)] uppercase">
                     {extra.name}
                   </span>
                   <span
                     className="mb-[0.3em] min-w-[1rem] flex-1 self-end border-b border-dotted border-[var(--muted-foreground-dim)]"
                     aria-hidden
                   />
-                  <span className="numeric shrink-0 font-sans text-[1.22rem] font-bold text-[var(--accent-brand)]">
+                  <span className="numeric shrink-0 font-condensed text-[1.22rem] font-bold text-[var(--accent-brand)]">
                     {formatArs(extra.price)}
                   </span>
                 </div>
@@ -71,7 +71,7 @@ function SidesGroup({ title, items, countFor, onAdd, onRemove }: SidesGroupProps
                 >
                   <Minus />
                 </button>
-                <output className="numeric w-[26px] text-center font-sans text-[1.1rem] font-bold text-[var(--muted-foreground)]">
+                <output className="numeric w-[26px] text-center font-condensed text-[1.1rem] font-bold text-[var(--muted-foreground)]">
                   {count}
                 </output>
                 <button
@@ -132,7 +132,7 @@ export function SidePicker({ sides, selection }: SidePickerProps) {
               key={side.id}
               className="flex items-center justify-between gap-2 rounded-xl border border-[var(--hairline)] bg-[var(--surface-2)] p-3"
             >
-              <span className="font-sans text-sm font-bold text-[var(--foreground)]">
+              <span className="font-condensed text-sm font-bold tracking-[.03em] text-[var(--foreground)] uppercase">
                 {side.extra.name}
               </span>
               <div className="flex items-center gap-1">

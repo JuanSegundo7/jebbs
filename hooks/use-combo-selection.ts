@@ -36,6 +36,24 @@ export function useComboSelection() {
     setSelectedCombos((prev) => prev.filter((c) => c.id !== comboInstanceId));
   };
 
+  // Mirrors updateQuantity in use-burger-selection.ts/use-side-selection.ts
+  // -- addCombo seeds quantity at 1 and, before this, nothing could ever
+  // change it. Routed through removeCombo at 0 instead of filtering here
+  // directly, so combo teardown stays in the one place that knows about it.
+  const updateComboQuantity = (comboInstanceId: string, delta: number) => {
+    const target = selectedCombos.find((c) => c.id === comboInstanceId);
+    if (!target) return;
+    if (target.quantity + delta <= 0) {
+      removeCombo(comboInstanceId);
+      return;
+    }
+    setSelectedCombos((prev) =>
+      prev.map((c) =>
+        c.id === comboInstanceId ? { ...c, quantity: c.quantity + delta } : c,
+      ),
+    );
+  };
+
   /* ================= HELPERS ================= */
 
   const getSlot = (comboId: string, slotId: string) =>
@@ -527,6 +545,7 @@ export function useComboSelection() {
     // Combos
     addCombo,
     removeCombo,
+    updateComboQuantity,
 
     // Helpers
     getRemainingQuantity,
