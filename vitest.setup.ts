@@ -4,7 +4,7 @@ import { afterEach, vi } from "vitest";
 // Pinned per R16 (design.md DD1) so every test runs against the same
 // timezone the deploy env asserts in lib/env.ts, regardless of the host
 // machine's default zone.
-process.env.TZ = "America/Argentina/Buenos_Aires";
+process.env.APP_TIMEZONE = "America/Argentina/Buenos_Aires";
 
 // @testing-library/react does not auto-cleanup under vitest the way it
 // does under jest (there's no jest-specific afterEach hook wired in by

@@ -22,9 +22,9 @@ const EnvSchema = z.object({
 const REQUIRED_TZ = "America/Argentina/Buenos_Aires";
 
 function assertTimezone(): void {
-  if (process.env.TZ !== REQUIRED_TZ) {
+  if (process.env.APP_TIMEZONE !== REQUIRED_TZ) {
     throw new Error(
-      `TZ must be set to "${REQUIRED_TZ}" (found: ${process.env.TZ ?? "unset"}). ` +
+      `APP_TIMEZONE must be set to "${REQUIRED_TZ}" (found: ${process.env.APP_TIMEZONE ?? "unset"}). ` +
         "See design.md R16 -- formatDateTime renders in the runtime's default timezone.",
     );
   }

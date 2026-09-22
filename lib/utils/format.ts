@@ -1,3 +1,6 @@
+const APP_TIMEZONE =
+  process.env.APP_TIMEZONE ?? "America/Argentina/Buenos_Aires"
+
 export function formatCurrency(amount: number): string {
   return new Intl.NumberFormat("es-AR", {
     style: "currency",
@@ -12,6 +15,7 @@ export function formatDate(date: string | Date): string {
     day: "2-digit",
     month: "2-digit",
     year: "numeric",
+    timeZone: APP_TIMEZONE,
   }).format(new Date(date))
 }
 
@@ -19,6 +23,7 @@ export function formatTime(date: string | Date): string {
   return new Intl.DateTimeFormat("es-AR", {
     hour: "2-digit",
     minute: "2-digit",
+    timeZone: APP_TIMEZONE,
   }).format(new Date(date))
 }
 
