@@ -1,7 +1,45 @@
 import { useState } from "react";
 import { nanoid } from "nanoid";
 import type { Burger, Extra } from "@/lib/types";
-import type { ComboWithSlots, SelectedCombo } from "@/lib/types/combo-types";
+import type {
+  ComboWithSlots,
+  SelectedBurger,
+  SelectedCombo,
+  SelectedComboSlot,
+} from "@/lib/types/combo-types";
+
+// Number() never returns null/undefined, so `Number(x) ?? y` never falls back
+// to y. Convert safely and use the fallback when the value isn't a valid number.
+const toNumber = (value: unknown, fallback: number) => {
+  if (value === null || value === undefined || value === "") return fallback;
+  const n = Number(value);
+  return Number.isFinite(n) ? n : fallback;
+};
+
+// Shared by manual adds and the fixed-burger preload.
+const buildSelectedBurger = (
+  burger: Burger,
+  slot: Pick<SelectedComboSlot, "defaultMeatCount" | "rules">,
+  opts: { quantity?: number; locked?: boolean } = {},
+): SelectedBurger => {
+  const defaultFries = toNumber(burger.default_fries_quantity, 1);
+  const fries = slot.rules?.no_fries ? 0 : defaultFries;
+
+  return {
+    id: nanoid(),
+    burger,
+    quantity: opts.quantity ?? 1,
+    meatCount:
+      slot.defaultMeatCount ?? toNumber(burger.default_meat_quantity, 2),
+    removedIngredients: [],
+    selectedExtras: [],
+    friesQuantity: fries,
+    referenceFriesQuantity: fries,
+    isVeggie: /veggie/i.test(burger.name),
+    meatPriceAdjustment: 0,
+    ...(opts.locked ? { locked: true } : {}),
+  };
+};
 
 export function useComboSelection() {
   const [selectedCombos, setSelectedCombos] = useState<SelectedCombo[]>([]);
@@ -9,25 +47,44 @@ export function useComboSelection() {
 
   /* ================= COMBOS ================= */
 
-  const addCombo = (combo: ComboWithSlots) => {
+  // `burgers` (the catalog's burgers) resolves the fixed burger of slots that have one.
+  const addCombo = (combo: ComboWithSlots, burgers: Burger[] = []) => {
     setSelectedCombos((prev) => [
       ...prev,
       {
         id: nanoid(),
         combo,
         quantity: 1,
-        slots: combo.slots.map((slot) => ({
-          slotId: slot.id,
-          slotType: slot.slot_type as "burger" | "drink" | "side",
-          maxQuantity: Number(slot.quantity),
-          defaultMeatCount: slot.default_meat_quantity
-            ? Number(slot.default_meat_quantity)
-            : 2,
-          minQuantity: slot.rules?.min_quantity ?? Number(slot.quantity),
-          rules: slot.rules,
-          burgers: [],
-          selectedExtras: [],
-        })),
+        slots: combo.slots.map((slot): SelectedComboSlot => {
+          const slotState: SelectedComboSlot = {
+            slotId: slot.id,
+            slotType: slot.slot_type as "burger" | "drink" | "side",
+            maxQuantity: Number(slot.quantity),
+            defaultMeatCount: slot.default_meat_quantity
+              ? Number(slot.default_meat_quantity)
+              : 2,
+            minQuantity: slot.rules?.min_quantity ?? Number(slot.quantity),
+            rules: slot.rules,
+            burgers: [],
+            selectedExtras: [],
+          };
+
+          const fixedId = slot.rules?.fixed_burger_id;
+          if (slotState.slotType === "burger" && fixedId) {
+            const fixed = burgers.find((b) => b.id === fixedId);
+            // Unresolved -> stays empty; the catalog already hides such combos.
+            // One quantity-1 entry PER burger (not one entry with quantity N)
+            // so each can be customized separately (one without onion, etc).
+            if (fixed) {
+              slotState.burgers = Array.from(
+                { length: Number(slot.quantity) },
+                () => buildSelectedBurger(fixed, slotState, { locked: true }),
+              );
+            }
+          }
+
+          return slotState;
+        }),
       },
     ]);
   };
@@ -80,10 +137,14 @@ export function useComboSelection() {
     if (!slot) return false;
     if (getRemainingQuantity(comboId, slotId) <= 0) return false;
 
+    if (slot.rules.fixed_burger_id) {
+      return burger.id === slot.rules.fixed_burger_id;
+    }
+
     if (
       slot.rules.allowed_meat_count &&
       !slot.rules.allowed_meat_count.includes(
-        Number(burger.default_meat_quantity) ?? 2,
+        toNumber(burger.default_meat_quantity, 2),
       )
     ) {
       return false;
@@ -95,6 +156,9 @@ export function useComboSelection() {
   /* ================= BURGERS ================= */
 
   const addBurgerToSlot = (comboId: string, slotId: string, burger: Burger) => {
+    // Don't rely on the UI hiding ineligible burgers.
+    if (!canAddBurgerToSlot(comboId, slotId, burger)) return;
+
     setSelectedCombos((prev) =>
       prev.map((c) =>
         c.id !== comboId
@@ -106,28 +170,7 @@ export function useComboSelection() {
                   ? s
                   : {
                       ...s,
-                      burgers: [
-                        ...s.burgers,
-                        {
-                          id: nanoid(),
-                          burger,
-                          quantity: 1,
-                          meatCount:
-                            s.defaultMeatCount ??
-                            Number(burger.default_meat_quantity) ??
-                            2,
-                          removedIngredients: [],
-                          selectedExtras: [],
-                          friesQuantity: s.rules?.no_fries
-                            ? 0
-                            : Number(burger.default_fries_quantity) ?? 1,
-                          referenceFriesQuantity: s.rules?.no_fries
-                            ? 0
-                            : Number(burger.default_fries_quantity) ?? 1,
-                          isVeggie: /veggie/i.test(burger.name),
-                          meatPriceAdjustment: 0,
-                        },
-                      ],
+                      burgers: [...s.burgers, buildSelectedBurger(burger, s)],
                     },
               ),
             },
@@ -135,11 +178,22 @@ export function useComboSelection() {
     );
   };
 
+  // Combo's fixed burger: cannot be removed or change quantity.
+  const isBurgerLocked = (
+    comboId: string,
+    slotId: string,
+    burgerItemId: string,
+  ) =>
+    getSlot(comboId, slotId)?.burgers.find((b) => b.id === burgerItemId)
+      ?.locked === true;
+
   const removeBurgerFromSlot = (
     comboId: string,
     slotId: string,
     burgerItemId: string,
   ) => {
+    if (isBurgerLocked(comboId, slotId, burgerItemId)) return;
+
     setSelectedCombos((prev) =>
       prev.map((c) =>
         c.id !== comboId
@@ -168,6 +222,7 @@ export function useComboSelection() {
     slotId: string,
     burgerItemId: string,
   ) => {
+    if (isBurgerLocked(comboId, slotId, burgerItemId)) return;
     if (getRemainingQuantity(comboId, slotId) <= 0) return;
 
     setSelectedCombos((prev) =>
@@ -198,6 +253,8 @@ export function useComboSelection() {
     slotId: string,
     burgerItemId: string,
   ) => {
+    if (isBurgerLocked(comboId, slotId, burgerItemId)) return;
+
     setSelectedCombos((prev) =>
       prev.map((c) =>
         c.id !== comboId

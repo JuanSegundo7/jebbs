@@ -78,7 +78,7 @@ export function ComboPicker({
           <div>
             {combos.map((combo) => {
               const count = comboCountFor(combo.id);
-              const description = comboDescriptionText(combo);
+              const description = comboDescriptionText(combo, burgers);
               return (
                 <div
                   key={combo.id}
@@ -138,7 +138,7 @@ export function ComboPicker({
                     <button
                       type="button"
                       className="inline-flex h-9 w-9 items-center justify-center text-[var(--foreground)] transition-[color,transform] duration-150 [transition-timing-function:cubic-bezier(0.16,1,0.3,1)] hover:text-[var(--accent-brand)] active:scale-90 disabled:pointer-events-none disabled:opacity-40 [&_svg]:h-3.5 [&_svg]:w-3.5"
-                      onClick={() => addCombo(combo)}
+                      onClick={() => addCombo(combo, burgers)}
                       aria-label={`Agregar ${combo.name}`}
                     >
                       <Plus />
@@ -172,10 +172,16 @@ export function ComboPicker({
                   instance.id,
                   slot.slotId,
                 );
+                // Fixed-burger slot: decided by the preloaded locked entries,
+                // not by the rule, so an unresolved fixed burger falls back
+                // to the normal (empty) slot instead of a blank locked one.
+                const isFixed = slot.burgers.some((b) => b.locked);
                 return (
                   <div key={slot.slotId} className="space-y-2">
                     <p className="font-condensed text-xs font-bold tracking-[.08em] text-[var(--muted-foreground)] uppercase">
-                      Hamburguesas ({remaining} disponibles)
+                      {isFixed
+                        ? "Incluida en el combo"
+                        : `Hamburguesas (${remaining} disponibles)`}
                     </p>
                     <ul className="space-y-1">
                       {slot.burgers.map((item) => (
@@ -184,24 +190,30 @@ export function ComboPicker({
                           className="flex items-center justify-between font-body text-sm text-[var(--foreground)]"
                         >
                           <span>{item.burger.name}</span>
-                          <button
-                            type="button"
-                            className="text-[var(--accent-brand)]"
-                            onClick={() =>
-                              removeBurgerFromSlot(
-                                instance.id,
-                                slot.slotId,
-                                item.id,
-                              )
-                            }
-                            aria-label="Quitar hamburguesa del combo"
-                          >
-                            <Trash2 className="size-4" />
-                          </button>
+                          {item.locked ? (
+                            <span className="font-condensed text-[11px] font-bold tracking-[.08em] text-[var(--muted-foreground)] uppercase">
+                              Incluida
+                            </span>
+                          ) : (
+                            <button
+                              type="button"
+                              className="text-[var(--accent-brand)]"
+                              onClick={() =>
+                                removeBurgerFromSlot(
+                                  instance.id,
+                                  slot.slotId,
+                                  item.id,
+                                )
+                              }
+                              aria-label="Quitar hamburguesa del combo"
+                            >
+                              <Trash2 className="size-4" />
+                            </button>
+                          )}
                         </li>
                       ))}
                     </ul>
-                    {remaining > 0 && (
+                    {!isFixed && remaining > 0 && (
                       <div className="flex flex-wrap gap-2">
                         {burgers
                           .filter((burger) =>
@@ -296,10 +308,10 @@ export function ComboPicker({
           onOpenChange={setOpen}
           name={detail.name}
           price={detail.price}
-          description={comboDescriptionText(detail)}
+          description={comboDescriptionText(detail, burgers)}
           fallbackIcon={UtensilsCrossed}
           count={comboCountFor(detail.id)}
-          onAdd={() => addCombo(detail)}
+          onAdd={() => addCombo(detail, burgers)}
           onRemove={() => decrementCombo(detail.id)}
           footnote={
             comboCountFor(detail.id) > 0
@@ -312,7 +324,7 @@ export function ComboPicker({
               Qué incluye
             </p>
             <ul className="space-y-1 font-body text-sm text-[var(--foreground)]">
-              {describeComboSlots(detail).map((line, i) => (
+              {describeComboSlots(detail, burgers).map((line, i) => (
                 <li key={i}>{line}</li>
               ))}
             </ul>

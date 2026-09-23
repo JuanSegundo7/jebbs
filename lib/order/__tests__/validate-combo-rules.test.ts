@@ -435,4 +435,163 @@ describe("validateComboRules", () => {
 
     expect(validateComboRules(req, catalog)).toEqual({ ok: true });
   });
+  describe("burger quantity is summed, not counted by line", () => {
+    const slotOf = (overrides: Partial<ComboWithSlots["slots"][number]> = {}) =>
+      makeCombo({
+        slots: [
+          {
+            id: BURGER_SLOT_ID,
+            combo_id: COMBO_ID,
+            slot_type: "burger",
+            quantity: 2,
+            required: true,
+            default_meat_quantity: null,
+            created_at: "2024-01-01",
+            rules: { min_quantity: 2, max_quantity: 2 },
+            ...overrides,
+          },
+        ],
+      });
+
+    const reqWith = (burgers: ReturnType<typeof burgerLine>[]) =>
+      baseRequest({
+        combos: [
+          {
+            combo_id: COMBO_ID,
+            quantity: 1,
+            slots: [{ slot_id: BURGER_SLOT_ID, burgers, extra_ids: [] }],
+          },
+        ],
+      });
+
+    it("rejects a single line with quantity 10 in a slot of 2 (free burgers)", () => {
+      const catalog = makeCatalog({ combos: [slotOf()] });
+      const result = validateComboRules(
+        reqWith([burgerLine(BURGER_ID, { quantity: 10 })]),
+        catalog,
+      );
+      expect(result.ok).toBe(false);
+      if (!result.ok) {
+        expect(result.violations.some((v) => v.includes("exceeds max"))).toBe(true);
+      }
+    });
+
+    it("accepts two lines of quantity 1 in a slot of 2", () => {
+      const catalog = makeCatalog({ combos: [slotOf()] });
+      expect(
+        validateComboRules(
+          reqWith([burgerLine(BURGER_ID), burgerLine(BURGER_2_ID)]),
+          catalog,
+        ),
+      ).toEqual({ ok: true });
+    });
+
+    it("accepts one line with quantity 2 in a slot of 2", () => {
+      const catalog = makeCatalog({ combos: [slotOf()] });
+      expect(
+        validateComboRules(
+          reqWith([burgerLine(BURGER_ID, { quantity: 2 })]),
+          catalog,
+        ),
+      ).toEqual({ ok: true });
+    });
+
+    it("counts the summed quantity toward min (one line of 1 is below min 2)", () => {
+      const catalog = makeCatalog({ combos: [slotOf()] });
+      const result = validateComboRules(reqWith([burgerLine(BURGER_ID)]), catalog);
+      expect(result.ok).toBe(false);
+      if (!result.ok) {
+        expect(result.violations.some((v) => v.includes("below min"))).toBe(true);
+      }
+    });
+  });
+
+  describe("fixed_burger_id", () => {
+    const fixedCombo = (quantity = 2) =>
+      makeCombo({
+        slots: [
+          {
+            id: BURGER_SLOT_ID,
+            combo_id: COMBO_ID,
+            slot_type: "burger",
+            quantity,
+            // required false + min 0 on purpose: a fixed slot is always full
+            required: false,
+            default_meat_quantity: null,
+            created_at: "2024-01-01",
+            rules: {
+              min_quantity: 0,
+              max_quantity: quantity,
+              fixed_burger_id: BURGER_ID,
+            },
+          },
+        ],
+      });
+
+    const reqWith = (burgers: ReturnType<typeof burgerLine>[]) =>
+      baseRequest({
+        combos: [
+          {
+            combo_id: COMBO_ID,
+            quantity: 1,
+            slots: [{ slot_id: BURGER_SLOT_ID, burgers, extra_ids: [] }],
+          },
+        ],
+      });
+
+    it("accepts N separate lines of the fixed burger", () => {
+      const catalog = makeCatalog({ combos: [fixedCombo()] });
+      expect(
+        validateComboRules(
+          reqWith([burgerLine(BURGER_ID), burgerLine(BURGER_ID)]),
+          catalog,
+        ),
+      ).toEqual({ ok: true });
+    });
+
+    it("accepts one line of the fixed burger whose quantity equals the slot", () => {
+      const catalog = makeCatalog({ combos: [fixedCombo()] });
+      expect(
+        validateComboRules(
+          reqWith([burgerLine(BURGER_ID, { quantity: 2 })]),
+          catalog,
+        ),
+      ).toEqual({ ok: true });
+    });
+
+    it("rejects a different burger in a fixed slot", () => {
+      const catalog = makeCatalog({ combos: [fixedCombo()] });
+      const result = validateComboRules(
+        reqWith([burgerLine(BURGER_ID), burgerLine(BURGER_2_ID)]),
+        catalog,
+      );
+      expect(result.ok).toBe(false);
+      if (!result.ok) {
+        expect(result.violations.some((v) => v.includes("fixed_burger_id"))).toBe(true);
+      }
+    });
+
+    it("rejects fewer fixed burgers than the slot quantity, even if not required", () => {
+      const catalog = makeCatalog({ combos: [fixedCombo()] });
+      const result = validateComboRules(reqWith([burgerLine(BURGER_ID)]), catalog);
+      expect(result.ok).toBe(false);
+      if (!result.ok) {
+        expect(result.violations.some((v) => v.includes("fixed_burger_id"))).toBe(true);
+      }
+    });
+
+    it("rejects an empty fixed slot", () => {
+      const catalog = makeCatalog({ combos: [fixedCombo()] });
+      expect(validateComboRules(reqWith([]), catalog).ok).toBe(false);
+    });
+
+    it("rejects more fixed burgers than the slot quantity", () => {
+      const catalog = makeCatalog({ combos: [fixedCombo()] });
+      const result = validateComboRules(
+        reqWith([burgerLine(BURGER_ID, { quantity: 10 })]),
+        catalog,
+      );
+      expect(result.ok).toBe(false);
+    });
+  });
 });

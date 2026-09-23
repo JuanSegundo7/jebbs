@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import { render, screen, fireEvent, within } from "@testing-library/react";
 import { ComboPicker } from "@/components/landing/order-builder/combo-picker";
 import { useComboSelection } from "@/hooks/use-combo-selection";
+import type { Burger } from "@/lib/types";
 import type { ComboSlotWithRules, ComboWithSlots } from "@/lib/types/combo-types";
 
 // No @testing-library/jest-dom in this repo (not a dependency) -- assertions
@@ -38,12 +39,18 @@ function makeCombo(overrides: Partial<ComboWithSlots> = {}): ComboWithSlots {
 // Thin harness: ComboPicker takes `selection` as a prop (the return value of
 // useComboSelection), so a component is needed to own that hook call and
 // re-render when it changes -- the same shape OrderBuilder uses in the app.
-function Harness({ combos }: { combos: ComboWithSlots[] }) {
+function Harness({
+  combos,
+  burgers = [],
+}: {
+  combos: ComboWithSlots[];
+  burgers?: Burger[];
+}) {
   const selection = useComboSelection();
   return (
     <ComboPicker
       combos={combos}
-      burgers={[]}
+      burgers={burgers}
       drinkExtras={[]}
       sideExtras={[]}
       selection={selection}
@@ -106,5 +113,57 @@ describe("ComboPicker menu item sheet", () => {
 
     expect(within(sheet).getByText("1 hamburguesa a elección")).toBeTruthy();
     expect(within(sheet).getByText("1 bebida")).toBeTruthy();
+  });
+});
+
+describe("ComboPicker fixed-burger slot", () => {
+  const triple: Burger = {
+    id: "burger-triple",
+    name: "Triple con queso",
+    description: null,
+    base_price: 9000,
+    ingredients: [],
+    is_available: true,
+    image_url: null,
+    default_meat_quantity: 3,
+    default_fries_quantity: 1,
+    created_at: "2024-01-01",
+  };
+  const doble: Burger = { ...triple, id: "burger-doble", name: "Doble" };
+  const fixedCombo = makeCombo({
+    name: "Combo Triples",
+    slots: [
+      makeComboSlot({
+        quantity: 2,
+        rules: { min_quantity: 2, max_quantity: 2, fixed_burger_id: triple.id },
+      }),
+    ],
+  });
+
+  it("shows the included burger without a remove button or other-burger chips", () => {
+    render(<Harness combos={[fixedCombo]} burgers={[triple, doble]} />);
+
+    fireEvent.click(screen.getByRole("button", { name: "Agregar Combo Triples" }));
+
+    expect(screen.getByText("Incluida en el combo")).toBeTruthy();
+    expect(screen.getAllByText("Triple con queso")).toHaveLength(2);
+    expect(screen.getAllByText("Incluida")).toHaveLength(2);
+    expect(
+      screen.queryByRole("button", { name: "Quitar hamburguesa del combo", hidden: true }),
+    ).toBeNull();
+    // No chips offering other burgers.
+    expect(screen.queryByText("Doble")).toBeNull();
+  });
+
+  it("keeps the normal remove button and chips for a non-fixed slot", () => {
+    render(<Harness combos={[makeCombo()]} burgers={[doble]} />);
+
+    fireEvent.click(screen.getByRole("button", { name: "Agregar Combo Doble" }));
+    fireEvent.click(screen.getByRole("button", { name: "Doble" }));
+
+    expect(
+      screen.getByRole("button", { name: "Quitar hamburguesa del combo", hidden: true }),
+    ).toBeTruthy();
+    expect(screen.queryByText("Incluida en el combo")).toBeNull();
   });
 });

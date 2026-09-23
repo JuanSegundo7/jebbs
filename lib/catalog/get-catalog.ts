@@ -89,7 +89,13 @@ function parseComboSlot(slot: ComboSlotRow): ComboSlotWithRules {
 
   const minRule = rules.find((r) => r.rule_type === "min_quantity");
   const maxRule = rules.find((r) => r.rule_type === "max_quantity");
-  const allowedMeatRule = rules.find((r) => r.rule_type === "allowed_meat_count");
+  // The dashboard admin historically saved this rule as
+  // "allowed_default_meat_quantity" while readers looked for
+  // "allowed_meat_count", so the meat filter never ran. Accept both names.
+  const allowedMeatRule =
+    rules.find((r) => r.rule_type === "allowed_meat_count") ??
+    rules.find((r) => r.rule_type === "allowed_default_meat_quantity");
+  const fixedBurgerRule = rules.find((r) => r.rule_type === "fixed_burger_id");
   const noFriesRule = rules.find((r) => r.rule_type === "no_fries");
 
   return {
@@ -101,7 +107,16 @@ function parseComboSlot(slot: ComboSlotRow): ComboSlotWithRules {
     default_meat_quantity: slot.default_meat_quantity,
     created_at: slot.created_at,
     rules: {
-      min_quantity: minRule ? Number(minRule.rule_value) : 0,
+      // Explicit rule wins; otherwise a required BURGER slot must be filled.
+      // Only burger slots: `required` is true on every combo_slots row in
+      // production (it's the DB default -- the dashboard admin never persisted
+      // it), including drinks and sides that the admin meant as optional.
+      // Enforcing it there would start rejecting orders that never had to pick one.
+      min_quantity: minRule
+        ? Number(minRule.rule_value)
+        : slot.required && slot.slot_type === "burger"
+          ? slot.quantity
+          : 0,
       // Mirrors use-combos.ts:84-86: an unset max falls back to the slot's
       // own quantity, not to Infinity or 0.
       max_quantity: maxRule ? Number(maxRule.rule_value) : slot.quantity,
@@ -109,6 +124,7 @@ function parseComboSlot(slot: ComboSlotRow): ComboSlotWithRules {
         ? JSON.parse(allowedMeatRule.rule_value as string)
         : undefined,
       no_fries: noFriesRule?.rule_value === "true" ? true : undefined,
+      fixed_burger_id: fixedBurgerRule?.rule_value || undefined,
     },
   };
 }
@@ -206,6 +222,18 @@ export async function getCatalog(): Promise<Catalog> {
   // null (not 0/Infinity) when no zone is active -- callers use this to
   // hide/disable the delivery option gracefully instead of quoting a fake
   // "desde $0" or crashing.
+  // A combo pinned to a burger that is deleted/unavailable can't be built:
+  // hide it instead of offering a combo the customer can never complete.
+  const availableBurgerIds = new Set(burgers.map((b) => b.id));
+  const offeredCombos = combos.filter((combo) =>
+    combo.slots.every(
+      (slot) =>
+        slot.slot_type !== "burger" ||
+        !slot.rules.fixed_burger_id ||
+        availableBurgerIds.has(slot.rules.fixed_burger_id),
+    ),
+  );
+
   const minDeliveryFeeArs = deliveryZones.length
     ? Math.min(...deliveryZones.map((z) => z.fee))
     : null;
@@ -213,7 +241,7 @@ export async function getCatalog(): Promise<Catalog> {
   return {
     burgers,
     extras,
-    combos,
+    combos: offeredCombos,
     meatExtra,
     friesExtra,
     deliveryZones,

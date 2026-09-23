@@ -241,6 +241,9 @@ describe("getCatalog()", () => {
       no_fries: undefined,
     });
 
+    // Side slot with required: true and no min rule: required NO exige nada en
+    // slots que no son de hamburguesa (en producción required=true es el default
+    // de la DB en todos los slots, no una decisión del dueño).
     expect(combo.slots[1].rules).toEqual({
       min_quantity: 0,
       max_quantity: 1,
@@ -249,7 +252,7 @@ describe("getCatalog()", () => {
     });
 
     // Slot with no rules at all: max_quantity falls back to slot.quantity,
-    // min_quantity falls back to 0 (mirrors use-combos.ts:82-91).
+    // min_quantity falls back to 0 when not required.
     expect(combo.slots[2].rules).toEqual({
       min_quantity: 0,
       max_quantity: 3,
@@ -374,5 +377,152 @@ describe("getCatalog()", () => {
 
     expect(catalog.deliveryZones).toEqual([]);
     expect(catalog.minDeliveryFeeArs).toBeNull();
+  });
+  describe("combo slot rules: fixed burger, meat alias, min by required", () => {
+    const FIXED_BURGER_ID = "burger-fixed";
+    const burgerRow = (id: string) => ({
+      id,
+      name: id,
+      description: null,
+      base_price: 5000,
+      ingredients: [],
+      is_available: true,
+      image_url: null,
+      default_meat_quantity: 3,
+      default_fries_quantity: 1,
+      created_at: "2024-01-01",
+    });
+
+    const comboWithSlot = (
+      slotOverrides: Record<string, unknown>,
+      rules: { id: number; rule_type: string; rule_value: string }[],
+      comboId = "combo-x",
+    ) => ({
+      id: comboId,
+      name: `Combo ${comboId}`,
+      price: 12000,
+      description: null,
+      is_available: true,
+      created_at: "2024-01-01",
+      combo_slots: [
+        {
+          id: `${comboId}-slot`,
+          combo_id: comboId,
+          slot_type: "burger",
+          quantity: 2,
+          required: true,
+          default_meat_quantity: null,
+          created_at: "2024-01-01",
+          combo_slots_rules: rules,
+          ...slotOverrides,
+        },
+      ],
+    });
+
+    async function catalogFor(
+      combos: unknown[],
+      burgers: unknown[] = [burgerRow(FIXED_BURGER_ID)],
+    ) {
+      const mock = createSupabaseMock(
+        routesWithMeatAndFries([
+          {
+            table: "burgers",
+            match: (calls) => hasEq(calls, "is_available", true),
+            result: { data: burgers, error: null },
+          },
+          {
+            table: "combos",
+            match: (calls) => hasEq(calls, "is_available", true),
+            result: { data: combos, error: null },
+          },
+        ]),
+      );
+      setSupabaseMock(mock);
+      const { getCatalog } = await import("@/lib/catalog/get-catalog");
+      return getCatalog();
+    }
+
+    it("parses fixed_burger_id into rules", async () => {
+      const catalog = await catalogFor([
+        comboWithSlot({}, [
+          { id: 1, rule_type: "fixed_burger_id", rule_value: FIXED_BURGER_ID },
+        ]),
+      ]);
+      expect(catalog.combos).toHaveLength(1);
+      expect(catalog.combos[0].slots[0].rules.fixed_burger_id).toBe(FIXED_BURGER_ID);
+    });
+
+    it("reads the legacy allowed_default_meat_quantity name as an alias of allowed_meat_count", async () => {
+      const catalog = await catalogFor([
+        comboWithSlot({}, [
+          { id: 1, rule_type: "allowed_default_meat_quantity", rule_value: "[3]" },
+        ]),
+      ]);
+      expect(catalog.combos[0].slots[0].rules.allowed_meat_count).toEqual([3]);
+    });
+
+    it("prefers allowed_meat_count when both names are present", async () => {
+      const catalog = await catalogFor([
+        comboWithSlot({}, [
+          { id: 1, rule_type: "allowed_default_meat_quantity", rule_value: "[1]" },
+          { id: 2, rule_type: "allowed_meat_count", rule_value: "[2,3]" },
+        ]),
+      ]);
+      expect(catalog.combos[0].slots[0].rules.allowed_meat_count).toEqual([2, 3]);
+    });
+
+    it("min_quantity falls back to slot.quantity when a BURGER slot is required and has no rule", async () => {
+      const catalog = await catalogFor([comboWithSlot({ required: true }, [])]);
+      expect(catalog.combos[0].slots[0].rules.min_quantity).toBe(2);
+    });
+
+    it.each(["drink", "side", "nuggets"])(
+      "min_quantity stays 0 for a required %s slot with no rule (required is the DB default, not intent)",
+      async (slotType) => {
+        const catalog = await catalogFor([
+          comboWithSlot({ slot_type: slotType, required: true }, []),
+        ]);
+        expect(catalog.combos[0].slots[0].rules.min_quantity).toBe(0);
+      },
+    );
+
+    it("an explicit min_quantity rule still applies to a drink slot", async () => {
+      const catalog = await catalogFor([
+        comboWithSlot({ slot_type: "drink", required: true }, [
+          { id: 1, rule_type: "min_quantity", rule_value: "1" },
+        ]),
+      ]);
+      expect(catalog.combos[0].slots[0].rules.min_quantity).toBe(1);
+    });
+
+    it("min_quantity falls back to 0 when not required and no rule", async () => {
+      const catalog = await catalogFor([comboWithSlot({ required: false }, [])]);
+      expect(catalog.combos[0].slots[0].rules.min_quantity).toBe(0);
+    });
+
+    it("an explicit min_quantity rule wins over required", async () => {
+      const catalog = await catalogFor([
+        comboWithSlot({ required: true }, [
+          { id: 1, rule_type: "min_quantity", rule_value: "1" },
+        ]),
+      ]);
+      expect(catalog.combos[0].slots[0].rules.min_quantity).toBe(1);
+    });
+
+    it("excludes a combo whose fixed burger is not among the available burgers", async () => {
+      const catalog = await catalogFor([
+        comboWithSlot(
+          {},
+          [{ id: 1, rule_type: "fixed_burger_id", rule_value: "burger-gone" }],
+          "combo-broken",
+        ),
+        comboWithSlot(
+          {},
+          [{ id: 2, rule_type: "fixed_burger_id", rule_value: FIXED_BURGER_ID }],
+          "combo-ok",
+        ),
+      ]);
+      expect(catalog.combos.map((c) => c.id)).toEqual(["combo-ok"]);
+    });
   });
 });

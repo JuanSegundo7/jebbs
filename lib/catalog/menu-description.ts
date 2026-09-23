@@ -32,9 +32,24 @@ const SLOT_LABELS: Record<string, { one: string; many: string }> = {
 // enforces burger/extra counts against it, not against rules.max_quantity
 // (which isn't used to validate anything). Describing max_quantity here would
 // promise a capacity the validator would then reject.
-export function describeComboSlot(slot: ComboSlotWithRules): string | null {
+//
+// `burgers` es opcional: solo hace falta para nombrar la hamburguesa de un slot
+// con `fixed_burger_id` ("2 Triple con queso" en vez de "2 hamburguesas a
+// elección", que contradice lo que el cliente realmente va a recibir). Si la
+// burger fija no está en la lista, cae a la descripción genérica en vez de
+// inventar un nombre.
+export function describeComboSlot(
+  slot: ComboSlotWithRules,
+  burgers: Burger[] = [],
+): string | null {
   const count = Number(slot.quantity);
   if (!Number.isFinite(count) || count <= 0) return null;
+
+  const fixedBurgerId = slot.slot_type === "burger" ? slot.rules?.fixed_burger_id : undefined;
+  if (fixedBurgerId) {
+    const fixed = burgers.find((b) => b.id === fixedBurgerId);
+    if (fixed) return `${count} ${fixed.name}`;
+  }
 
   const label = SLOT_LABELS[slot.slot_type] ?? { one: slot.slot_type, many: slot.slot_type };
   const min = slot.rules?.min_quantity ?? 0;
@@ -50,14 +65,20 @@ export function describeComboSlot(slot: ComboSlotWithRules): string | null {
 
 // Preserves combo.slots order as-is -- it's the order the combo was
 // authored in, not something to re-sort by slot_type or count.
-export function describeComboSlots(combo: ComboWithSlots): string[] {
+export function describeComboSlots(
+  combo: ComboWithSlots,
+  burgers: Burger[] = [],
+): string[] {
   return combo.slots
-    .map((slot) => describeComboSlot(slot))
+    .map((slot) => describeComboSlot(slot, burgers))
     .filter((line): line is string => line !== null);
 }
 
-export function summarizeComboSlots(combo: ComboWithSlots): string | null {
-  const lines = describeComboSlots(combo);
+export function summarizeComboSlots(
+  combo: ComboWithSlots,
+  burgers: Burger[] = [],
+): string | null {
+  const lines = describeComboSlots(combo, burgers);
   if (lines.length === 0) return null;
   return `Incluye: ${lines.join(" · ")}`;
 }
@@ -66,8 +87,11 @@ export function summarizeComboSlots(combo: ComboWithSlots): string | null {
 // jebbs-dashboard write flow sets it -- so the slot-based summary is the
 // realistic path, but an authored description always wins verbatim when
 // present (no appending the synthesized text on top of it).
-export function comboDescriptionText(combo: ComboWithSlots): string | null {
+export function comboDescriptionText(
+  combo: ComboWithSlots,
+  burgers: Burger[] = [],
+): string | null {
   const description = combo.description?.trim();
   if (description) return description;
-  return summarizeComboSlots(combo);
+  return summarizeComboSlots(combo, burgers);
 }

@@ -174,6 +174,52 @@ describe("describeComboSlots / summarizeComboSlots", () => {
   });
 });
 
+describe("combos con hamburguesa fija (fixed_burger_id)", () => {
+  const tripleQueso = makeBurger({ id: "burger-triple", name: "Triple con queso" });
+  const fixedSlot = (quantity = 2) =>
+    makeComboSlot({
+      slot_type: "burger",
+      quantity,
+      rules: { min_quantity: quantity, max_quantity: quantity, fixed_burger_id: "burger-triple" },
+    });
+
+  it("nombra la hamburguesa fija en vez de decir 'a elección'", () => {
+    expect(describeComboSlot(fixedSlot(2), [tripleQueso])).toBe("2 Triple con queso");
+  });
+
+  it("usa singular/plural solo por cantidad: 1 sola hamburguesa fija", () => {
+    expect(describeComboSlot(fixedSlot(1), [tripleQueso])).toBe("1 Triple con queso");
+  });
+
+  it("cae a 'a elección' si la burger fija no está en la lista (no inventa un nombre)", () => {
+    expect(describeComboSlot(fixedSlot(2), [makeBurger({ id: "otra" })])).toBe(
+      "2 hamburguesas a elección",
+    );
+    expect(describeComboSlot(fixedSlot(2))).toBe("2 hamburguesas a elección");
+  });
+
+  it("no toca los slots que no son de hamburguesa aunque tengan la regla", () => {
+    const drink = makeComboSlot({
+      slot_type: "drink",
+      quantity: 1,
+      rules: { min_quantity: 0, max_quantity: 1, fixed_burger_id: "burger-triple" },
+    });
+    expect(describeComboSlot(drink, [tripleQueso])).toBe("1 bebida");
+  });
+
+  it("se propaga a describeComboSlots / summarizeComboSlots / comboDescriptionText", () => {
+    const combo = makeCombo({
+      slots: [
+        fixedSlot(2),
+        makeComboSlot({ id: "s2", slot_type: "drink", quantity: 1 }),
+      ],
+    });
+    expect(describeComboSlots(combo, [tripleQueso])).toEqual(["2 Triple con queso", "1 bebida"]);
+    expect(summarizeComboSlots(combo, [tripleQueso])).toBe("Incluye: 2 Triple con queso · 1 bebida");
+    expect(comboDescriptionText(combo, [tripleQueso])).toBe("Incluye: 2 Triple con queso · 1 bebida");
+  });
+});
+
 describe("comboDescriptionText", () => {
   it("returns the authored description verbatim without appending the synthesis", () => {
     const combo = makeCombo({

@@ -35,7 +35,9 @@ function validateSlot(
   violations: string[],
 ): void {
   const location = `combo ${comboId} slot ${slot.id}`;
-  const burgerCount = slotLine.burgers.length;
+  // Sum of quantities, NOT line count: one line with quantity 10 is 10
+  // burgers, and only counting lines let those through for free.
+  const burgerCount = slotLine.burgers.reduce((acc, b) => acc + b.quantity, 0);
   const extraCount = slotLine.extra_ids.length;
 
   if (burgerCount > slot.quantity) {
@@ -48,10 +50,26 @@ function validateSlot(
       `${location}: extra_ids count ${extraCount} exceeds max ${slot.quantity}`,
     );
   }
+  const fixedBurgerId = slot.rules.fixed_burger_id;
+  if (fixedBurgerId) {
+    for (const burgerLine of slotLine.burgers) {
+      if (burgerLine.burger_id !== fixedBurgerId) {
+        violations.push(
+          `${location}: burger ${burgerLine.burger_id} is not the slot's fixed_burger_id ${fixedBurgerId}`,
+        );
+      }
+    }
+    // A fixed slot always ships full, regardless of `required`/min rules.
+    if (burgerCount !== slot.quantity) {
+      violations.push(
+        `${location}: fixed_burger_id slot requires exactly ${slot.quantity} burger(s), got ${burgerCount}`,
+      );
+    }
+  }
   // A slot is either a burger slot or an extra-picker slot (drink/side) in
   // practice -- never both -- so the min_quantity bound is checked against
   // whichever dimension the customer actually populated.
-  if (burgerCount + extraCount < slot.rules.min_quantity) {
+  if (!fixedBurgerId && burgerCount + extraCount < slot.rules.min_quantity) {
     violations.push(
       `${location}: burger count ${burgerCount} is below min ${slot.rules.min_quantity}`,
     );

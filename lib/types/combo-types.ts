@@ -41,13 +41,19 @@ export interface ComboSlot {
 // EXTENDED TYPES - For catalog consumption
 // ============================================
 
+// Parsed combo_slots_rules (key/value rows). Single definition shared by the
+// catalog's slot and the customer's selected slot.
+export interface ComboSlotRules {
+  min_quantity: number;
+  max_quantity: number;
+  allowed_meat_count?: number[];
+  no_fries?: boolean;
+  // Mandatory burger: the slot is pinned to this burger id.
+  fixed_burger_id?: string;
+}
+
 export interface ComboSlotWithRules extends ComboSlot {
-  rules: {
-    min_quantity: number;
-    max_quantity: number;
-    allowed_meat_count?: number[];
-    no_fries?: boolean;
-  };
+  rules: ComboSlotRules;
 }
 
 export interface ComboWithSlots extends Combo {
@@ -74,6 +80,7 @@ export interface SelectedBurger {
     quantity: number;
   }>;
   meatPriceAdjustment: number;
+  locked?: boolean; // true = combo's fixed burger: cannot be removed or change quantity
 }
 
 /**
@@ -86,16 +93,7 @@ export interface SelectedComboSlot {
   defaultMeatCount?: number;
   maxQuantity: number;
   minQuantity: number;
-  rules: {
-    min_quantity: number;
-    max_quantity: number;
-    allowed_meat_count?: number[];
-    // Not present on jebbs-dashboard's own SelectedComboSlot type (a
-    // pre-existing gap there, tolerated by its 33-error tsc baseline) --
-    // added here because hooks/use-combo-selection.ts:103,106 reads
-    // slot.rules?.no_fries at runtime and this repo's gate requires 0 errors.
-    no_fries?: boolean;
-  };
+  rules: ComboSlotRules;
   burgers: SelectedBurger[];
   selectedExtras: Extra[];
 }
