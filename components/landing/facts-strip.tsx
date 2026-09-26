@@ -25,14 +25,14 @@ export function FactsStrip({ coverage = COVERAGE_FALLBACK }: { coverage?: string
           <div
             key={label}
             className={
-              "flex items-center justify-center gap-2 py-4 font-condensed text-[13px] font-semibold tracking-[.09em] text-[var(--muted-foreground)] uppercase " +
+              "flex items-center justify-center gap-2 px-4 py-4 font-condensed text-[13px] font-semibold tracking-[.09em] text-[var(--muted-foreground)] uppercase " +
               (i > 0
                 ? "border-t border-[var(--hairline)] sm:border-t-0 sm:border-l"
                 : "")
             }
           >
-            <Icon className="size-4 text-[var(--accent-brand)]" aria-hidden />
-            {label}
+            <Icon className="size-4 shrink-0 text-[var(--accent-brand)]" aria-hidden />
+            <span className="min-w-0 text-balance text-center leading-snug">{label}</span>
           </div>
         ))}
       </div>
