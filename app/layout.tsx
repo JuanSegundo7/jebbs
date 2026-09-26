@@ -8,8 +8,8 @@ export const metadata: Metadata = {
   title: BRAND_NAME,
   description: `Pedí tu burger favorita de ${BRAND_NAME} y coordiná el retiro o la entrega por WhatsApp.`,
   icons: {
-    icon: "/jebbs.jpg",
-    apple: "/jebbs.jpg",
+    icon: "/favicon.png?v=4",
+    apple: "/favicon.png?v=4",
   },
 };
 

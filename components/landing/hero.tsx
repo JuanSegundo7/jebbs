@@ -27,9 +27,14 @@ export function Hero({ featuredBurger, coverage = COVERAGE_FALLBACK }: HeroProps
           faltante) -- el catálogo real ya tiene fotos subidas, así que el
           "no hay foto" nunca ocurre en prod. aria-hidden porque es
           puramente decorativa; el nombre del producto ya lo dice el <h1>. */}
-      <BurgerIllustration
+      <Image
+        src="/jebbs.png"
+        alt=""
         aria-hidden
-        className="pointer-events-none absolute -top-16 -right-16 hidden h-80 w-80 opacity-[0.08] md:block"
+        width={150}
+        height={150}
+        sizes="320px"
+        className="pointer-events-none absolute top-6 right-6 hidden h-72 w-72 object-contain opacity-[0.08] md:block"
       />
       <div className="diner-wrap relative grid gap-9 py-14 sm:py-20 md:grid-cols-[1.05fr_0.95fr] md:items-center md:gap-11 md:py-[56px]">
         <div>

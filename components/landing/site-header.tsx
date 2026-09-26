@@ -1,3 +1,4 @@
+import Image from "next/image";
 import { MessageCircle } from "lucide-react";
 import { BRAND_NAME } from "@/lib/brand";
 
@@ -18,9 +19,20 @@ export function SiteHeader() {
   return (
     <header className="material-regular sticky top-0 z-40 border-b border-[var(--hairline)]">
       <div className="diner-wrap flex items-center gap-[18px] py-[11px]">
-        <span className="font-display text-base tracking-[.02em] text-[var(--foreground)]">
-          {BRAND_NAME}
-        </span>
+        <a href="#top" className="flex items-center gap-2.5">
+          <Image
+            src="/jebbs.png"
+            alt=""
+            width={150}
+            height={150}
+            sizes="40px"
+            className="size-10 shrink-0 object-contain"
+            priority
+          />
+          <span className="font-display text-base tracking-[.02em] text-[var(--foreground)]">
+            {BRAND_NAME}
+          </span>
+        </a>
 
         <nav className="hidden items-center gap-[22px] font-condensed text-base font-semibold tracking-[.1em] text-[var(--muted-foreground)] uppercase sm:flex">
           <a href="#menu" className="transition-colors hover:text-[var(--foreground)]">
