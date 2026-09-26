@@ -110,7 +110,7 @@ export function BurgerCustomizePanel({
           Versión veggie
         </span>
         <span
-          className="mb-[0.3em] min-w-[1rem] flex-1 self-end border-b border-dotted border-[var(--muted-foreground-dim)]"
+          className="min-w-[1rem] flex-1"
           aria-hidden
         />
         <span
@@ -182,7 +182,7 @@ export function BurgerCustomizePanel({
                     {extra.name}
                   </span>
                   <span
-                    className="mb-[0.3em] min-w-[1rem] flex-1 self-end border-b border-dotted border-[var(--muted-foreground-dim)]"
+                    className="min-w-[1rem] flex-1"
                     aria-hidden
                   />
                   <span className="numeric shrink-0 font-condensed text-[0.98rem] font-bold text-[var(--accent-brand)]">

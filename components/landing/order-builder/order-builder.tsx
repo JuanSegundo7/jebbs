@@ -97,7 +97,7 @@ export function OrderBuilder({ catalog, deliveryZones, minDeliveryFeeArs }: Orde
             Combos
           </TabsTrigger>
           <TabsTrigger value="sides" className={tabTriggerClass}>
-            Bebidas y sides
+            Bebidas y acompañamientos
           </TabsTrigger>
         </TabsList>
 

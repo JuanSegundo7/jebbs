@@ -47,19 +47,14 @@ function SidesGroup({ title, items, countFor, onAdd, onRemove }: SidesGroupProps
               )}
             >
               <div className="min-w-0 flex-1">
-                <div className="flex items-baseline">
-                  <span className="font-condensed text-[1.22rem] font-bold tracking-[.04em] text-[var(--foreground)] uppercase">
+                <span className="font-condensed text-[1.22rem] font-bold tracking-[.04em] text-[var(--foreground)] uppercase">
                     {extra.name}
                   </span>
-                  <span
-                    className="mb-[0.3em] min-w-[1rem] flex-1 self-end border-b border-dotted border-[var(--muted-foreground-dim)]"
-                    aria-hidden
-                  />
-                  <span className="numeric shrink-0 font-condensed text-[1.22rem] font-bold text-[var(--accent-brand)]">
-                    {formatArs(extra.price)}
-                  </span>
-                </div>
               </div>
+
+              <span className="numeric shrink-0 font-condensed text-[1.22rem] font-bold text-[var(--accent-brand)]">
+                {formatArs(extra.price)}
+              </span>
 
               <div className="flex shrink-0 items-center gap-0.5 rounded-[3px] border border-[var(--hairline)] bg-[var(--surface-2)]">
                 <button

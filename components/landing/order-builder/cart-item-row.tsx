@@ -55,7 +55,7 @@ export function CartItemRow({
             {quantity}x {name}
           </span>
           <span
-            className="mb-[0.3em] min-w-[1rem] flex-1 self-end border-b border-dotted border-[var(--muted-foreground-dim)]"
+            className="min-w-[1rem] flex-1"
             aria-hidden
           />
           <span className="numeric shrink-0 font-condensed text-[1.05rem] font-bold text-[var(--accent-brand)]">

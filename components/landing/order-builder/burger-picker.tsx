@@ -107,24 +107,19 @@ export function BurgerPicker({
                     </div>
 
                     <div className="min-w-0 flex-1">
-                      <div className="flex items-baseline">
-                        <span className="font-condensed text-[1.22rem] font-bold tracking-[.04em] text-[var(--foreground)] uppercase">
+                      <span className="font-condensed text-[1.22rem] font-bold tracking-[.04em] text-[var(--foreground)] uppercase">
                           {burger.name}
                         </span>
-                        <span
-                          className="mb-[0.3em] min-w-[1rem] flex-1 self-end border-b border-dotted border-[var(--muted-foreground-dim)]"
-                          aria-hidden
-                        />
-                        <span className="numeric shrink-0 font-condensed text-[1.22rem] font-bold text-[var(--accent-brand)]">
-                          {formatArs(burger.base_price)}
-                        </span>
-                      </div>
                       {description && (
                         <p className="mt-1 line-clamp-2 font-body text-[0.94rem] leading-[1.45] tracking-[0.005em] text-[var(--muted-foreground)]">
                           {description}
                         </p>
                       )}
                     </div>
+
+                    <span className="numeric shrink-0 font-condensed text-[1.22rem] font-bold text-[var(--accent-brand)]">
+                      {formatArs(burger.base_price)}
+                    </span>
                   </button>
 
                   <div className="flex shrink-0 items-center gap-0.5 rounded-[3px] border border-[var(--hairline)] bg-[var(--surface-2)]">
