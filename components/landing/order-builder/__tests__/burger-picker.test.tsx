@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { render, screen, fireEvent, within } from "@testing-library/react";
+import { render, screen, fireEvent, within, waitFor } from "@testing-library/react";
 import { BurgerPicker } from "@/components/landing/order-builder/burger-picker";
 import { useBurgerSelection } from "@/hooks/use-burger-selection";
 import type { Burger, Extra } from "@/lib/types";
@@ -177,5 +177,61 @@ describe("BurgerPicker customize panel -- veggie toggle", () => {
 
     fireEvent.click(veggieSwitch);
     expect(veggieSwitch.getAttribute("aria-checked")).toBe("true");
+  });
+});
+
+describe("BurgerPicker per-unit customization placement", () => {
+  it("renders each unit's card under its own burger's row, not another's", () => {
+    const classic = makeBurger();
+    const triple = makeBurger({ id: "burger-2", name: "Triple" });
+    render(<Harness burgers={[classic, triple]} />);
+
+    fireEvent.click(screen.getByRole("button", { name: "Agregar Clásica" }));
+    fireEvent.click(screen.getByRole("button", { name: "Agregar Clásica" }));
+    fireEvent.click(screen.getByRole("button", { name: "Agregar Triple" }));
+
+    const classicGroup = screen.getByRole("group", {
+      name: "Personalización de Clásica",
+    });
+    const tripleGroup = screen.getByRole("group", {
+      name: "Personalización de Triple",
+    });
+
+    expect(within(classicGroup).getAllByRole("button", { name: "Quitar uno" })).toHaveLength(2);
+    expect(within(tripleGroup).getAllByRole("button", { name: "Quitar uno" })).toHaveLength(1);
+
+    // The group lives inside the same list item as its row's stepper.
+    const classicRowStepper = screen.getByRole("button", { name: "Agregar Clásica" });
+    expect(classicRowStepper.closest("[data-burger-row]")?.contains(classicGroup)).toBe(true);
+    expect(classicRowStepper.closest("[data-burger-row]")?.contains(tripleGroup)).toBe(false);
+  });
+
+  it("no longer renders the detached 'Personalizá tu pedido' section", () => {
+    render(<Harness burgers={[makeBurger()]} />);
+    fireEvent.click(screen.getByRole("button", { name: "Agregar Clásica" }));
+
+    expect(screen.queryByText("Personalizá tu pedido")).toBeNull();
+  });
+});
+
+describe("BurgerPicker unit card exit animation", () => {
+  it("keeps the removed card as an inert ghost, then drops it and its group", async () => {
+    render(<Harness burgers={[makeBurger()]} />);
+    fireEvent.click(screen.getByRole("button", { name: "Agregar Clásica" }));
+    expect(screen.getByRole("group", { name: "Personalización de Clásica" })).toBeTruthy();
+
+    // Removal from OUTSIDE the card (row stepper "-").
+    fireEvent.click(screen.getByRole("button", { name: "Quitar Clásica" }));
+
+    // Ghost is aria-hidden, so role queries no longer see it right away...
+    expect(screen.queryByRole("group", { name: "Personalización de Clásica" })).toBeNull();
+    // ...but it is still mounted until the exit finishes (queried via the DOM:
+    // the accessible-name lookup skips aria-hidden nodes).
+    const ghost = () =>
+      document.querySelector('[role="group"][aria-label="Personalización de Clásica"]');
+    expect(ghost()).toBeTruthy();
+    expect(ghost()?.hasAttribute("inert")).toBe(true);
+
+    await waitFor(() => expect(ghost()).toBeNull());
   });
 });

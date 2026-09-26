@@ -2,13 +2,14 @@
 
 import { useState } from "react";
 import Image from "next/image";
-import { Beef, ChevronDown, Minus, Plus, Trash2 } from "lucide-react";
+import { Beef, Minus, Plus } from "lucide-react";
 import { cn } from "@/lib/utils";
 import type { Burger, Extra } from "@/lib/types";
 import type { useBurgerSelection } from "@/hooks/use-burger-selection";
 import { burgerDescriptionText } from "@/lib/catalog/menu-description";
-import { summarizeBurger } from "@/lib/order/customization-summary";
-import { BurgerCustomizePanel } from "./burger-customize-panel";
+import { usePresenceList } from "@/hooks/use-presence-list";
+import type { SelectedBurger } from "@/lib/types/combo-types";
+import { BurgerUnitCard } from "./burger-unit-card";
 import { formatArs } from "./currency";
 import { MenuCategoryHeader } from "./menu-category-header";
 import { MenuItemSheet } from "./menu-item-sheet";
@@ -33,14 +34,7 @@ export function BurgerPicker({
     selectedBurgers,
     expandedBurger,
     addBurger,
-    removeBurger,
     updateQuantity,
-    updateMeatCount,
-    updateFriesQuantity,
-    toggleVeggie,
-    toggleExtra,
-    updateExtraQuantity,
-    toggleExpanded,
   } = selection;
 
   const [detail, setDetail] = useState<Burger | null>(null);
@@ -61,8 +55,8 @@ export function BurgerPicker({
 
   // Derived helper, not new state: the browsing row's "-" decrements the
   // most-recently-added instance of this burger. Per-instance detail
-  // (meat/fries/veggie/extras) is still edited below, in the expanded
-  // selected-items list -- this only mirrors what the "+" (addBurger) does.
+  // (meat/fries/veggie/extras) is still edited in the unit cards rendered
+  // under the row -- this only mirrors what the "+" (addBurger) does.
   const decrementBurger = (burgerId: string) => {
     const instances = selectedBurgers.filter((b) => b.burger.id === burgerId);
     const last = instances[instances.length - 1];
@@ -78,11 +72,16 @@ export function BurgerPicker({
             {burgers.map((burger) => {
               const count = countFor(burger.id);
               const description = burgerDescriptionText(burger);
+              const units = selectedBurgers.filter((b) => b.burger.id === burger.id);
               return (
                 <div
                   key={burger.id}
+                  data-burger-row
+                  className="border-b border-dashed border-[var(--hairline-strong)] last:border-b-0"
+                >
+                <div
                   className={cn(
-                    "flex items-center gap-[15px] border-b border-dashed border-[var(--hairline-strong)] py-[15px] pl-0 transition-[border-color,background-color,transform,padding-left] duration-200 ease-[cubic-bezier(0.16,1,0.3,1)] last:border-b-0 hover:border-[var(--foreground)] hover:bg-[color-mix(in_srgb,var(--foreground)_3%,transparent)] active:scale-[0.99]",
+                    "flex items-center gap-[15px] py-[15px] pl-0 transition-[background-color,transform,padding-left] duration-200 ease-[cubic-bezier(0.16,1,0.3,1)] hover:bg-[color-mix(in_srgb,var(--foreground)_3%,transparent)] active:scale-[0.99]",
                     count > 0 && "bg-[linear-gradient(90deg,var(--accent-tint-16),transparent_60%)] pl-3",
                   )}
                 >
@@ -156,95 +155,20 @@ export function BurgerPicker({
                     </button>
                   </div>
                 </div>
-              );
-            })}
-          </div>
-        </div>
 
-        {selectedBurgers.length > 0 && (
-          <div className="space-y-2">
-            <p className="font-condensed text-xs font-bold tracking-[.16em] text-[var(--muted-foreground)] uppercase">
-              Personalizá tu pedido
-            </p>
-            {selectedBurgers.map((item) => {
-              const expanded = expandedBurger === item.id;
-              return (
-                <div key={item.id} className="ios-glass space-y-3 rounded-xl p-3">
-                  <div className="flex items-center justify-between gap-2">
-                    <button
-                      type="button"
-                      className="flex min-w-0 flex-1 items-center gap-2 text-left"
-                      onClick={() => toggleExpanded(item.id)}
-                      aria-expanded={expanded}
-                    >
-                      <ChevronDown
-                        className={cn(
-                          "size-4 shrink-0 text-[var(--muted-foreground)] transition-transform",
-                          expanded && "rotate-180",
-                        )}
-                        aria-hidden
-                      />
-                      <span className="min-w-0 flex-1">
-                        <span className="block font-condensed text-sm font-bold tracking-[.03em] text-[var(--foreground)] uppercase">
-                          {item.burger.name}
-                        </span>
-                        {!expanded && (
-                          <span className="block truncate font-body text-xs text-[var(--muted-foreground)]">
-                            {summarizeBurger(item) ??
-                              "Sin modificar · tocá para personalizar"}
-                          </span>
-                        )}
-                      </span>
-                    </button>
-                    <div className="flex items-center gap-1">
-                      <button
-                        type="button"
-                        className="inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-full border border-[var(--hairline-strong)] bg-[var(--surface-2)] text-[var(--accent-brand)] transition-[border-color,transform] duration-150 hover:border-[var(--accent-brand)] active:scale-[0.92] [&_svg]:h-3.5 [&_svg]:w-3.5"
-                        onClick={() => updateQuantity(item.id, -1)}
-                        aria-label="Quitar uno"
-                      >
-                        <Minus />
-                      </button>
-                      <span className="numeric w-6 text-center text-sm text-[var(--foreground)]">
-                        {item.quantity}
-                      </span>
-                      <button
-                        type="button"
-                        className="inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-full border border-[var(--hairline-strong)] bg-[var(--surface-2)] text-[var(--accent-brand)] transition-[border-color,transform] duration-150 hover:border-[var(--accent-brand)] active:scale-[0.92] [&_svg]:h-3.5 [&_svg]:w-3.5"
-                        onClick={() => updateQuantity(item.id, 1)}
-                        aria-label="Agregar uno"
-                      >
-                        <Plus />
-                      </button>
-                      <button
-                        type="button"
-                        className="inline-flex size-7 items-center justify-center rounded-full text-[var(--accent-brand)] transition-colors hover:bg-[var(--surface-0)]"
-                        onClick={() => removeBurger(item.id)}
-                        aria-label="Eliminar"
-                      >
-                        <Trash2 className="size-4" />
-                      </button>
-                    </div>
-                  </div>
+                <BurgerUnitList
+                  burgerName={burger.name}
+                  units={units}
+                  expandedBurger={expandedBurger}
+                  toppingExtras={toppingExtras}
+                  selection={selection}
+                />
 
-                  {expanded && (
-                    <BurgerCustomizePanel
-                      item={item}
-                      toppingExtras={toppingExtras}
-                      onMeatChange={(delta) => updateMeatCount(item.id, delta)}
-                      onFriesChange={(delta) => updateFriesQuantity(item.id, delta)}
-                      onToggleVeggie={() => toggleVeggie(item.id)}
-                      onToggleExtra={(extra) => toggleExtra(item.id, extra)}
-                      onExtraQuantityChange={(extraId, delta) =>
-                        updateExtraQuantity(item.id, extraId, delta)
-                      }
-                    />
-                  )}
                 </div>
               );
             })}
           </div>
-        )}
+        </div>
       </div>
 
       {detail && (
@@ -285,5 +209,92 @@ export function BurgerPicker({
         </MenuItemSheet>
       )}
     </>
+  );
+}
+
+interface BurgerUnitListProps {
+  burgerName: string;
+  units: SelectedBurger[];
+  expandedBurger: string | null;
+  toppingExtras: Extra[];
+  selection: BurgerPickerProps["selection"];
+}
+
+// Per-row list of unit cards. Removed units linger as inert "ghosts" for the
+// exit animation (usePresenceList), whoever triggered the removal -- the
+// card's own trash or the row stepper's "-". The group wrapper collapses too
+// once every entry is exiting, so its margins animate away with it instead of
+// jumping. Spacing lives inside the overflow-hidden children (pt-3 / pb-2) so
+// it collapses together with the height.
+function BurgerUnitList({
+  burgerName,
+  units,
+  expandedBurger,
+  toppingExtras,
+  selection,
+}: BurgerUnitListProps) {
+  const {
+    toggleExpanded,
+    updateQuantity,
+    removeBurger,
+    updateMeatCount,
+    updateFriesQuantity,
+    toggleVeggie,
+    toggleExtra,
+    updateExtraQuantity,
+  } = selection;
+  const entries = usePresenceList(units);
+  if (entries.length === 0) return null;
+  const allExiting = entries.every((e) => e.exiting);
+
+  return (
+    <div
+      role="group"
+      aria-label={`Personalización de ${burgerName}`}
+      aria-hidden={allExiting || undefined}
+      inert={allExiting || undefined}
+      data-exiting={allExiting}
+      className="presence-item min-w-0"
+    >
+      {/* Padding lives on an inner div: padding on the overflow-hidden grid
+          child can't shrink with the 0fr track, leaving a residual strip
+          that disappears in one frame when the ghost unmounts (the "step"). */}
+      <div className="min-h-0 min-w-0 overflow-hidden">
+       <div className="pb-[7px] pt-3">
+        {entries.map(({ item, exiting }) => (
+          <div
+            key={item.id}
+            aria-hidden={exiting || undefined}
+            inert={exiting || undefined}
+            // When the whole group is leaving, only the wrapper animates:
+            // a per-card exit on top of it would compound the height and
+            // translate (two nested 1fr->0fr collapses) and desync.
+            data-exiting={exiting && !allExiting}
+            className={cn("presence-item", allExiting && "[animation:none]")}
+          >
+            <div className="min-h-0 min-w-0 overflow-hidden">
+             <div className="pb-2">
+              <BurgerUnitCard
+                item={item}
+                expanded={expandedBurger === item.id}
+                toppingExtras={toppingExtras}
+                onToggleExpanded={() => toggleExpanded(item.id)}
+                onQuantityChange={(delta) => updateQuantity(item.id, delta)}
+                onRemove={() => removeBurger(item.id)}
+                onMeatChange={(delta) => updateMeatCount(item.id, delta)}
+                onFriesChange={(delta) => updateFriesQuantity(item.id, delta)}
+                onToggleVeggie={() => toggleVeggie(item.id)}
+                onToggleExtra={(extra) => toggleExtra(item.id, extra)}
+                onExtraQuantityChange={(extraId, delta) =>
+                  updateExtraQuantity(item.id, extraId, delta)
+                }
+              />
+             </div>
+            </div>
+          </div>
+        ))}
+       </div>
+      </div>
+    </div>
   );
 }

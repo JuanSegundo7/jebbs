@@ -1607,6 +1607,60 @@
   }
 }
 
+/* Presence (enter/exit) for list items: opacity + translateY + height via the
+   grid-template-rows 0fr<->1fr trick, so siblings slide instead of jumping.
+   The animated element is a grid; its single child needs `min-h-0 overflow-hidden`.
+   Exit duration must match usePresenceList's exitMs (200). */
+@keyframes presence-in {
+  from {
+    grid-template-rows: 0fr;
+    opacity: 0;
+    transform: translateY(-6px);
+  }
+  to {
+    grid-template-rows: 1fr;
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+@keyframes presence-out {
+  from {
+    grid-template-rows: 1fr;
+    opacity: 1;
+    transform: translateY(0);
+  }
+  to {
+    grid-template-rows: 0fr;
+    opacity: 0;
+    transform: translateY(-6px);
+  }
+}
+@keyframes presence-fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+@keyframes presence-fade-out {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+.presence-item {
+  display: grid;
+  grid-template-rows: 1fr;
+  animation: presence-in 220ms cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+.presence-item[data-exiting="true"] {
+  animation: presence-out 200ms cubic-bezier(0.16, 1, 0.3, 1) both;
+  pointer-events: none;
+}
+
 /* §14: reduced motion es un equivalente MÁS SUAVE, no ausencia de feedback.
    Se preservan opacidad y color; se neutraliza transform/spring/overshoot. */
 @media (prefers-reduced-motion: reduce) {
@@ -1619,5 +1673,12 @@
     animation-duration: 160ms !important;
     animation-iteration-count: 1 !important;
     scroll-behavior: auto !important;
+  }
+  /* Presence: plain fade, no translate / height motion. */
+  .presence-item {
+    animation-name: presence-fade-in;
+  }
+  .presence-item[data-exiting="true"] {
+    animation-name: presence-fade-out;
   }
 }
