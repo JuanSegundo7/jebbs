@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { BRAND_NAME } from "@/lib/brand";
 import { formatArs } from "@/components/landing/order-builder/currency";
+import { isValidPolygon } from "@/lib/catalog/polygon";
 import type { DeliveryZone } from "@/lib/types";
 
 // El sitio de referencia (jebbs-burgers.vercel.app) dibuja sus zonas de
@@ -54,14 +55,15 @@ const MAP_ZONE_COLORS: Record<string, string> = {
 // SVG) no tienen un hex hardcodeado como las legacy -- se les asigna un
 // color de la paleta categórica del propio tema (--chart-1..5, ya
 // validada CVD-safe en globals.css) por índice, no por valor fijo, así
-// quedan consistentes con dark mode sin duplicar hex a mano. El ciclo
-// repite pasada la 5ta zona con posición en el mapa -- aceptable, no bug.
+// quedan consistentes con dark mode sin duplicar hex a mano. Mismos 4
+// colores, mismo orden y mismo criterio de asignación que
+// delivery-zone-polygon-overlay.tsx del dashboard: el ciclo repite pasada
+// la 4ta zona con forma en el mapa -- aceptable, no bug.
 const CHART_COLOR_VARS = [
   "var(--chart-1)",
   "var(--chart-2)",
   "var(--chart-3)",
   "var(--chart-4)",
-  "var(--chart-5)",
 ];
 
 // Zonas con alguna presencia en el mapa (legacy data-zone O polígono
@@ -71,7 +73,7 @@ const CHART_COLOR_VARS = [
 // leyenda y en el overlay de polígonos para una misma zona.
 function getMappedZones(zones: DeliveryZone[]): DeliveryZone[] {
   return zones
-    .filter((zone) => zone.map_zone_key !== null || zone.map_polygon !== null)
+    .filter((zone) => zone.map_zone_key !== null || isValidPolygon(zone.map_polygon))
     .slice()
     .sort((a, b) => a.sort_order - b.sort_order);
 }
@@ -81,7 +83,7 @@ function getMappedZones(zones: DeliveryZone[]): DeliveryZone[] {
 // que esto no elige entre ambos -- resuelve cuál de los dos está seteado.
 function getZoneMapColor(zone: DeliveryZone, mappedZones: DeliveryZone[]): string | null {
   if (zone.map_zone_key) return MAP_ZONE_COLORS[zone.map_zone_key] ?? null;
-  if (zone.map_polygon) {
+  if (isValidPolygon(zone.map_polygon)) {
     const index = mappedZones.findIndex((z) => z.id === zone.id);
     if (index === -1) return null;
     return CHART_COLOR_VARS[index % CHART_COLOR_VARS.length];
@@ -102,7 +104,7 @@ export function DeliveryZoneMap({ zones }: DeliveryZoneMapProps) {
   const mappedZones = getMappedZones(zones);
   const polygonZones = zones.filter(
     (zone): zone is DeliveryZone & { map_polygon: [number, number][] } =>
-      zone.map_polygon !== null,
+      isValidPolygon(zone.map_polygon),
   );
 
   useEffect(() => {

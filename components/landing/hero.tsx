@@ -1,4 +1,5 @@
 import Image from "next/image";
+import { COVERAGE_FALLBACK } from "@/lib/catalog/coverage-text";
 import type { Burger } from "@/lib/types";
 import { BurgerIllustration } from "./burger-illustration";
 
@@ -7,6 +8,8 @@ interface HeroProps {
    * an image_url, chosen by the caller (app/page.tsx). null/undefined falls
    * back to the BurgerIllustration SVG instead of a broken <img>. */
   featuredBurger?: Burger | null;
+  /** Coverage label built from the active delivery zones (coverageLabel). */
+  coverage?: string;
 }
 
 // Colores de la identidad de jebbs-dashboard (naranja/frío sobre negro
@@ -16,7 +19,7 @@ interface HeroProps {
 // imagen/props idénticos al pase anterior. Foto: ios-shadow-lg (la sombra
 // "hero" real del dashboard, Card depth="hero") en vez de la sombra a mano
 // diner-hero-shot.
-export function Hero({ featuredBurger }: HeroProps) {
+export function Hero({ featuredBurger, coverage = COVERAGE_FALLBACK }: HeroProps) {
   return (
     <header id="top" className="relative scroll-mt-20 overflow-hidden border-b border-[var(--hairline)]">
       {/* Marca de agua decorativa: la ilustración real de ref-burger.svg
@@ -32,7 +35,7 @@ export function Hero({ featuredBurger }: HeroProps) {
         <div>
           {/* TODO: confirmar con el dueño la ubicación real (barrio/zona) que va acá */}
           <p className="text-center font-condensed text-[0.82rem] font-bold tracking-[0.18em] text-[var(--accent-brand)] uppercase md:text-left">
-            Delivery y take away · Gonnet y City Bell
+            Delivery y take away · {coverage}
           </p>
 
           {/* TODO: copy real a confirmar con el dueño. tracking-[-0.032em]

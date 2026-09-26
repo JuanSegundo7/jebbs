@@ -1,19 +1,23 @@
+import { COVERAGE_FALLBACK } from "@/lib/catalog/coverage-text";
 import { Beef, Clock, MapPin, Truck } from "lucide-react";
 
-const FACTS = [
-  { icon: Truck, label: "Envío a domicilio" },
-  { icon: Beef, label: "Retiro en el local" },
-  // TODO: confirmar horario y zona reales con el dueño antes de publicar.
-  { icon: Clock, label: "20:00 a 00:00 hs" },
-  { icon: MapPin, label: "Gonnet y City Bell" },
-] as const;
+function buildFacts(coverage: string) {
+  return [
+    { icon: Truck, label: "Envío a domicilio" },
+    { icon: Beef, label: "Retiro en el local" },
+    // TODO: confirmar horario real con el dueño antes de publicar.
+    { icon: Clock, label: "20:00 a 00:00 hs" },
+    { icon: MapPin, label: coverage },
+  ];
+}
 
 // Franja de datos operativos -- grilla dividida por líneas de 1px sobre
 // una superficie plana, no una lista de chips flotantes. En mobile las
 // columnas se apilan y el divisor pasa de vertical a horizontal. Colores
 // de jebbs-dashboard (--hairline en vez de --line, --accent-brand en los
 // íconos); tipografía "diner" (font-condensed mayúscula) restaurada.
-export function FactsStrip() {
+export function FactsStrip({ coverage = COVERAGE_FALLBACK }: { coverage?: string }) {
+  const FACTS = buildFacts(coverage);
   return (
     <div className="border-b border-[var(--hairline)] bg-[var(--surface-1)]">
       <div className="diner-wrap grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">

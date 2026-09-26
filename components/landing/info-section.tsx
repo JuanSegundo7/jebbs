@@ -1,3 +1,4 @@
+import { COVERAGE_FALLBACK } from "@/lib/catalog/coverage-text";
 import { Clock, MapPin, Phone } from "lucide-react";
 
 // Static shop info (hours/zone/contact) -- grilla con separador de 1px real
@@ -9,35 +10,45 @@ import { Clock, MapPin, Phone } from "lucide-react";
 // exactos de diner-eyebrow/diner-sechead-title/diner-chip-hollow en
 // globals.css, aplicados acá como clases literales porque esas utilities
 // siguen compartidas con otras secciones que ya tienen sus propios colores.
-const FACTS = [
-  {
-    icon: Clock,
-    title: "Horarios",
-    chip: "Confirmado",
-    // TODO: copy real -- confirmar horario real con el dueño antes de publicar.
-    detail: "Todos los días de 20:00 a 00:00 hs.",
-    sub: "Horario confirmado por el dueño. Los pedidos por WhatsApp entran dentro de ese rango.",
-  },
-  {
-    icon: MapPin,
-    title: "Dónde estamos",
-    chip: "A confirmar",
-    // TODO: copy real -- confirmar la zona/barrios reales con el dueño.
-    detail: "Gonnet y City Bell, La Plata.",
-    sub: "Acá va la calle y el número del local -- hoy no está publicado.",
-  },
-  {
-    icon: Phone,
-    title: "Pagos",
-    chip: "A confirmar",
-    detail: "Efectivo · Transferencia · Mercado Pago",
-    sub: "Confirmar cuáles acepta el local y si hay algún recargo.",
-  },
-] as const;
+function buildFacts(coverage: string) {
+  return [
+    {
+      icon: Clock,
+      title: "Horarios",
+      chip: "Confirmado",
+      // TODO: copy real -- confirmar horario real con el dueño antes de publicar.
+      detail: "Todos los días de 20:00 a 00:00 hs.",
+      sub: "Horario confirmado por el dueño. Los pedidos por WhatsApp entran dentro de ese rango.",
+    },
+    {
+      icon: MapPin,
+      title: "Dónde estamos",
+      chip: "A confirmar",
+      // TODO: copy real -- confirmar la zona/barrios reales con el dueño.
+      detail: `${coverage}, La Plata.`,
+      sub: "Acá va la calle y el número del local -- hoy no está publicado.",
+    },
+    {
+      icon: Phone,
+      title: "Pagos",
+      chip: "A confirmar",
+      detail: "Efectivo · Transferencia · Mercado Pago",
+      sub: "Confirmar cuáles acepta el local y si hay algún recargo.",
+    },
+  ] as const;
+}
 
-export function InfoSection() {
+export function InfoSection({
+  coverage = COVERAGE_FALLBACK,
+}: {
+  coverage?: string;
+}) {
+  const FACTS = buildFacts(coverage);
   return (
-    <section id="info" className="diner-section scroll-mt-20 bg-[var(--surface-1)]">
+    <section
+      id="info"
+      className="diner-section scroll-mt-20 bg-[var(--surface-1)]"
+    >
       <div className="diner-wrap">
         <div className="diner-sechead">
           <div>
@@ -53,14 +64,21 @@ export function InfoSection() {
           {FACTS.map(({ icon: Icon, title, chip, detail, sub }) => (
             <div key={title} className="bg-[var(--surface-2)] p-6">
               <h3 className="mb-3 flex flex-wrap items-center gap-2 font-condensed text-[1.05rem] font-bold tracking-[.15em] text-[var(--foreground)] uppercase">
-                <Icon className="size-4 text-[var(--accent-brand)]" aria-hidden />
+                <Icon
+                  className="size-4 text-[var(--accent-brand)]"
+                  aria-hidden
+                />
                 {title}
                 <span className="rounded-full border border-[var(--accent-brand)]/50 px-2.5 py-0.5 font-condensed text-[0.72rem] font-bold tracking-[0.14em] text-[var(--accent-brand)] uppercase">
                   {chip}
                 </span>
               </h3>
-              <p className="text-[0.97rem] text-[var(--foreground)]">{detail}</p>
-              <p className="mt-2.5 text-[0.92rem] text-[var(--muted-foreground)]">{sub}</p>
+              <p className="text-[0.97rem] text-[var(--foreground)]">
+                {detail}
+              </p>
+              <p className="mt-2.5 text-[0.92rem] text-[var(--muted-foreground)]">
+                {sub}
+              </p>
             </div>
           ))}
         </div>

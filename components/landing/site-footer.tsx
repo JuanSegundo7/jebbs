@@ -1,4 +1,5 @@
 import { Instagram, MessageCircle, MapPin } from "lucide-react";
+import { COVERAGE_FALLBACK } from "@/lib/catalog/coverage-text";
 import { env } from "@/lib/env";
 import { BRAND_NAME } from "@/lib/brand";
 
@@ -9,7 +10,7 @@ const INSTAGRAM_URL = "https://www.instagram.com/jebbsburgers/";
 // sale de env.NEXT_PUBLIC_WHATSAPP_NUMBER (config real del proyecto), nunca
 // un número hardcodeado copiado del sitio de referencia. Tipografía
 // "diner" (font-condensed) restaurada por pedido del dueño.
-export function SiteFooter() {
+export function SiteFooter({ coverage = COVERAGE_FALLBACK }: { coverage?: string }) {
   const whatsappHref = `https://wa.me/${env.NEXT_PUBLIC_WHATSAPP_NUMBER}`;
 
   return (
@@ -52,7 +53,7 @@ export function SiteFooter() {
           {/* TODO: copy real -- confirmar ubicación/horario exactos con el dueño */}
           <p className="flex items-start gap-2">
             <MapPin className="mt-0.5 size-4 shrink-0" aria-hidden />
-            Gonnet y City Bell · 20:00 a 00:00 hs
+            {coverage} · 20:00 a 00:00 hs
           </p>
         </div>
       </div>
