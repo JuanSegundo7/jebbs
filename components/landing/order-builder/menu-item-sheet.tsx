@@ -1,6 +1,5 @@
 "use client";
 
-import Image from "next/image";
 import { Minus, Plus, type LucideIcon } from "lucide-react";
 import type { ReactNode } from "react";
 import { Button } from "@/components/ui/button";
@@ -13,6 +12,7 @@ import {
   DrawerHeader,
   DrawerTitle,
 } from "@/components/ui/drawer";
+import { FallbackImage } from "./fallback-image";
 import { formatArs } from "./currency";
 
 interface MenuItemSheetProps {
@@ -53,6 +53,15 @@ export function MenuItemSheet({
   footnote,
   children,
 }: MenuItemSheetProps) {
+  const heroFallback = (
+    <div className="flex h-full w-full items-center justify-center bg-[var(--surface-2)]">
+      <FallbackIcon
+        className="size-12 text-[var(--muted-foreground-dim)]"
+        strokeWidth={1.25}
+        aria-hidden
+      />
+    </div>
+  );
   return (
     <Drawer open={open} onOpenChange={onOpenChange}>
       <DrawerContent>
@@ -69,21 +78,16 @@ export function MenuItemSheet({
               cover) para que la foto se vea completa, no recortada. */}
           <div className="relative h-[180px] w-full overflow-hidden rounded-xl bg-[var(--surface-2)] sm:h-[220px]">
             {imageUrl ? (
-              <Image
+              <FallbackImage
                 src={imageUrl}
                 alt={name}
                 fill
                 sizes="(max-width:768px) 100vw, 768px"
                 className="object-contain"
+                fallback={heroFallback}
               />
             ) : (
-              <div className="flex h-full w-full items-center justify-center bg-[var(--surface-2)]">
-                <FallbackIcon
-                  className="size-12 text-[var(--muted-foreground-dim)]"
-                  strokeWidth={1.25}
-                  aria-hidden
-                />
-              </div>
+              heroFallback
             )}
           </div>
 

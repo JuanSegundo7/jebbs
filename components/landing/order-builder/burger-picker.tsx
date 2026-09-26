@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import Image from "next/image";
 import { Beef, Minus, Plus } from "lucide-react";
 import { cn } from "@/lib/utils";
 import type { Burger, Extra } from "@/lib/types";
@@ -10,6 +9,7 @@ import { burgerDescriptionText } from "@/lib/catalog/menu-description";
 import { usePresenceList } from "@/hooks/use-presence-list";
 import type { SelectedBurger } from "@/lib/types/combo-types";
 import { BurgerUnitCard } from "./burger-unit-card";
+import { FallbackImage } from "./fallback-image";
 import { formatArs } from "./currency";
 import { MenuCategoryHeader } from "./menu-category-header";
 import { MenuItemSheet } from "./menu-item-sheet";
@@ -93,21 +93,16 @@ export function BurgerPicker({
                   >
                     <div className="relative h-[60px] w-[60px] shrink-0 overflow-hidden rounded-[3px] border border-[var(--hairline)] bg-[var(--surface-2)]">
                       {burger.image_url ? (
-                        <Image
+                        <FallbackImage
                           src={burger.image_url}
                           alt={burger.name}
                           fill
                           sizes="60px"
                           className="object-cover"
+                          fallback={<BurgerThumbFallback />}
                         />
                       ) : (
-                        <div className="flex h-full w-full items-center justify-center">
-                          <Beef
-                            className="size-6 text-[var(--muted-foreground-dim)]"
-                            strokeWidth={1.25}
-                            aria-hidden
-                          />
-                        </div>
+                        <BurgerThumbFallback />
                       )}
                     </div>
 
@@ -226,6 +221,18 @@ interface BurgerUnitListProps {
 // once every entry is exiting, so its margins animate away with it instead of
 // jumping. Spacing lives inside the overflow-hidden children (pt-3 / pb-2) so
 // it collapses together with the height.
+function BurgerThumbFallback() {
+  return (
+    <div className="flex h-full w-full items-center justify-center">
+      <Beef
+        className="size-6 text-[var(--muted-foreground-dim)]"
+        strokeWidth={1.25}
+        aria-hidden
+      />
+    </div>
+  );
+}
+
 function BurgerUnitList({
   burgerName,
   units,
