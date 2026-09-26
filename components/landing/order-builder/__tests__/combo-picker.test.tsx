@@ -1,8 +1,8 @@
 import { describe, expect, it } from "vitest";
-import { render, screen, fireEvent, within } from "@testing-library/react";
+import { render, screen, fireEvent, within, waitFor } from "@testing-library/react";
 import { ComboPicker } from "@/components/landing/order-builder/combo-picker";
 import { useComboSelection } from "@/hooks/use-combo-selection";
-import type { Burger } from "@/lib/types";
+import type { Burger, Extra } from "@/lib/types";
 import type { ComboSlotWithRules, ComboWithSlots } from "@/lib/types/combo-types";
 
 // No @testing-library/jest-dom in this repo (not a dependency) -- assertions
@@ -42,15 +42,18 @@ function makeCombo(overrides: Partial<ComboWithSlots> = {}): ComboWithSlots {
 function Harness({
   combos,
   burgers = [],
+  toppingExtras = [],
 }: {
   combos: ComboWithSlots[];
   burgers?: Burger[];
+  toppingExtras?: Extra[];
 }) {
   const selection = useComboSelection();
   return (
     <ComboPicker
       combos={combos}
       burgers={burgers}
+      toppingExtras={toppingExtras}
       drinkExtras={[]}
       sideExtras={[]}
       selection={selection}
@@ -165,5 +168,143 @@ describe("ComboPicker fixed-burger slot", () => {
       screen.getByRole("button", { name: "Quitar hamburguesa del combo", hidden: true }),
     ).toBeTruthy();
     expect(screen.queryByText("Incluida en el combo")).toBeNull();
+  });
+});
+
+describe("ComboPicker unit cards placement", () => {
+  const other = makeCombo({ id: "combo-2", name: "Combo Simple" });
+  const combos = [makeCombo(), other];
+
+  const rowOf = (name: string) =>
+    screen.getByRole("button", { name: `Agregar ${name}` }).closest("[data-combo-row]") as HTMLElement;
+
+  it("renders each unit card under its own combo row, not another's", () => {
+    render(<Harness combos={combos} />);
+
+    const add = screen.getByRole("button", { name: "Agregar Combo Doble" });
+    fireEvent.click(add);
+    fireEvent.click(add);
+
+    const group = within(rowOf("Combo Doble")).getByRole("group", {
+      name: "Personalización de Combo Doble",
+    });
+    expect(within(group).getAllByRole("button", { name: "Eliminar combo" })).toHaveLength(2);
+    expect(
+      within(rowOf("Combo Simple")).queryByRole("group", { name: /Personalización/ }),
+    ).toBeNull();
+  });
+
+  it("no longer renders unit cards in a separate section after the list", () => {
+    render(<Harness combos={combos} />);
+    fireEvent.click(screen.getByRole("button", { name: "Agregar Combo Simple" }));
+
+    for (const btn of screen.getAllByRole("button", { name: "Eliminar combo" })) {
+      expect(btn.closest("[data-combo-row]")).toBeTruthy();
+    }
+  });
+
+  it("keeps a removed unit as an inert aria-hidden ghost until the exit finishes", async () => {
+    render(<Harness combos={combos} />);
+    fireEvent.click(screen.getByRole("button", { name: "Agregar Combo Doble" }));
+    expect(screen.getByRole("group", { name: "Personalización de Combo Doble" })).toBeTruthy();
+
+    fireEvent.click(screen.getByRole("button", { name: "Quitar Combo Doble" }));
+
+    expect(screen.queryByRole("group", { name: "Personalización de Combo Doble" })).toBeNull();
+    const ghost = () =>
+      document.querySelector('[role="group"][aria-label="Personalización de Combo Doble"]');
+    expect(ghost()).toBeTruthy();
+    expect(ghost()?.hasAttribute("inert")).toBe(true);
+    expect(ghost()?.getAttribute("aria-hidden")).toBe("true");
+
+    await waitFor(() => expect(ghost()).toBeNull());
+  });
+});
+
+describe("ComboPicker burger customization", () => {
+  const doble: Burger = {
+    id: "burger-doble",
+    name: "Doble",
+    description: null,
+    base_price: 9000,
+    ingredients: [],
+    is_available: true,
+    image_url: null,
+    default_meat_quantity: 2,
+    default_fries_quantity: 1,
+    created_at: "2024-01-01",
+  };
+  const bacon: Extra = {
+    id: "extra-bacon",
+    name: "Bacon",
+    category: "extra",
+    price: 500,
+    is_available: true,
+    created_at: "2024-01-01",
+  };
+  const oneBurgerCombo = makeCombo({
+    slots: [makeComboSlot({ rules: { min_quantity: 1, max_quantity: 1 } })],
+  });
+  const renderAdded = () => {
+    render(<Harness combos={[oneBurgerCombo]} burgers={[doble]} toppingExtras={[bacon]} />);
+    fireEvent.click(screen.getByRole("button", { name: "Agregar Combo Doble" }));
+  };
+
+  it("shows the pre-selected only-candidate burger with its edit affordance", () => {
+    renderAdded();
+
+    expect(screen.getByRole("button", { name: /Doble.*tocá para personalizar/ })).toBeTruthy();
+    expect(screen.getByRole("button", { name: "Quitar hamburguesa del combo" })).toBeTruthy();
+    // Already selected: no chip offering it again.
+    expect(screen.queryByText("Hamburguesas (1 disponibles)")).toBeNull();
+    expect(screen.getByText("Hamburguesas (0 disponibles)")).toBeTruthy();
+  });
+
+  it("expands the panel without meat or fries controls", () => {
+    renderAdded();
+
+    fireEvent.click(screen.getByRole("button", { name: /Doble.*tocá para personalizar/ }));
+
+    expect(screen.getByText("Sin modificar")).toBeTruthy();
+    expect(screen.getByRole("switch")).toBeTruthy();
+    expect(screen.queryByRole("button", { name: "Más carne" })).toBeNull();
+    expect(screen.queryByRole("button", { name: "Más papas" })).toBeNull();
+  });
+
+  it("adding an extra updates the summary shown on the collapsed row", () => {
+    renderAdded();
+    const header = () => screen.getByRole("button", { name: /^Doble/ });
+
+    fireEvent.click(header());
+    fireEvent.click(screen.getByRole("button", { name: /Ver los 1 extras/ }));
+    fireEvent.click(screen.getByRole("button", { name: "Agregar Bacon" }));
+    fireEvent.click(header());
+
+    expect(screen.getByText("+ Bacon")).toBeTruthy();
+  });
+
+  it("removing the pre-selected burger offers the chip again", () => {
+    renderAdded();
+
+    fireEvent.click(screen.getByRole("button", { name: "Quitar hamburguesa del combo" }));
+
+    expect(screen.getByText("Hamburguesas (1 disponibles)")).toBeTruthy();
+    expect(screen.getByRole("button", { name: "Doble" })).toBeTruthy();
+  });
+
+  it("lets a locked burger be customized too", () => {
+    const fixed = makeCombo({
+      slots: [
+        makeComboSlot({
+          rules: { min_quantity: 1, max_quantity: 1, fixed_burger_id: doble.id },
+        }),
+      ],
+    });
+    render(<Harness combos={[fixed]} burgers={[doble]} toppingExtras={[bacon]} />);
+    fireEvent.click(screen.getByRole("button", { name: "Agregar Combo Doble" }));
+
+    expect(screen.getByText("Incluida")).toBeTruthy();
+    fireEvent.click(screen.getByRole("button", { name: /^Doble/ }));
+    expect(screen.getByRole("switch")).toBeTruthy();
   });
 });

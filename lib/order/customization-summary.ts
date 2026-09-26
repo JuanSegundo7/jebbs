@@ -56,8 +56,8 @@ function burgerParts(
 // Standalone burger: baseline is the catalog's own defaults. Returns null
 // (not a fallback string) when nothing was changed -- each caller decides
 // its own copy for that case (burger-picker.tsx nudges "tocá para
-// personalizar"; cart-drawer.tsx says nothing, since you can't customize
-// from the cart).
+// personalizar"; cart-drawer.tsx says nothing, since its expandable
+// CartItemRow already exposes the customize panel).
 export function summarizeBurger(
   item: SelectedBurger,
   options: { includeMeatCount?: boolean } = {},
@@ -79,15 +79,33 @@ export function isMeatCountCustomized(item: SelectedBurger): boolean {
   return item.meatCount !== baseline;
 }
 
-// Combo burgers auto-derive isVeggie from the name (use-combo-selection.ts)
-// -- suppress that part here so a burger literally named "Veggie" doesn't
-// report a modification nobody made.
+// Combo burgers auto-derive isVeggie from the name (use-combo-selection.ts),
+// so "veggie" is only a customization when it DIFFERS from that derived
+// value: a burger literally named "Veggie" reports nothing untouched, while a
+// regular burger switched to veggie (or a Veggie one switched off) is shown.
 function comboBurgerParts(item: SelectedBurger, slotDefaultMeat?: number): string[] {
   const baseline: BurgerBaseline = {
     meat: slotDefaultMeat ?? item.burger.default_meat_quantity ?? 2,
     fries: item.referenceFriesQuantity ?? item.burger.default_fries_quantity ?? 1,
   };
-  return burgerParts(item, baseline).filter((p) => p !== "veggie");
+  const parts = burgerParts(item, baseline).filter((p) => p !== "veggie");
+  const derivedVeggie = /veggie/i.test(item.burger.name);
+  const isVeggie = item.isVeggie ?? false;
+  if (isVeggie !== derivedVeggie) {
+    const at = parts.findIndex((p) => p.startsWith("+ "));
+    parts.splice(at === -1 ? parts.length : at, 0, isVeggie ? "veggie" : "sin veggie");
+  }
+  return parts;
+}
+
+// Summary of a combo-slot burger against its SLOT baseline (not the
+// catalog's). null when untouched.
+export function summarizeComboBurger(
+  item: SelectedBurger,
+  slotDefaultMeat?: number,
+): string | null {
+  const parts = comboBurgerParts(item, slotDefaultMeat);
+  return parts.length > 0 ? parts.join(" · ") : null;
 }
 
 // Walks every slot. Burger slots contribute name (+ quantity if >1) plus

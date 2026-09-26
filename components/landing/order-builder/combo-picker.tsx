@@ -1,22 +1,30 @@
 "use client";
 
 import { useState } from "react";
-import { Trash2, UtensilsCrossed, Minus, Plus } from "lucide-react";
+import { ChevronDown, Trash2, UtensilsCrossed, Minus, Plus } from "lucide-react";
 import { cn } from "@/lib/utils";
 import type { Burger, Extra } from "@/lib/types";
-import type { ComboWithSlots } from "@/lib/types/combo-types";
+import type {
+  ComboWithSlots,
+  SelectedBurger,
+  SelectedCombo,
+} from "@/lib/types/combo-types";
+import { summarizeComboBurger } from "@/lib/order/customization-summary";
 import type { useComboSelection } from "@/hooks/use-combo-selection";
 import {
   comboDescriptionText,
   describeComboSlots,
 } from "@/lib/catalog/menu-description";
+import { usePresenceList } from "@/hooks/use-presence-list";
 import { formatArs } from "./currency";
 import { MenuCategoryHeader } from "./menu-category-header";
 import { MenuItemSheet } from "./menu-item-sheet";
+import { BurgerCustomizePanel } from "./burger-customize-panel";
 
 interface ComboPickerProps {
   combos: ComboWithSlots[];
   burgers: Burger[];
+  toppingExtras: Extra[];
   drinkExtras: Extra[];
   sideExtras: Extra[];
   selection: ReturnType<typeof useComboSelection>;
@@ -30,6 +38,7 @@ interface ComboPickerProps {
 export function ComboPicker({
   combos,
   burgers,
+  toppingExtras,
   drinkExtras,
   sideExtras,
   selection,
@@ -38,12 +47,6 @@ export function ComboPicker({
     selectedCombos,
     addCombo,
     removeCombo,
-    getRemainingQuantity,
-    canAddBurgerToSlot,
-    addBurgerToSlot,
-    removeBurgerFromSlot,
-    selectExtraForSlot,
-    removeOneExtraFromSlot,
   } = selection;
 
   const [detail, setDetail] = useState<ComboWithSlots | null>(null);
@@ -82,8 +85,12 @@ export function ComboPicker({
               return (
                 <div
                   key={combo.id}
+                  data-combo-row
+                  className="border-b border-dashed border-[var(--hairline-strong)] last:border-b-0"
+                >
+                <div
                   className={cn(
-                    "flex items-center gap-[15px] border-b border-dashed border-[var(--hairline-strong)] py-[15px] pl-0 transition-[border-color,background-color,transform,padding-left] duration-200 ease-[cubic-bezier(0.16,1,0.3,1)] last:border-b-0 hover:border-[var(--foreground)] hover:bg-[color-mix(in_srgb,var(--foreground)_3%,transparent)] active:scale-[0.99]",
+                    "flex items-center gap-[15px] py-[15px] pl-0 transition-[background-color,transform,padding-left] duration-200 ease-[cubic-bezier(0.16,1,0.3,1)] hover:bg-[color-mix(in_srgb,var(--foreground)_3%,transparent)] active:scale-[0.99]",
                     count > 0 && "bg-[linear-gradient(90deg,var(--accent-tint-16),transparent_60%)] pl-3",
                   )}
                 >
@@ -145,12 +152,120 @@ export function ComboPicker({
                     </button>
                   </div>
                 </div>
+
+                <ComboUnitList
+                  comboName={combo.name}
+                  units={selectedCombos.filter((c) => c.combo.id === combo.id)}
+                  burgers={burgers}
+                  toppingExtras={toppingExtras}
+                  drinkExtras={drinkExtras}
+                  sideExtras={sideExtras}
+                  selection={selection}
+                />
+
+                </div>
               );
             })}
           </div>
         </div>
+      </div>
 
-        {selectedCombos.map((instance) => (
+      {detail && (
+        <MenuItemSheet
+          open={open}
+          onOpenChange={setOpen}
+          name={detail.name}
+          price={detail.price}
+          description={comboDescriptionText(detail, burgers)}
+          fallbackIcon={UtensilsCrossed}
+          count={comboCountFor(detail.id)}
+          onAdd={() => addCombo(detail, burgers)}
+          onRemove={() => decrementCombo(detail.id)}
+          footnote={
+            comboCountFor(detail.id) > 0
+              ? "Elegí las hamburguesas y bebidas de tu combo abajo."
+              : null
+          }
+        >
+          <div className="mt-4">
+            <p className="mb-2 font-condensed text-xs font-bold tracking-[.16em] text-[var(--muted-foreground)] uppercase">
+              Qué incluye
+            </p>
+            <ul className="space-y-1 font-body text-sm text-[var(--foreground)]">
+              {describeComboSlots(detail, burgers).map((line, i) => (
+                <li key={i}>{line}</li>
+              ))}
+            </ul>
+          </div>
+        </MenuItemSheet>
+      )}
+    </>
+  );
+}
+
+interface ComboUnitListProps {
+  comboName: string;
+  units: SelectedCombo[];
+  burgers: Burger[];
+  toppingExtras: Extra[];
+  drinkExtras: Extra[];
+  sideExtras: Extra[];
+  selection: ComboPickerProps["selection"];
+}
+
+// Per-row list of combo unit cards, same presence mechanism as
+// BurgerUnitList: removed units linger as inert ghosts for the exit animation
+// (whoever removed them), and when every entry is leaving only the group
+// wrapper animates. Spacing lives on inner divs, not on the overflow-hidden
+// grid children, so it collapses with the height.
+function ComboUnitList({
+  comboName,
+  units,
+  burgers,
+  toppingExtras,
+  drinkExtras,
+  sideExtras,
+  selection,
+}: ComboUnitListProps) {
+  const {
+    removeCombo,
+    getRemainingQuantity,
+    canAddBurgerToSlot,
+    addBurgerToSlot,
+    removeBurgerFromSlot,
+    expandedBurgerId,
+    toggleBurgerExpanded,
+    toggleComboBurgerExtra,
+    updateComboBurgerExtraQty,
+    toggleComboBurgerVeggie,
+    selectExtraForSlot,
+    removeOneExtraFromSlot,
+  } = selection;
+  const entries = usePresenceList(units);
+  if (entries.length === 0) return null;
+  const allExiting = entries.every((e) => e.exiting);
+
+  return (
+    <div
+      role="group"
+      aria-label={`Personalización de ${comboName}`}
+      aria-hidden={allExiting || undefined}
+      inert={allExiting || undefined}
+      data-exiting={allExiting}
+      className="presence-item min-w-0"
+    >
+      <div className="min-h-0 min-w-0 overflow-hidden">
+        <div className="pb-[7px] pt-3">
+          {entries.map(({ item: instance, exiting }) => (
+            <div
+              key={instance.id}
+              aria-hidden={exiting || undefined}
+              inert={exiting || undefined}
+              data-exiting={exiting && !allExiting}
+              className={cn("presence-item", allExiting && "[animation:none]")}
+            >
+              <div className="min-h-0 min-w-0 overflow-hidden">
+                <div className="pb-2">
           <div key={instance.id} className="ios-glass space-y-4 rounded-xl p-3">
             <div className="flex items-center justify-between">
               <span className="font-condensed text-sm font-bold tracking-[.03em] text-[var(--foreground)] uppercase">
@@ -183,34 +298,47 @@ export function ComboPicker({
                         ? "Incluida en el combo"
                         : `Hamburguesas (${remaining} disponibles)`}
                     </p>
-                    <ul className="space-y-1">
+                    <ul className="space-y-2">
                       {slot.burgers.map((item) => (
-                        <li
+                        <ComboBurgerRow
                           key={item.id}
-                          className="flex items-center justify-between font-body text-sm text-[var(--foreground)]"
-                        >
-                          <span>{item.burger.name}</span>
-                          {item.locked ? (
-                            <span className="font-condensed text-[11px] font-bold tracking-[.08em] text-[var(--muted-foreground)] uppercase">
-                              Incluida
-                            </span>
-                          ) : (
-                            <button
-                              type="button"
-                              className="text-[var(--accent-brand)]"
-                              onClick={() =>
-                                removeBurgerFromSlot(
-                                  instance.id,
-                                  slot.slotId,
-                                  item.id,
-                                )
-                              }
-                              aria-label="Quitar hamburguesa del combo"
-                            >
-                              <Trash2 className="size-4" />
-                            </button>
-                          )}
-                        </li>
+                          item={item}
+                          slotDefaultMeat={slot.defaultMeatCount}
+                          expanded={expandedBurgerId === item.id}
+                          toppingExtras={toppingExtras}
+                          onToggleExpanded={() => toggleBurgerExpanded(item.id)}
+                          onRemove={() =>
+                            removeBurgerFromSlot(
+                              instance.id,
+                              slot.slotId,
+                              item.id,
+                            )
+                          }
+                          onToggleVeggie={() =>
+                            toggleComboBurgerVeggie(
+                              instance.id,
+                              slot.slotId,
+                              item.id,
+                            )
+                          }
+                          onToggleExtra={(extra) =>
+                            toggleComboBurgerExtra(
+                              instance.id,
+                              slot.slotId,
+                              item.id,
+                              extra,
+                            )
+                          }
+                          onExtraQuantityChange={(extraId, delta) =>
+                            updateComboBurgerExtraQty(
+                              instance.id,
+                              slot.slotId,
+                              item.id,
+                              extraId,
+                              delta,
+                            )
+                          }
+                        />
                       ))}
                     </ul>
                     {!isFixed && remaining > 0 && (
@@ -299,38 +427,101 @@ export function ComboPicker({
               return null;
             })}
           </div>
-        ))}
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+interface ComboBurgerRowProps {
+  item: SelectedBurger;
+  slotDefaultMeat?: number;
+  expanded: boolean;
+  toppingExtras: Extra[];
+  onToggleExpanded: () => void;
+  onRemove: () => void;
+  onToggleVeggie: () => void;
+  onToggleExtra: (extra: Extra) => void;
+  onExtraQuantityChange: (extraId: string, delta: number) => void;
+}
+
+// One burger inside a combo slot: same collapsible header as BurgerUnitCard,
+// but the panel hides meat/fries (fixed by the slot; the server ignores them
+// for combo burgers) and summarizes against the slot's baseline. Locked
+// (fixed) burgers are customizable too, just not removable.
+function ComboBurgerRow({
+  item,
+  slotDefaultMeat,
+  expanded,
+  toppingExtras,
+  onToggleExpanded,
+  onRemove,
+  onToggleVeggie,
+  onToggleExtra,
+  onExtraQuantityChange,
+}: ComboBurgerRowProps) {
+  const summary = summarizeComboBurger(item, slotDefaultMeat);
+  return (
+    <li className="rounded-lg border border-[var(--hairline)] p-2">
+      <div className="flex items-center justify-between gap-2">
+        <button
+          type="button"
+          className="flex min-w-0 flex-1 items-center gap-2 text-left"
+          onClick={onToggleExpanded}
+          aria-expanded={expanded}
+        >
+          <ChevronDown
+            className={cn(
+              "size-4 shrink-0 text-[var(--muted-foreground)] transition-transform",
+              expanded && "rotate-180",
+            )}
+            aria-hidden
+          />
+          <span className="min-w-0 flex-1">
+            <span className="block font-condensed text-sm font-bold tracking-[.03em] text-[var(--foreground)] uppercase">
+              {item.burger.name}
+            </span>
+            {!expanded && (
+              <span className="block break-words font-body text-xs text-[var(--muted-foreground)]">
+                {summary ?? "Sin modificar · tocá para personalizar"}
+              </span>
+            )}
+          </span>
+        </button>
+        {item.locked ? (
+          <span className="font-condensed text-[11px] font-bold tracking-[.08em] text-[var(--muted-foreground)] uppercase">
+            Incluida
+          </span>
+        ) : (
+          <button
+            type="button"
+            className="inline-flex size-7 shrink-0 items-center justify-center rounded-full text-[var(--accent-brand)] transition-colors hover:bg-[var(--surface-0)]"
+            onClick={onRemove}
+            aria-label="Quitar hamburguesa del combo"
+          >
+            <Trash2 className="size-4" />
+          </button>
+        )}
       </div>
 
-      {detail && (
-        <MenuItemSheet
-          open={open}
-          onOpenChange={setOpen}
-          name={detail.name}
-          price={detail.price}
-          description={comboDescriptionText(detail, burgers)}
-          fallbackIcon={UtensilsCrossed}
-          count={comboCountFor(detail.id)}
-          onAdd={() => addCombo(detail, burgers)}
-          onRemove={() => decrementCombo(detail.id)}
-          footnote={
-            comboCountFor(detail.id) > 0
-              ? "Elegí las hamburguesas y bebidas de tu combo abajo."
-              : null
-          }
-        >
-          <div className="mt-4">
-            <p className="mb-2 font-condensed text-xs font-bold tracking-[.16em] text-[var(--muted-foreground)] uppercase">
-              Qué incluye
-            </p>
-            <ul className="space-y-1 font-body text-sm text-[var(--foreground)]">
-              {describeComboSlots(detail, burgers).map((line, i) => (
-                <li key={i}>{line}</li>
-              ))}
-            </ul>
-          </div>
-        </MenuItemSheet>
+      {expanded && (
+        <div className="mt-2">
+          <BurgerCustomizePanel
+            item={item}
+            toppingExtras={toppingExtras}
+            showMeat={false}
+            showFries={false}
+            summary={summary}
+            onToggleVeggie={onToggleVeggie}
+            onToggleExtra={onToggleExtra}
+            onExtraQuantityChange={onExtraQuantityChange}
+          />
+        </div>
       )}
-    </>
+    </li>
   );
 }

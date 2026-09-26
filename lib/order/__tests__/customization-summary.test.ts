@@ -3,6 +3,7 @@ import {
   isMeatCountCustomized,
   meatCountLabel,
   summarizeBurger,
+  summarizeComboBurger,
   summarizeCombo,
   summarizeSide,
 } from "@/lib/order/customization-summary";
@@ -313,5 +314,40 @@ describe("summarizeSide", () => {
       selectedExtras: [{ extra: makeExtra({ name: "Cheddar" }), quantity: 1 }],
     });
     expect(summarizeSide(side)).toBe("+ Cheddar");
+  });
+});
+
+describe("summarizeComboBurger / combo veggie", () => {
+  it("returns null for an untouched combo burger, whatever the catalog defaults", () => {
+    const item = makeSelectedBurger({
+      meatCount: 2,
+      friesQuantity: 0,
+      referenceFriesQuantity: 0,
+      burger: makeBurger({ default_meat_quantity: 1, default_fries_quantity: 1 }),
+    });
+    expect(summarizeComboBurger(item, 2)).toBeNull();
+  });
+
+  it("reports a burger switched to veggie", () => {
+    const item = makeSelectedBurger({ isVeggie: true, burger: makeBurger({ name: "Clásica" }) });
+    expect(summarizeComboBurger(item, 1)).toBe("veggie");
+  });
+
+  it("reports extras in a combo burger", () => {
+    const item = makeSelectedBurger({
+      selectedExtras: [{ extra: makeExtra({ name: "Bacon" }), quantity: 2 }],
+    });
+    expect(summarizeComboBurger(item, 1)).toBe("+ 2x Bacon");
+  });
+
+  it("summarizeCombo shows veggie for a non-veggie burger switched to veggie", () => {
+    const combo = makeSelectedCombo({
+      slots: [
+        makeComboSlot({
+          burgers: [makeSelectedBurger({ isVeggie: true, burger: makeBurger({ name: "Clásica" }) })],
+        }),
+      ],
+    });
+    expect(summarizeCombo(combo)).toBe("Clásica (veggie)");
   });
 });

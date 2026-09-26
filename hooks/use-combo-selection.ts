@@ -41,13 +41,23 @@ const buildSelectedBurger = (
   };
 };
 
+// Meat-count filter shared by canAddBurgerToSlot and the pre-select rule so
+// both agree on which burgers a slot offers.
+const passesMeatFilter = (
+  rules: SelectedComboSlot["rules"],
+  burger: Burger,
+) =>
+  !rules.allowed_meat_count ||
+  rules.allowed_meat_count.includes(toNumber(burger.default_meat_quantity, 2));
+
 export function useComboSelection() {
   const [selectedCombos, setSelectedCombos] = useState<SelectedCombo[]>([]);
   const [expandedBurgerId, setExpandedBurgerId] = useState<string | null>(null);
 
   /* ================= COMBOS ================= */
 
-  // `burgers` (the catalog's burgers) resolves the fixed burger of slots that have one.
+  // `burgers` (the catalog's burgers) resolves fixed-burger slots and the
+  // single-candidate pre-select (same list the picker shows as chips).
   const addCombo = (combo: ComboWithSlots, burgers: Burger[] = []) => {
     setSelectedCombos((prev) => [
       ...prev,
@@ -80,6 +90,21 @@ export function useComboSelection() {
                 { length: Number(slot.quantity) },
                 () => buildSelectedBurger(fixed, slotState, { locked: true }),
               );
+            }
+          } else if (
+            slotState.slotType === "burger" &&
+            slot.rules?.min_quantity === 1 &&
+            slot.rules?.max_quantity === 1
+          ) {
+            // Exactly one burger needed and only one qualifies: pre-fill it
+            // (NOT locked -- the trash still removes it and the chip returns).
+            const candidates = burgers.filter((b) =>
+              passesMeatFilter(slot.rules, b),
+            );
+            if (candidates.length === 1) {
+              slotState.burgers = [
+                buildSelectedBurger(candidates[0], slotState),
+              ];
             }
           }
 
@@ -141,16 +166,7 @@ export function useComboSelection() {
       return burger.id === slot.rules.fixed_burger_id;
     }
 
-    if (
-      slot.rules.allowed_meat_count &&
-      !slot.rules.allowed_meat_count.includes(
-        toNumber(burger.default_meat_quantity, 2),
-      )
-    ) {
-      return false;
-    }
-
-    return true;
+    return passesMeatFilter(slot.rules, burger);
   };
 
   /* ================= BURGERS ================= */

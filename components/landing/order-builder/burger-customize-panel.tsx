@@ -14,8 +14,16 @@ const MAX_EXTRA_QUANTITY = 20;
 interface BurgerCustomizePanelProps {
   item: SelectedBurger;
   toppingExtras: Extra[];
-  onMeatChange: (delta: number) => void;
-  onFriesChange: (delta: number) => void;
+  // Only used while the matching section is shown (showMeat/showFries).
+  onMeatChange?: (delta: number) => void;
+  onFriesChange?: (delta: number) => void;
+  // Hide sections that don't apply (combo slots: meat/fries are fixed by the
+  // slot and ignored server-side). Default true = unchanged behavior.
+  showMeat?: boolean;
+  showFries?: boolean;
+  // Overrides the default catalog-baseline summary. `null` renders "Sin
+  // modificar"; omit it to summarize against the catalog defaults.
+  summary?: string | null;
   onToggleVeggie: () => void;
   onToggleExtra: (extra: Extra) => void;
   onExtraQuantityChange: (extraId: string, delta: number) => void;
@@ -30,6 +38,9 @@ export function BurgerCustomizePanel({
   toppingExtras,
   onMeatChange,
   onFriesChange,
+  showMeat = true,
+  showFries = true,
+  summary,
   onToggleVeggie,
   onToggleExtra,
   onExtraQuantityChange,
@@ -51,35 +62,37 @@ export function BurgerCustomizePanel({
   return (
     <div className="space-y-3 border-t border-[var(--hairline)] pt-3">
       <p className="font-body text-xs leading-[1.5] text-[var(--muted-foreground)]">
-        {summarizeBurger(item) ?? "Sin modificar"}
+        {(summary !== undefined ? summary : summarizeBurger(item)) ?? "Sin modificar"}
       </p>
 
-      <div className="flex items-center justify-between">
-        <span className="font-condensed text-xs font-bold tracking-[.08em] text-[var(--muted-foreground)] uppercase">
-          Carne
-        </span>
-        <div className="flex items-center gap-1">
-          <button
-            type="button"
-            className="inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-full border border-[var(--hairline-strong)] bg-[var(--surface-2)] text-[var(--accent-brand)] transition-[border-color,transform] duration-150 hover:border-[var(--accent-brand)] active:scale-[0.92] [&_svg]:h-3.5 [&_svg]:w-3.5"
-            onClick={() => onMeatChange(-1)}
-            aria-label="Menos carne"
-          >
-            <Minus />
-          </button>
-          <span className="numeric w-6 text-center text-sm text-[var(--foreground)]">
-            {item.meatCount}
+      {showMeat && (
+        <div className="flex items-center justify-between">
+          <span className="font-condensed text-xs font-bold tracking-[.08em] text-[var(--muted-foreground)] uppercase">
+            Carne
           </span>
-          <button
-            type="button"
-            className="inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-full border border-[var(--hairline-strong)] bg-[var(--surface-2)] text-[var(--accent-brand)] transition-[border-color,transform] duration-150 hover:border-[var(--accent-brand)] active:scale-[0.92] [&_svg]:h-3.5 [&_svg]:w-3.5"
-            onClick={() => onMeatChange(1)}
-            aria-label="Más carne"
-          >
-            <Plus />
-          </button>
+          <div className="flex items-center gap-1">
+            <button
+              type="button"
+              className="inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-full border border-[var(--hairline-strong)] bg-[var(--surface-2)] text-[var(--accent-brand)] transition-[border-color,transform] duration-150 hover:border-[var(--accent-brand)] active:scale-[0.92] [&_svg]:h-3.5 [&_svg]:w-3.5"
+              onClick={() => onMeatChange?.(-1)}
+              aria-label="Menos carne"
+            >
+              <Minus />
+            </button>
+            <span className="numeric w-6 text-center text-sm text-[var(--foreground)]">
+              {item.meatCount}
+            </span>
+            <button
+              type="button"
+              className="inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-full border border-[var(--hairline-strong)] bg-[var(--surface-2)] text-[var(--accent-brand)] transition-[border-color,transform] duration-150 hover:border-[var(--accent-brand)] active:scale-[0.92] [&_svg]:h-3.5 [&_svg]:w-3.5"
+              onClick={() => onMeatChange?.(1)}
+              aria-label="Más carne"
+            >
+              <Plus />
+            </button>
+          </div>
         </div>
-      </div>
+      )}
 
       <button
         type="button"
@@ -112,32 +125,34 @@ export function BurgerCustomizePanel({
         </span>
       </button>
 
-      <div className="flex items-center justify-between">
-        <span className="font-condensed text-xs font-bold tracking-[.08em] text-[var(--muted-foreground)] uppercase">
-          Papas
-        </span>
-        <div className="flex items-center gap-1">
-          <button
-            type="button"
-            className="inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-full border border-[var(--hairline-strong)] bg-[var(--surface-2)] text-[var(--accent-brand)] transition-[border-color,transform] duration-150 hover:border-[var(--accent-brand)] active:scale-[0.92] [&_svg]:h-3.5 [&_svg]:w-3.5"
-            onClick={() => onFriesChange(-1)}
-            aria-label="Menos papas"
-          >
-            <Minus />
-          </button>
-          <span className="numeric w-6 text-center text-sm text-[var(--foreground)]">
-            {item.friesQuantity}
+      {showFries && (
+        <div className="flex items-center justify-between">
+          <span className="font-condensed text-xs font-bold tracking-[.08em] text-[var(--muted-foreground)] uppercase">
+            Papas
           </span>
-          <button
-            type="button"
-            className="inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-full border border-[var(--hairline-strong)] bg-[var(--surface-2)] text-[var(--accent-brand)] transition-[border-color,transform] duration-150 hover:border-[var(--accent-brand)] active:scale-[0.92] [&_svg]:h-3.5 [&_svg]:w-3.5"
-            onClick={() => onFriesChange(1)}
-            aria-label="Más papas"
-          >
-            <Plus />
-          </button>
+          <div className="flex items-center gap-1">
+            <button
+              type="button"
+              className="inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-full border border-[var(--hairline-strong)] bg-[var(--surface-2)] text-[var(--accent-brand)] transition-[border-color,transform] duration-150 hover:border-[var(--accent-brand)] active:scale-[0.92] [&_svg]:h-3.5 [&_svg]:w-3.5"
+              onClick={() => onFriesChange?.(-1)}
+              aria-label="Menos papas"
+            >
+              <Minus />
+            </button>
+            <span className="numeric w-6 text-center text-sm text-[var(--foreground)]">
+              {item.friesQuantity}
+            </span>
+            <button
+              type="button"
+              className="inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-full border border-[var(--hairline-strong)] bg-[var(--surface-2)] text-[var(--accent-brand)] transition-[border-color,transform] duration-150 hover:border-[var(--accent-brand)] active:scale-[0.92] [&_svg]:h-3.5 [&_svg]:w-3.5"
+              onClick={() => onFriesChange?.(1)}
+              aria-label="Más papas"
+            >
+              <Plus />
+            </button>
+          </div>
         </div>
-      </div>
+      )}
 
       {toppingExtras.length > 0 && (
         <div>

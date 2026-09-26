@@ -364,3 +364,152 @@ describe("useComboSelection -- slot rules without a fixed burger", () => {
     expect(result.current.selectedCombos[0].slots[0].burgers).toHaveLength(1);
   });
 });
+
+describe("useComboSelection -- pre-select the only candidate burger", () => {
+  const singleSlotCombo = (rules: ComboSlotWithRules["rules"], quantity = 1) =>
+    makeCombo({ slots: [makeComboSlot({ quantity, rules })] });
+
+  it("pre-fills a non-locked entry when exactly one burger is eligible", () => {
+    const { result } = renderHook(() => useComboSelection());
+
+    act(() => {
+      result.current.addCombo(
+        singleSlotCombo({ min_quantity: 1, max_quantity: 1 }),
+        [OTHER_BURGER],
+      );
+    });
+
+    const slot = result.current.selectedCombos[0].slots[0];
+    expect(slot.burgers).toHaveLength(1);
+    expect(slot.burgers[0].burger.id).toBe(OTHER_BURGER.id);
+    expect(slot.burgers[0].locked).toBeUndefined();
+    expect(slot.burgers[0].quantity).toBe(1);
+    expect(
+      result.current.getRemainingQuantity(result.current.selectedCombos[0].id, "slot-1"),
+    ).toBe(0);
+  });
+
+  it("uses allowed_meat_count to find the single eligible burger", () => {
+    const { result } = renderHook(() => useComboSelection());
+
+    act(() => {
+      result.current.addCombo(
+        singleSlotCombo({ min_quantity: 1, max_quantity: 1, allowed_meat_count: [3] }),
+        [OTHER_BURGER, FIXED_BURGER],
+      );
+    });
+
+    const burgers = result.current.selectedCombos[0].slots[0].burgers;
+    expect(burgers.map((b) => b.burger.id)).toEqual([FIXED_BURGER.id]);
+  });
+
+  it("stays removable and the slot is offered again afterwards", () => {
+    const { result } = renderHook(() => useComboSelection());
+    act(() => {
+      result.current.addCombo(
+        singleSlotCombo({ min_quantity: 1, max_quantity: 1 }),
+        [OTHER_BURGER],
+      );
+    });
+    const comboId = result.current.selectedCombos[0].id;
+    const itemId = result.current.selectedCombos[0].slots[0].burgers[0].id;
+
+    act(() => {
+      result.current.removeBurgerFromSlot(comboId, "slot-1", itemId);
+    });
+
+    expect(result.current.selectedCombos[0].slots[0].burgers).toEqual([]);
+    expect(result.current.canAddBurgerToSlot(comboId, "slot-1", OTHER_BURGER)).toBe(true);
+  });
+
+  it("does not pre-fill when two burgers are eligible", () => {
+    const { result } = renderHook(() => useComboSelection());
+
+    act(() => {
+      result.current.addCombo(
+        singleSlotCombo({ min_quantity: 1, max_quantity: 1 }),
+        [OTHER_BURGER, FIXED_BURGER],
+      );
+    });
+
+    expect(result.current.selectedCombos[0].slots[0].burgers).toEqual([]);
+  });
+
+  it("does not pre-fill when the slot allows more than one burger", () => {
+    const { result } = renderHook(() => useComboSelection());
+
+    act(() => {
+      result.current.addCombo(
+        singleSlotCombo({ min_quantity: 1, max_quantity: 2 }, 2),
+        [OTHER_BURGER],
+      );
+    });
+
+    expect(result.current.selectedCombos[0].slots[0].burgers).toEqual([]);
+  });
+
+  it("does not pre-fill when the slot's minimum is 0", () => {
+    const { result } = renderHook(() => useComboSelection());
+
+    act(() => {
+      result.current.addCombo(
+        singleSlotCombo({ min_quantity: 0, max_quantity: 1 }),
+        [OTHER_BURGER],
+      );
+    });
+
+    expect(result.current.selectedCombos[0].slots[0].burgers).toEqual([]);
+  });
+
+  it("keeps a fixed-burger slot locked instead of pre-selecting", () => {
+    const { result } = renderHook(() => useComboSelection());
+
+    act(() => {
+      result.current.addCombo(
+        singleSlotCombo({
+          min_quantity: 1,
+          max_quantity: 1,
+          fixed_burger_id: FIXED_BURGER.id,
+        }),
+        [FIXED_BURGER],
+      );
+    });
+
+    const burgers = result.current.selectedCombos[0].slots[0].burgers;
+    expect(burgers).toHaveLength(1);
+    expect(burgers[0].locked).toBe(true);
+  });
+
+  it("does not pre-fill when the filter leaves no burger", () => {
+    const { result } = renderHook(() => useComboSelection());
+
+    act(() => {
+      result.current.addCombo(
+        singleSlotCombo({ min_quantity: 1, max_quantity: 1, allowed_meat_count: [5] }),
+        [OTHER_BURGER, FIXED_BURGER],
+      );
+    });
+
+    expect(result.current.selectedCombos[0].slots[0].burgers).toEqual([]);
+  });
+
+  it("does not pre-fill drink or side slots", () => {
+    const { result } = renderHook(() => useComboSelection());
+
+    act(() => {
+      result.current.addCombo(
+        makeCombo({
+          slots: [
+            makeComboSlot({
+              slot_type: "drink",
+              rules: { min_quantity: 1, max_quantity: 1 },
+            }),
+          ],
+        }),
+        [OTHER_BURGER],
+      );
+    });
+
+    expect(result.current.selectedCombos[0].slots[0].burgers).toEqual([]);
+  });
+});

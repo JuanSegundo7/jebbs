@@ -113,6 +113,7 @@ export function OrderBuilder({ catalog, deliveryZones, minDeliveryFeeArs }: Orde
           <ComboPicker
             combos={catalog.combos}
             burgers={catalog.burgers}
+            toppingExtras={toppingExtras}
             drinkExtras={drinkExtras}
             sideExtras={sideExtras}
             selection={cart.combos}
