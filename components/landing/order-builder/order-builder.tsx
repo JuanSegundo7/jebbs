@@ -94,7 +94,7 @@ export function OrderBuilder({ catalog, deliveryZones, minDeliveryFeeArs }: Orde
             Hamburguesas
           </TabsTrigger>
           <TabsTrigger value="combos" className={tabTriggerClass}>
-            Combos
+            Promos
           </TabsTrigger>
           <TabsTrigger value="sides" className={tabTriggerClass}>
             Bebidas y acompañamientos

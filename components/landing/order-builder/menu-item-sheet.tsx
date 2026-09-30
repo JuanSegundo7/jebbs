@@ -22,7 +22,9 @@ interface MenuItemSheetProps {
   price: number;
   description: string | null;
   imageUrl?: string | null;
-  fallbackIcon: LucideIcon;
+  // Omit both imageUrl and fallbackIcon to render the sheet with no hero
+  // (combos have no imagery).
+  fallbackIcon?: LucideIcon;
   count: number;
   onAdd: () => void;
   onRemove: () => void;
@@ -53,7 +55,7 @@ export function MenuItemSheet({
   footnote,
   children,
 }: MenuItemSheetProps) {
-  const heroFallback = (
+  const heroFallback = FallbackIcon ? (
     <div className="flex h-full w-full items-center justify-center bg-[var(--surface-2)]">
       <FallbackIcon
         className="size-12 text-[var(--muted-foreground-dim)]"
@@ -61,7 +63,8 @@ export function MenuItemSheet({
         aria-hidden
       />
     </div>
-  );
+  ) : null;
+  const showHero = Boolean(imageUrl) || Boolean(FallbackIcon);
   return (
     <Drawer open={open} onOpenChange={onOpenChange}>
       <DrawerContent>
@@ -76,20 +79,22 @@ export function MenuItemSheet({
               empujaba el precio/descripción/botón fuera de vista, forzando
               scroll para llegar a "Agregar al pedido". object-contain (no
               cover) para que la foto se vea completa, no recortada. */}
-          <div className="relative h-[180px] w-full overflow-hidden rounded-xl bg-[var(--surface-2)] sm:h-[220px]">
-            {imageUrl ? (
-              <FallbackImage
-                src={imageUrl}
-                alt={name}
-                fill
-                sizes="(max-width:768px) 100vw, 768px"
-                className="object-contain"
-                fallback={heroFallback}
-              />
-            ) : (
-              heroFallback
-            )}
-          </div>
+          {showHero && (
+            <div className="relative h-[180px] w-full overflow-hidden rounded-xl bg-[var(--surface-2)] sm:h-[220px]">
+              {imageUrl ? (
+                <FallbackImage
+                  src={imageUrl}
+                  alt={name}
+                  fill
+                  sizes="(max-width:768px) 100vw, 768px"
+                  className="object-contain"
+                  fallback={heroFallback}
+                />
+              ) : (
+                heroFallback
+              )}
+            </div>
+          )}
 
           <DrawerHeader className="px-0">
             <DrawerTitle className="font-display text-[clamp(1.6rem,6vw,2.1rem)] leading-[1.05] tracking-[-0.01em] text-[var(--foreground)]">

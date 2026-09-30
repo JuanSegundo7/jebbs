@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { ChevronDown, Trash2, UtensilsCrossed, Minus, Plus } from "lucide-react";
+import { ChevronDown, Trash2, Minus, Plus } from "lucide-react";
 import { cn } from "@/lib/utils";
 import type { Burger, Extra } from "@/lib/types";
 import type {
@@ -32,7 +32,7 @@ interface ComboPickerProps {
 
 // Printed-menu list (reference site: jebbs-burgers.vercel.app), same
 // pattern as BurgerPicker/SidePicker. Combos have no image_url in the
-// catalog, so the thumbnail is a fixed icon tile instead of a photo. All
+// catalog, so rows and the detail sheet render without any thumbnail. All
 // selection/slot logic below is exactly what ComboPicker already had
 // (useComboSelection, untouched) -- only the visual wrapper changed.
 export function ComboPicker({
@@ -77,7 +77,7 @@ export function ComboPicker({
     <>
       <div className="space-y-6">
         <div>
-          <MenuCategoryHeader title="Combos" />
+          <MenuCategoryHeader title="Promos" />
           <div>
             {combos.map((combo) => {
               const count = comboCountFor(combo.id);
@@ -100,14 +100,6 @@ export function ComboPicker({
                     onClick={() => showDetail(combo)}
                     aria-haspopup="dialog"
                   >
-                    <div className="flex h-[60px] w-[60px] shrink-0 items-center justify-center overflow-hidden rounded-[3px] border border-[var(--hairline)] bg-[var(--surface-2)]">
-                      <UtensilsCrossed
-                        className="size-6 text-[var(--muted-foreground-dim)]"
-                        strokeWidth={1.25}
-                        aria-hidden
-                      />
-                    </div>
-
                     <div className="min-w-0 flex-1">
                       <span className="font-condensed text-[1.22rem] font-bold tracking-[.04em] text-[var(--foreground)] uppercase">
                           {combo.name}
@@ -172,7 +164,6 @@ export function ComboPicker({
           name={detail.name}
           price={detail.price}
           description={comboDescriptionText(detail, burgers)}
-          fallbackIcon={UtensilsCrossed}
           count={comboCountFor(detail.id)}
           onAdd={() => addCombo(detail, burgers)}
           onRemove={() => decrementCombo(detail.id)}
