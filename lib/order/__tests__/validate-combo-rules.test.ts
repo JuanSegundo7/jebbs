@@ -697,4 +697,61 @@ describe("validateComboRules", () => {
       ).toEqual({ ok: true });
     });
   });
+
+  describe("allowed_side_ids", () => {
+    const allowedSideCombo = (allowedSideIds: string[], quantity = 1) =>
+      makeCombo({
+        slots: [
+          {
+            id: SIDE_SLOT_ID,
+            combo_id: COMBO_ID,
+            slot_type: "side",
+            quantity,
+            required: false,
+            default_meat_quantity: null,
+            created_at: "2024-01-01",
+            rules: {
+              min_quantity: 0,
+              max_quantity: quantity,
+              allowed_side_ids: allowedSideIds,
+            },
+          },
+        ],
+      });
+
+    const reqWith = (extraIds: string[]) =>
+      baseRequest({
+        combos: [
+          {
+            combo_id: COMBO_ID,
+            quantity: 1,
+            slots: [{ slot_id: SIDE_SLOT_ID, burgers: [], extra_ids: extraIds }],
+          },
+        ],
+      });
+
+    it("rejects a slot line whose extra_ids contain an id not in the slot's allowed_side_ids", () => {
+      const catalog = makeCatalog({
+        extras: [makeSideExtra(), makeSideExtra({ id: SIDE_EXTRA_2_ID })],
+        combos: [allowedSideCombo([SIDE_EXTRA_ID])],
+      });
+      const result = validateComboRules(reqWith([SIDE_EXTRA_2_ID]), catalog);
+      expect(result.ok).toBe(false);
+      if (!result.ok) {
+        expect(
+          result.violations.some((v) => v.includes("allowed_side_ids")),
+        ).toBe(true);
+      }
+    });
+
+    it("accepts extra_ids that are all in the slot's allowed_side_ids", () => {
+      const catalog = makeCatalog({
+        extras: [makeSideExtra(), makeSideExtra({ id: SIDE_EXTRA_2_ID })],
+        combos: [allowedSideCombo([SIDE_EXTRA_ID, SIDE_EXTRA_2_ID])],
+      });
+      expect(
+        validateComboRules(reqWith([SIDE_EXTRA_2_ID]), catalog),
+      ).toEqual({ ok: true });
+    });
+  });
 });

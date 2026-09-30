@@ -215,6 +215,57 @@ describe("ComboPicker fixed-side slot", () => {
   });
 });
 
+describe("ComboPicker allowed-side-ids slot", () => {
+  const papasGrandes: Extra = {
+    id: "extra-papas-grandes",
+    name: "Papas grandes",
+    category: "sides",
+    price: 1500,
+    is_available: true,
+    created_at: "2024-01-01",
+  };
+  const papasChicas: Extra = {
+    ...papasGrandes,
+    id: "extra-papas-chicas",
+    name: "Papas chicas",
+  };
+  const nuggets: Extra = {
+    ...papasGrandes,
+    id: "extra-nuggets",
+    name: "Nuggets x6",
+  };
+  const allowedSidesCombo = makeCombo({
+    name: "Combo Full",
+    slots: [
+      makeComboSlot({
+        slot_type: "side",
+        quantity: 1,
+        rules: {
+          min_quantity: 0,
+          max_quantity: 1,
+          allowed_side_ids: [papasGrandes.id, nuggets.id],
+        },
+      }),
+    ],
+  });
+
+  it("offers only the sides listed in allowed_side_ids, not the full sides catalog", () => {
+    render(
+      <Harness
+        combos={[allowedSidesCombo]}
+        sideExtras={[papasGrandes, papasChicas, nuggets]}
+      />,
+    );
+
+    fireEvent.click(screen.getByRole("button", { name: "Agregar Combo Full" }));
+
+    expect(screen.getByText("Papas grandes")).toBeTruthy();
+    expect(screen.getByText("Nuggets x6")).toBeTruthy();
+    // Not in allowed_side_ids -- must not render as a pickable chip.
+    expect(screen.queryByText("Papas chicas")).toBeNull();
+  });
+});
+
 describe("ComboPicker unit cards placement", () => {
   const other = makeCombo({ id: "combo-2", name: "Combo Simple" });
   const combos = [makeCombo(), other];

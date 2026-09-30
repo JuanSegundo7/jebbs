@@ -52,6 +52,9 @@ export interface ComboSlotRules {
   fixed_burger_id?: string;
   // Mandatory side: the slot is pinned to this side/extra id.
   fixed_side_id?: string;
+  // Narrows the side slot's choices to only these extra ids (customer still
+  // picks). Mutually exclusive with fixed_side_id.
+  allowed_side_ids?: string[];
 }
 
 export interface ComboSlotWithRules extends ComboSlot {

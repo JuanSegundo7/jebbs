@@ -81,6 +81,16 @@ function validateSlot(
       );
     }
   }
+  const allowedSideIds = slot.rules.allowed_side_ids;
+  if (!fixedSideId && allowedSideIds && allowedSideIds.length > 0) {
+    for (const extraId of slotLine.extra_ids) {
+      if (!allowedSideIds.includes(extraId)) {
+        violations.push(
+          `${location}: extra ${extraId} is not in the slot's allowed_side_ids`,
+        );
+      }
+    }
+  }
   // A slot is either a burger slot or an extra-picker slot (drink/side) in
   // practice -- never both -- so the min_quantity bound is checked against
   // whichever dimension the customer actually populated.

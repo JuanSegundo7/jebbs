@@ -377,7 +377,14 @@ function ComboUnitList({
 
               if (slot.slotType === "drink" || slot.slotType === "side") {
                 const options =
-                  slot.slotType === "drink" ? drinkExtras : sideExtras;
+                  slot.slotType === "drink"
+                    ? drinkExtras
+                    : slot.rules.allowed_side_ids &&
+                        slot.rules.allowed_side_ids.length > 0
+                      ? sideExtras.filter((e) =>
+                          slot.rules.allowed_side_ids!.includes(e.id),
+                        )
+                      : sideExtras;
                 const label =
                   slot.slotType === "drink" ? "Bebida" : "Acompañamiento";
                 const selectedIds = slot.selectedExtras.map((e) => e.id);

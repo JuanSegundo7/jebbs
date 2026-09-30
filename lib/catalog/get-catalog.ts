@@ -97,6 +97,7 @@ function parseComboSlot(slot: ComboSlotRow): ComboSlotWithRules {
     rules.find((r) => r.rule_type === "allowed_default_meat_quantity");
   const fixedBurgerRule = rules.find((r) => r.rule_type === "fixed_burger_id");
   const fixedSideRule = rules.find((r) => r.rule_type === "fixed_side_id");
+  const allowedSideIdsRule = rules.find((r) => r.rule_type === "allowed_side_ids");
   const noFriesRule = rules.find((r) => r.rule_type === "no_fries");
 
   return {
@@ -127,6 +128,9 @@ function parseComboSlot(slot: ComboSlotRow): ComboSlotWithRules {
       no_fries: noFriesRule?.rule_value === "true" ? true : undefined,
       fixed_burger_id: fixedBurgerRule?.rule_value || undefined,
       fixed_side_id: fixedSideRule?.rule_value || undefined,
+      allowed_side_ids: allowedSideIdsRule
+        ? JSON.parse(allowedSideIdsRule.rule_value as string)
+        : undefined,
     },
   };
 }

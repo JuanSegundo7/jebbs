@@ -611,5 +611,21 @@ describe("getCatalog()", () => {
       ]);
       expect(catalog.combos.map((c) => c.id)).toEqual(["combo-ok"]);
     });
+
+    it("parses allowed_side_ids into rules", async () => {
+      const catalog = await catalogFor([
+        comboWithSideSlot({}, [
+          {
+            id: 1,
+            rule_type: "allowed_side_ids",
+            rule_value: JSON.stringify(["side-a", "side-b"]),
+          },
+        ]),
+      ]);
+      expect(catalog.combos[0].slots[0].rules.allowed_side_ids).toEqual([
+        "side-a",
+        "side-b",
+      ]);
+    });
   });
 });
