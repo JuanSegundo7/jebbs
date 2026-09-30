@@ -1,6 +1,8 @@
 import Image from "next/image";
 import { MessageCircle } from "lucide-react";
 import { BRAND_NAME } from "@/lib/brand";
+import { env } from "@/lib/env";
+import { WhatsappGlyph } from "./whatsapp-glyph";
 
 // Sticky translucent chrome (apple-design §12: floating material, content
 // scrolls underneath -- never an opaque fixed strip). Pure navigation: the
@@ -16,6 +18,7 @@ import { BRAND_NAME } from "@/lib/brand";
 // uppercase con tracking. Estructura/JSX/textos/links idénticos -- solo
 // cambia className.
 export function SiteHeader() {
+  const whatsappHref = `https://wa.me/${env.NEXT_PUBLIC_WHATSAPP_NUMBER}`;
   return (
     <header className="material-regular sticky top-0 z-40 border-b border-[var(--hairline)]">
       <div className="diner-wrap flex items-center gap-[18px] py-[11px]">
@@ -49,13 +52,38 @@ export function SiteHeader() {
           </a>
         </nav>
 
-        <a
-          href="#menu"
-          className="ml-auto inline-flex shrink-0 items-center gap-1.5 rounded-lg bg-[var(--accent-brand)] px-4 py-2 font-condensed text-[12px] font-bold tracking-[.08em] text-[var(--accent-contrast)] uppercase shadow-[var(--shadow-sm)] transition-[background-color,box-shadow,transform] duration-150 hover:bg-[var(--accent-hover)] hover:shadow-[var(--shadow-md)] active:scale-[0.97]"
-        >
-          <MessageCircle className="size-3.5" aria-hidden />
-          Pedir
-        </a>
+        <div className="ml-auto flex shrink-0 items-center gap-2">
+          {/* Desktop: the secondary WhatsApp button sits beside "Pedir". */}
+          <a
+            href={whatsappHref}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="hidden items-center gap-1.5 rounded-lg border border-[var(--hairline-strong)] px-4 py-2 font-condensed text-[12px] font-bold tracking-[.08em] text-[var(--foreground)] uppercase transition-[border-color,color,transform] duration-150 hover:border-[var(--accent-brand)] hover:text-[var(--accent-brand)] active:scale-[0.97] sm:inline-flex"
+          >
+            <WhatsappGlyph className="size-3.5" />
+            WhatsApp
+          </a>
+
+          {/* Mobile: the primary CTA goes straight to WhatsApp. */}
+          <a
+            href={whatsappHref}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-1.5 rounded-lg bg-[var(--accent-brand)] px-4 py-2 font-condensed text-[12px] font-bold tracking-[.08em] text-[var(--accent-contrast)] uppercase shadow-[var(--shadow-sm)] transition-[background-color,box-shadow,transform] duration-150 hover:bg-[var(--accent-hover)] hover:shadow-[var(--shadow-md)] active:scale-[0.97] sm:hidden"
+          >
+            <WhatsappGlyph className="size-3.5" />
+            WhatsApp
+          </a>
+
+          {/* Desktop: "Pedir" keeps jumping to the in-page menu. */}
+          <a
+            href="#menu"
+            className="hidden items-center gap-1.5 rounded-lg bg-[var(--accent-brand)] px-4 py-2 font-condensed text-[12px] font-bold tracking-[.08em] text-[var(--accent-contrast)] uppercase shadow-[var(--shadow-sm)] transition-[background-color,box-shadow,transform] duration-150 hover:bg-[var(--accent-hover)] hover:shadow-[var(--shadow-md)] active:scale-[0.97] sm:inline-flex"
+          >
+            <MessageCircle className="size-3.5" aria-hidden />
+            Pedir
+          </a>
+        </div>
       </div>
     </header>
   );
