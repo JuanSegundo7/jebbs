@@ -6,7 +6,7 @@ import {
   describeComboSlots,
   summarizeComboSlots,
 } from "@/lib/catalog/menu-description";
-import type { Burger } from "@/lib/types";
+import type { Burger, Extra } from "@/lib/types";
 import type { ComboSlotWithRules, ComboWithSlots } from "@/lib/types/combo-types";
 
 function makeBurger(overrides: Partial<Burger> = {}): Burger {
@@ -20,6 +20,18 @@ function makeBurger(overrides: Partial<Burger> = {}): Burger {
     image_url: null,
     default_meat_quantity: 1,
     default_fries_quantity: 1,
+    created_at: "2024-01-01",
+    ...overrides,
+  };
+}
+
+function makeExtra(overrides: Partial<Extra> = {}): Extra {
+  return {
+    id: "extra-1",
+    name: "Papas grandes",
+    category: "sides",
+    price: 1500,
+    is_available: true,
     created_at: "2024-01-01",
     ...overrides,
   };
@@ -217,6 +229,67 @@ describe("combos con hamburguesa fija (fixed_burger_id)", () => {
     expect(describeComboSlots(combo, [tripleQueso])).toEqual(["2 Triple con queso", "1 bebida"]);
     expect(summarizeComboSlots(combo, [tripleQueso])).toBe("Incluye: 2 Triple con queso · 1 bebida");
     expect(comboDescriptionText(combo, [tripleQueso])).toBe("Incluye: 2 Triple con queso · 1 bebida");
+  });
+});
+
+describe("combos con acompañamiento fijo (fixed_side_id)", () => {
+  const papasGrandes = makeExtra({ id: "extra-papas-grandes", name: "Papas grandes" });
+  const fixedSideSlot = (quantity = 1) =>
+    makeComboSlot({
+      slot_type: "side",
+      quantity,
+      rules: {
+        min_quantity: quantity,
+        max_quantity: quantity,
+        fixed_side_id: "extra-papas-grandes",
+      },
+    });
+
+  it("nombra el acompañamiento fijo en vez de decir 'acompañamiento'", () => {
+    expect(describeComboSlot(fixedSideSlot(1), [], [papasGrandes])).toBe(
+      "1 Papas grandes",
+    );
+  });
+
+  it("usa singular/plural solo por cantidad: 2 acompañamientos fijos", () => {
+    expect(describeComboSlot(fixedSideSlot(2), [], [papasGrandes])).toBe(
+      "2 Papas grandes",
+    );
+  });
+
+  it("cae a 'acompañamiento' si el side fijo no está en la lista (no inventa un nombre)", () => {
+    expect(
+      describeComboSlot(fixedSideSlot(1), [], [makeExtra({ id: "otro" })]),
+    ).toBe("1 acompañamiento");
+    expect(describeComboSlot(fixedSideSlot(1))).toBe("1 acompañamiento");
+  });
+
+  it("no toca los slots que no son de side aunque tengan la regla", () => {
+    const drink = makeComboSlot({
+      slot_type: "drink",
+      quantity: 1,
+      rules: { min_quantity: 0, max_quantity: 1, fixed_side_id: "extra-papas-grandes" },
+    });
+    expect(describeComboSlot(drink, [], [papasGrandes])).toBe("1 bebida");
+  });
+
+  it("se propaga a describeComboSlots / summarizeComboSlots / comboDescriptionText", () => {
+    const combo = makeCombo({
+      slots: [
+        fixedSideSlot(1),
+        makeComboSlot({ id: "s2", slot_type: "drink", quantity: 1 }),
+      ],
+    });
+    expect(describeComboSlots(combo, [], [papasGrandes])).toEqual([
+      "1 Papas grandes",
+      "1 bebida",
+    ]);
+    expect(summarizeComboSlots(combo, [], [papasGrandes])).toBe(
+      "Incluye: 1 Papas grandes · 1 bebida",
+    );
+    expect(comboDescriptionText(combo, [], [papasGrandes])).toBe(
+      "Incluye: 1 Papas grandes · 1 bebida",
+    );
   });
 });
 

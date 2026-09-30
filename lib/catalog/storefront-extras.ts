@@ -18,9 +18,14 @@ export function splitStorefrontExtras(
   catalog: Pick<Catalog, "extras" | "meatExtra" | "friesExtra">,
 ): StorefrontExtras {
   const dedicated = new Set([catalog.meatExtra.id, catalog.friesExtra.id]);
+  // Dashboard-only visibility toggle: an extra can stay sellable (is_available,
+  // already filtered upstream in get-catalog.ts) while being hidden from this
+  // storefront listing. show_on_menu defaults to true in the DB; missing here
+  // only happens in fixtures, so undefined also means visible.
+  const visible = catalog.extras.filter((e) => e.show_on_menu !== false);
   return {
-    drinks: catalog.extras.filter((e) => e.category === "drink"),
-    sides: catalog.extras.filter((e) => e.category === "sides"),
-    toppings: catalog.extras.filter((e) => e.category === "extra" && !dedicated.has(e.id)),
+    drinks: visible.filter((e) => e.category === "drink"),
+    sides: visible.filter((e) => e.category === "sides"),
+    toppings: visible.filter((e) => e.category === "extra" && !dedicated.has(e.id)),
   };
 }

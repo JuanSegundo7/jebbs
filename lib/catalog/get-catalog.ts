@@ -96,6 +96,7 @@ function parseComboSlot(slot: ComboSlotRow): ComboSlotWithRules {
     rules.find((r) => r.rule_type === "allowed_meat_count") ??
     rules.find((r) => r.rule_type === "allowed_default_meat_quantity");
   const fixedBurgerRule = rules.find((r) => r.rule_type === "fixed_burger_id");
+  const fixedSideRule = rules.find((r) => r.rule_type === "fixed_side_id");
   const noFriesRule = rules.find((r) => r.rule_type === "no_fries");
 
   return {
@@ -125,6 +126,7 @@ function parseComboSlot(slot: ComboSlotRow): ComboSlotWithRules {
         : undefined,
       no_fries: noFriesRule?.rule_value === "true" ? true : undefined,
       fixed_burger_id: fixedBurgerRule?.rule_value || undefined,
+      fixed_side_id: fixedSideRule?.rule_value || undefined,
     },
   };
 }
@@ -225,13 +227,17 @@ export async function getCatalog(): Promise<Catalog> {
   // A combo pinned to a burger that is deleted/unavailable can't be built:
   // hide it instead of offering a combo the customer can never complete.
   const availableBurgerIds = new Set(burgers.map((b) => b.id));
+  const availableExtraIds = new Set(extras.map((e) => e.id));
   const offeredCombos = combos.filter((combo) =>
-    combo.slots.every(
-      (slot) =>
-        slot.slot_type !== "burger" ||
-        !slot.rules.fixed_burger_id ||
-        availableBurgerIds.has(slot.rules.fixed_burger_id),
-    ),
+    combo.slots.every((slot) => {
+      if (slot.slot_type === "burger" && slot.rules.fixed_burger_id) {
+        return availableBurgerIds.has(slot.rules.fixed_burger_id);
+      }
+      if (slot.slot_type === "side" && slot.rules.fixed_side_id) {
+        return availableExtraIds.has(slot.rules.fixed_side_id);
+      }
+      return true;
+    }),
   );
 
   const minDeliveryFeeArs = deliveryZones.length

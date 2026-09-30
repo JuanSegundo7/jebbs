@@ -34,6 +34,11 @@ export interface Extra {
   category: ExtraCategory;
   price: number;
   is_available: boolean;
+  // Public-menu visibility, decoupled from is_available (which the dashboard
+  // still uses to gate combo/order usage everywhere). Optional because the DB
+  // default is true and most fixtures/tests never set it — treat missing as
+  // visible (see splitStorefrontExtras).
+  show_on_menu?: boolean;
   created_at: string;
 }
 

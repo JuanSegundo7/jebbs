@@ -525,4 +525,91 @@ describe("getCatalog()", () => {
       expect(catalog.combos.map((c) => c.id)).toEqual(["combo-ok"]);
     });
   });
+
+  describe("combo slot rules: fixed side", () => {
+    const FIXED_SIDE_ID = "side-fixed";
+    const extraRow = (id: string) => ({
+      id,
+      name: id,
+      category: "sides",
+      price: 1500,
+      is_available: true,
+      created_at: "2024-01-01",
+    });
+
+    const comboWithSideSlot = (
+      slotOverrides: Record<string, unknown>,
+      rules: { id: number; rule_type: string; rule_value: string }[],
+      comboId = "combo-x",
+    ) => ({
+      id: comboId,
+      name: `Combo ${comboId}`,
+      price: 12000,
+      description: null,
+      is_available: true,
+      created_at: "2024-01-01",
+      combo_slots: [
+        {
+          id: `${comboId}-slot`,
+          combo_id: comboId,
+          slot_type: "side",
+          quantity: 1,
+          required: false,
+          default_meat_quantity: null,
+          created_at: "2024-01-01",
+          combo_slots_rules: rules,
+          ...slotOverrides,
+        },
+      ],
+    });
+
+    async function catalogFor(
+      combos: unknown[],
+      extras: unknown[] = [extraRow(FIXED_SIDE_ID)],
+    ) {
+      const mock = createSupabaseMock(
+        routesWithMeatAndFries([
+          {
+            table: "extras",
+            match: (calls) => hasEq(calls, "is_available", true),
+            result: { data: extras, error: null },
+          },
+          {
+            table: "combos",
+            match: (calls) => hasEq(calls, "is_available", true),
+            result: { data: combos, error: null },
+          },
+        ]),
+      );
+      setSupabaseMock(mock);
+      const { getCatalog } = await import("@/lib/catalog/get-catalog");
+      return getCatalog();
+    }
+
+    it("parses fixed_side_id into rules", async () => {
+      const catalog = await catalogFor([
+        comboWithSideSlot({}, [
+          { id: 1, rule_type: "fixed_side_id", rule_value: FIXED_SIDE_ID },
+        ]),
+      ]);
+      expect(catalog.combos).toHaveLength(1);
+      expect(catalog.combos[0].slots[0].rules.fixed_side_id).toBe(FIXED_SIDE_ID);
+    });
+
+    it("excludes a combo whose fixed side is not among the available extras", async () => {
+      const catalog = await catalogFor([
+        comboWithSideSlot(
+          {},
+          [{ id: 1, rule_type: "fixed_side_id", rule_value: "side-gone" }],
+          "combo-broken",
+        ),
+        comboWithSideSlot(
+          {},
+          [{ id: 2, rule_type: "fixed_side_id", rule_value: FIXED_SIDE_ID }],
+          "combo-ok",
+        ),
+      ]);
+      expect(catalog.combos.map((c) => c.id)).toEqual(["combo-ok"]);
+    });
+  });
 });

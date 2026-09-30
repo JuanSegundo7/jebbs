@@ -50,6 +50,8 @@ export interface ComboSlotRules {
   no_fries?: boolean;
   // Mandatory burger: the slot is pinned to this burger id.
   fixed_burger_id?: string;
+  // Mandatory side: the slot is pinned to this side/extra id.
+  fixed_side_id?: string;
 }
 
 export interface ComboSlotWithRules extends ComboSlot {

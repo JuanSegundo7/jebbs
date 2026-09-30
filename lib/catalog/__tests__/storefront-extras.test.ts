@@ -9,6 +9,7 @@ function makeExtra(overrides: Partial<Extra> = {}): Extra {
     category: "extra",
     price: 800,
     is_available: true,
+    show_on_menu: true,
     created_at: "2024-01-01",
     ...overrides,
   };
@@ -74,5 +75,48 @@ describe("splitStorefrontExtras", () => {
 
     expect(result.drinks.map((e) => e.id)).toEqual(["cola-1"]);
     expect(result.sides.map((e) => e.id)).toEqual(["fries-1", "papas-1"]);
+  });
+
+  it("excludes extras with show_on_menu === false from every bucket", () => {
+    const meatExtra = makeExtra({ id: "meat-1", name: "Medallón", category: "extra" });
+    const friesExtra = makeExtra({ id: "fries-1", name: "Papas fritas chicas", category: "sides" });
+    const cola = makeExtra({ id: "cola-1", name: "Coca-Cola", category: "drink" });
+    const hiddenSide = makeExtra({
+      id: "papas-1",
+      name: "Papas grandes",
+      category: "sides",
+      show_on_menu: false,
+    });
+    const hiddenTopping = makeExtra({
+      id: "bacon-1",
+      name: "Bacon",
+      category: "extra",
+      show_on_menu: false,
+    });
+
+    const result = splitStorefrontExtras({
+      extras: [meatExtra, friesExtra, cola, hiddenSide, hiddenTopping],
+      meatExtra,
+      friesExtra,
+    });
+
+    expect(result.sides.map((e) => e.id)).toEqual(["fries-1"]);
+    expect(result.toppings.map((e) => e.id)).toEqual([]);
+    expect(result.drinks.map((e) => e.id)).toEqual(["cola-1"]);
+  });
+
+  it("keeps extras with show_on_menu left unset (defaults to visible)", () => {
+    const meatExtra = makeExtra({ id: "meat-1", name: "Medallón", category: "extra" });
+    const friesExtra = makeExtra({ id: "fries-1", name: "Papas fritas chicas", category: "sides" });
+    const papas = makeExtra({ id: "papas-1", name: "Papas grandes", category: "sides" });
+    delete (papas as { show_on_menu?: boolean }).show_on_menu;
+
+    const result = splitStorefrontExtras({
+      extras: [meatExtra, friesExtra, papas],
+      meatExtra,
+      friesExtra,
+    });
+
+    expect(result.sides.map((e) => e.id)).toContain("papas-1");
   });
 });

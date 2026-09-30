@@ -1,4 +1,4 @@
-import type { Burger } from "@/lib/types";
+import type { Burger, Extra } from "@/lib/types";
 import type { ComboSlotWithRules, ComboWithSlots } from "@/lib/types/combo-types";
 
 // Burger.description is a free-text column that most catalog rows don't
@@ -41,6 +41,7 @@ const SLOT_LABELS: Record<string, { one: string; many: string }> = {
 export function describeComboSlot(
   slot: ComboSlotWithRules,
   burgers: Burger[] = [],
+  sides: Extra[] = [],
 ): string | null {
   const count = Number(slot.quantity);
   if (!Number.isFinite(count) || count <= 0) return null;
@@ -48,6 +49,12 @@ export function describeComboSlot(
   const fixedBurgerId = slot.slot_type === "burger" ? slot.rules?.fixed_burger_id : undefined;
   if (fixedBurgerId) {
     const fixed = burgers.find((b) => b.id === fixedBurgerId);
+    if (fixed) return `${count} ${fixed.name}`;
+  }
+
+  const fixedSideId = slot.slot_type === "side" ? slot.rules?.fixed_side_id : undefined;
+  if (fixedSideId) {
+    const fixed = sides.find((s) => s.id === fixedSideId);
     if (fixed) return `${count} ${fixed.name}`;
   }
 
@@ -68,17 +75,19 @@ export function describeComboSlot(
 export function describeComboSlots(
   combo: ComboWithSlots,
   burgers: Burger[] = [],
+  sides: Extra[] = [],
 ): string[] {
   return combo.slots
-    .map((slot) => describeComboSlot(slot, burgers))
+    .map((slot) => describeComboSlot(slot, burgers, sides))
     .filter((line): line is string => line !== null);
 }
 
 export function summarizeComboSlots(
   combo: ComboWithSlots,
   burgers: Burger[] = [],
+  sides: Extra[] = [],
 ): string | null {
-  const lines = describeComboSlots(combo, burgers);
+  const lines = describeComboSlots(combo, burgers, sides);
   if (lines.length === 0) return null;
   return `Incluye: ${lines.join(" · ")}`;
 }
@@ -90,8 +99,9 @@ export function summarizeComboSlots(
 export function comboDescriptionText(
   combo: ComboWithSlots,
   burgers: Burger[] = [],
+  sides: Extra[] = [],
 ): string | null {
   const description = combo.description?.trim();
   if (description) return description;
-  return summarizeComboSlots(combo, burgers);
+  return summarizeComboSlots(combo, burgers, sides);
 }
