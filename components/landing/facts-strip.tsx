@@ -19,7 +19,7 @@ function buildFacts(coverage: string) {
 export function FactsStrip({ coverage = COVERAGE_FALLBACK }: { coverage?: string }) {
   const FACTS = buildFacts(coverage);
   return (
-    <div className="border-b border-[var(--hairline)] bg-[var(--surface-1)]">
+    <div className="border-b border-[var(--hairline)] bg-[var(--surface-2)]">
       <div className="diner-wrap grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
         {FACTS.map(({ icon: Icon, label }, i) => (
           <div
