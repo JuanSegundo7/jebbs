@@ -81,7 +81,7 @@ export function ComboPicker({
           <div>
             {combos.map((combo) => {
               const count = comboCountFor(combo.id);
-              const description = comboDescriptionText(combo, burgers);
+              const description = comboDescriptionText(combo, burgers, sideExtras);
               return (
                 <div
                   key={combo.id}
@@ -132,7 +132,7 @@ export function ComboPicker({
                     <button
                       type="button"
                       className="inline-flex h-9 w-9 items-center justify-center text-[var(--foreground)] transition-[color,transform] duration-150 [transition-timing-function:cubic-bezier(0.16,1,0.3,1)] hover:text-[var(--accent-brand)] active:scale-90 disabled:pointer-events-none disabled:opacity-40 [&_svg]:h-3.5 [&_svg]:w-3.5"
-                      onClick={() => addCombo(combo, burgers)}
+                      onClick={() => addCombo(combo, burgers, sideExtras)}
                       aria-label={`Agregar ${combo.name}`}
                     >
                       <Plus />
@@ -163,9 +163,9 @@ export function ComboPicker({
           onOpenChange={setOpen}
           name={detail.name}
           price={detail.price}
-          description={comboDescriptionText(detail, burgers)}
+          description={comboDescriptionText(detail, burgers, sideExtras)}
           count={comboCountFor(detail.id)}
-          onAdd={() => addCombo(detail, burgers)}
+          onAdd={() => addCombo(detail, burgers, sideExtras)}
           onRemove={() => decrementCombo(detail.id)}
           footnote={
             comboCountFor(detail.id) > 0
@@ -178,7 +178,7 @@ export function ComboPicker({
               Qué incluye
             </p>
             <ul className="space-y-1 font-body text-sm text-[var(--foreground)]">
-              {describeComboSlots(detail, burgers).map((line, i) => (
+              {describeComboSlots(detail, burgers, sideExtras).map((line, i) => (
                 <li key={i}>{line}</li>
               ))}
             </ul>
@@ -355,6 +355,22 @@ function ComboUnitList({
                           ))}
                       </div>
                     )}
+                  </div>
+                );
+              }
+
+              if (slot.slotType === "side" && slot.rules.fixed_side_id) {
+                const fixedSide = sideExtras.find(
+                  (e) => e.id === slot.rules.fixed_side_id,
+                );
+                return (
+                  <div key={slot.slotId} className="space-y-2">
+                    <p className="font-condensed text-xs font-bold tracking-[.08em] text-[var(--muted-foreground)] uppercase">
+                      Incluida en el combo
+                    </p>
+                    <p className="font-body text-sm text-[var(--foreground)]">
+                      {fixedSide?.name ?? "Acompañamiento"}
+                    </p>
                   </div>
                 );
               }

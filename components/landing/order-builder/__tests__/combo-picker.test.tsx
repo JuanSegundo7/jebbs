@@ -43,10 +43,12 @@ function Harness({
   combos,
   burgers = [],
   toppingExtras = [],
+  sideExtras = [],
 }: {
   combos: ComboWithSlots[];
   burgers?: Burger[];
   toppingExtras?: Extra[];
+  sideExtras?: Extra[];
 }) {
   const selection = useComboSelection();
   return (
@@ -55,7 +57,7 @@ function Harness({
       burgers={burgers}
       toppingExtras={toppingExtras}
       drinkExtras={[]}
-      sideExtras={[]}
+      sideExtras={sideExtras}
       selection={selection}
     />
   );
@@ -168,6 +170,48 @@ describe("ComboPicker fixed-burger slot", () => {
       screen.getByRole("button", { name: "Quitar hamburguesa del combo", hidden: true }),
     ).toBeTruthy();
     expect(screen.queryByText("Incluida en el combo")).toBeNull();
+  });
+});
+
+describe("ComboPicker fixed-side slot", () => {
+  const papasGrandes: Extra = {
+    id: "extra-papas-grandes",
+    name: "Papas grandes",
+    category: "sides",
+    price: 1500,
+    is_available: true,
+    created_at: "2024-01-01",
+  };
+  const papasChicas: Extra = {
+    ...papasGrandes,
+    id: "extra-papas-chicas",
+    name: "Papas chicas",
+  };
+  const fixedSideCombo = makeCombo({
+    name: "Combo Fijo",
+    slots: [
+      makeComboSlot({
+        slot_type: "side",
+        quantity: 1,
+        rules: { min_quantity: 0, max_quantity: 1, fixed_side_id: papasGrandes.id },
+      }),
+    ],
+  });
+
+  it("shows the included side without pickable chips", () => {
+    render(
+      <Harness
+        combos={[fixedSideCombo]}
+        sideExtras={[papasGrandes, papasChicas]}
+      />,
+    );
+
+    fireEvent.click(screen.getByRole("button", { name: "Agregar Combo Fijo" }));
+
+    expect(screen.getByText("Incluida en el combo")).toBeTruthy();
+    expect(screen.getByText("Papas grandes")).toBeTruthy();
+    // No chips offering other sides.
+    expect(screen.queryByText("Papas chicas")).toBeNull();
   });
 });
 

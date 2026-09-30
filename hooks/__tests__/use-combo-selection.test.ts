@@ -1,7 +1,7 @@
 import { act, renderHook } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 import { useComboSelection } from "@/hooks/use-combo-selection";
-import type { Burger } from "@/lib/types";
+import type { Burger, Extra } from "@/lib/types";
 import type { ComboSlotWithRules, ComboWithSlots } from "@/lib/types/combo-types";
 
 function makeComboSlot(overrides: Partial<ComboSlotWithRules> = {}): ComboSlotWithRules {
@@ -300,6 +300,60 @@ describe("useComboSelection -- fixed burger slot", () => {
     expect(burgers.find((b) => b.id === second.id)?.removedIngredients).toEqual(
       [],
     );
+  });
+});
+
+function makeExtra(overrides: Partial<Extra> = {}): Extra {
+  return {
+    id: "extra-1",
+    name: "Papas grandes",
+    category: "sides",
+    price: 1500,
+    is_available: true,
+    created_at: "2024-01-01",
+    ...overrides,
+  };
+}
+
+const FIXED_SIDE = makeExtra({ id: "side-fixed", name: "Papas grandes" });
+
+function fixedSideSlotCombo(quantity = 1) {
+  return makeCombo({
+    slots: [
+      makeComboSlot({
+        slot_type: "side",
+        quantity,
+        rules: {
+          min_quantity: 0,
+          max_quantity: quantity,
+          fixed_side_id: FIXED_SIDE.id,
+        },
+      }),
+    ],
+  });
+}
+
+describe("useComboSelection -- fixed side slot", () => {
+  it("addCombo preloads the fixed side into selectedExtras, repeated per slot quantity", () => {
+    const { result } = renderHook(() => useComboSelection());
+
+    act(() => {
+      result.current.addCombo(fixedSideSlotCombo(2), [], [FIXED_SIDE]);
+    });
+
+    const selectedExtras = result.current.selectedCombos[0].slots[0].selectedExtras;
+    expect(selectedExtras).toHaveLength(2);
+    expect(selectedExtras.every((e) => e.id === FIXED_SIDE.id)).toBe(true);
+  });
+
+  it("addCombo leaves the slot's selectedExtras empty when the fixed side cannot be resolved", () => {
+    const { result } = renderHook(() => useComboSelection());
+
+    act(() => {
+      result.current.addCombo(fixedSideSlotCombo(1), [], []);
+    });
+
+    expect(result.current.selectedCombos[0].slots[0].selectedExtras).toEqual([]);
   });
 });
 

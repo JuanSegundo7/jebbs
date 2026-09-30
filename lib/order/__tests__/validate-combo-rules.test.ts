@@ -14,6 +14,9 @@ const EXTRA_CATEGORY_ID = "44444444-4444-4444-4444-444444444445";
 const COMBO_ID = "55555555-5555-5555-5555-555555555555";
 const BURGER_SLOT_ID = "66666666-6666-6666-6666-666666666666";
 const DRINK_SLOT_ID = "77777777-7777-7777-7777-777777777777";
+const SIDE_EXTRA_ID = "88888888-8888-8888-8888-888888888888";
+const SIDE_EXTRA_2_ID = "88888888-8888-8888-8888-888888888889";
+const SIDE_SLOT_ID = "99999999-9999-9999-9999-999999999999";
 
 function makeBurger(overrides: Partial<Burger> = {}): Burger {
   return {
@@ -77,6 +80,18 @@ function burgerLine(burgerId: string, overrides: Record<string, unknown> = {}) {
     is_veggie: false,
     removed_ingredients: [],
     extras: [],
+    ...overrides,
+  };
+}
+
+function makeSideExtra(overrides: Partial<Extra> = {}): Extra {
+  return {
+    id: SIDE_EXTRA_ID,
+    name: "Papas grandes",
+    category: "sides",
+    price: 1500,
+    is_available: true,
+    created_at: "2024-01-01",
     ...overrides,
   };
 }
@@ -592,6 +607,94 @@ describe("validateComboRules", () => {
         catalog,
       );
       expect(result.ok).toBe(false);
+    });
+  });
+
+  describe("fixed_side_id", () => {
+    const fixedSideCombo = (quantity = 1) =>
+      makeCombo({
+        slots: [
+          {
+            id: SIDE_SLOT_ID,
+            combo_id: COMBO_ID,
+            slot_type: "side",
+            quantity,
+            // required false + min 0 on purpose: a fixed slot is always full
+            required: false,
+            default_meat_quantity: null,
+            created_at: "2024-01-01",
+            rules: {
+              min_quantity: 0,
+              max_quantity: quantity,
+              fixed_side_id: SIDE_EXTRA_ID,
+            },
+          },
+        ],
+      });
+
+    const reqWith = (extraIds: string[]) =>
+      baseRequest({
+        combos: [
+          {
+            combo_id: COMBO_ID,
+            quantity: 1,
+            slots: [{ slot_id: SIDE_SLOT_ID, burgers: [], extra_ids: extraIds }],
+          },
+        ],
+      });
+
+    it("rejects a slot line whose extra_ids contain an id different from the slot's fixed_side_id", () => {
+      const catalog = makeCatalog({
+        extras: [makeSideExtra(), makeSideExtra({ id: SIDE_EXTRA_2_ID })],
+        combos: [fixedSideCombo()],
+      });
+      const result = validateComboRules(reqWith([SIDE_EXTRA_2_ID]), catalog);
+      expect(result.ok).toBe(false);
+      if (!result.ok) {
+        expect(result.violations.some((v) => v.includes("fixed_side_id"))).toBe(true);
+      }
+    });
+
+    it("rejects fewer fixed sides than the slot quantity", () => {
+      const catalog = makeCatalog({
+        extras: [makeSideExtra()],
+        combos: [fixedSideCombo(2)],
+      });
+      const result = validateComboRules(reqWith([SIDE_EXTRA_ID]), catalog);
+      expect(result.ok).toBe(false);
+      if (!result.ok) {
+        expect(result.violations.some((v) => v.includes("fixed_side_id"))).toBe(true);
+      }
+    });
+
+    it("rejects an empty fixed slot", () => {
+      const catalog = makeCatalog({
+        extras: [makeSideExtra()],
+        combos: [fixedSideCombo()],
+      });
+      expect(validateComboRules(reqWith([]), catalog).ok).toBe(false);
+    });
+
+    it("rejects more fixed sides than the slot quantity", () => {
+      const catalog = makeCatalog({
+        extras: [makeSideExtra()],
+        combos: [fixedSideCombo(1)],
+      });
+      const result = validateComboRules(
+        reqWith([SIDE_EXTRA_ID, SIDE_EXTRA_ID]),
+        catalog,
+      );
+      expect(result.ok).toBe(false);
+    });
+
+    it("accepts exactly the fixed side id at the slot's quantity", () => {
+      const catalog = makeCatalog({
+        extras: [makeSideExtra()],
+        combos: [fixedSideCombo(2)],
+      });
+      expect(
+        validateComboRules(reqWith([SIDE_EXTRA_ID, SIDE_EXTRA_ID]), catalog),
+      ).toEqual({ ok: true });
     });
   });
 });

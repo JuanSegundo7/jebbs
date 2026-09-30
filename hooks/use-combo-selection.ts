@@ -58,7 +58,11 @@ export function useComboSelection() {
 
   // `burgers` (the catalog's burgers) resolves fixed-burger slots and the
   // single-candidate pre-select (same list the picker shows as chips).
-  const addCombo = (combo: ComboWithSlots, burgers: Burger[] = []) => {
+  const addCombo = (
+    combo: ComboWithSlots,
+    burgers: Burger[] = [],
+    extras: Extra[] = [],
+  ) => {
     setSelectedCombos((prev) => [
       ...prev,
       {
@@ -105,6 +109,17 @@ export function useComboSelection() {
               slotState.burgers = [
                 buildSelectedBurger(candidates[0], slotState),
               ];
+            }
+          }
+
+          const fixedSideId = slot.rules?.fixed_side_id;
+          if (slotState.slotType === "side" && fixedSideId) {
+            const fixedSide = extras.find((e) => e.id === fixedSideId);
+            if (fixedSide) {
+              slotState.selectedExtras = Array.from(
+                { length: Number(slot.quantity) },
+                () => fixedSide,
+              );
             }
           }
 

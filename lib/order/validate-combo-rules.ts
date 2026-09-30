@@ -66,10 +66,29 @@ function validateSlot(
       );
     }
   }
+  const fixedSideId = slot.rules.fixed_side_id;
+  if (fixedSideId) {
+    for (const extraId of slotLine.extra_ids) {
+      if (extraId !== fixedSideId) {
+        violations.push(
+          `${location}: extra ${extraId} is not the slot's fixed_side_id ${fixedSideId}`,
+        );
+      }
+    }
+    if (extraCount !== slot.quantity) {
+      violations.push(
+        `${location}: fixed_side_id slot requires exactly ${slot.quantity} side(s), got ${extraCount}`,
+      );
+    }
+  }
   // A slot is either a burger slot or an extra-picker slot (drink/side) in
   // practice -- never both -- so the min_quantity bound is checked against
   // whichever dimension the customer actually populated.
-  if (!fixedBurgerId && burgerCount + extraCount < slot.rules.min_quantity) {
+  if (
+    !fixedBurgerId &&
+    !fixedSideId &&
+    burgerCount + extraCount < slot.rules.min_quantity
+  ) {
     violations.push(
       `${location}: burger count ${burgerCount} is below min ${slot.rules.min_quantity}`,
     );
