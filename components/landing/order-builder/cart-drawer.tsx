@@ -171,7 +171,7 @@ export function CartDrawer({
           // (mismo criterio que site-header.tsx) + posicionamiento fijo
           // literal, ya que la posición/altura no son parte del vocabulario
           // de color/material.
-          className="material-regular group fixed inset-x-0 bottom-0 z-50 h-[var(--rail-h)] transition-opacity duration-150 data-[open=true]:pointer-events-none data-[open=true]:opacity-0"
+          className="material-regular group fixed inset-x-0 bottom-0 z-50 h-[calc(var(--rail-h)+env(safe-area-inset-bottom))] pb-[env(safe-area-inset-bottom)] transition-opacity duration-150 data-[open=true]:pointer-events-none data-[open=true]:opacity-0"
           data-open={open}
           disabled={isEmpty}
         >
@@ -219,7 +219,7 @@ export function CartDrawer({
           {currentStep === 2 && (
             <button
               type="button"
-              className="absolute top-4 left-4 inline-flex size-8 items-center justify-center rounded-full text-[var(--muted-foreground)] transition-colors hover:bg-[var(--surface-2)] hover:text-[var(--foreground)]"
+              className="absolute top-2 left-2 inline-flex size-10 items-center md:top-4 md:left-4 md:size-8 justify-center rounded-full text-[var(--muted-foreground)] transition-colors hover:bg-[var(--surface-2)] hover:text-[var(--foreground)]"
               onClick={() => goToStep(1)}
             >
               <ArrowLeft className="size-4" aria-hidden />
@@ -232,22 +232,22 @@ export function CartDrawer({
               (variant="dialog" en drawer.tsx) pero un cierre explícito
               nunca está de más y en mobile convive con el drag sin
               competir. */}
-          <DrawerClose className="absolute top-4 right-4 inline-flex size-8 items-center justify-center rounded-full text-[var(--muted-foreground)] transition-colors hover:bg-[var(--surface-2)] hover:text-[var(--foreground)]">
+          <DrawerClose className="absolute top-2 right-2 inline-flex size-10 items-center md:top-4 md:right-4 md:size-8 justify-center rounded-full text-[var(--muted-foreground)] transition-colors hover:bg-[var(--surface-2)] hover:text-[var(--foreground)]">
             <X className="size-4" aria-hidden />
             <span className="sr-only">Cerrar</span>
           </DrawerClose>
         </DrawerHeader>
 
         {/* Una sola región scrolleable compartida por los dos pasos.
-            min-h-[55vh]/md:min-h-[45vh] para que el sheet no cambie
-            bruscamente de alto al pasar de un paso 1 largo a un paso 2
-            corto. DrawerContent es flex-col con max-h-[80vh]; flex-1
+            md:min-h-[45vh] para que el sheet no cambie bruscamente de
+            alto al pasar de un paso 1 largo a un paso 2 corto (solo desde
+            md: en mobile un min-h empuja el footer fuera de pantalla). DrawerContent es flex-col con max-h-[85dvh]; flex-1
             min-h-0 acá deja header y footer fijos y todo lo del medio
             scrolleable. diner-wrap porque el resto de la página entera
             usa ese mismo ancho centrado (min(1080px,92vw)). */}
         <div
           ref={scrollRef}
-          className="diner-wrap min-h-[55vh] flex-1 overflow-y-auto pb-4 md:min-h-[45vh]"
+          className="diner-wrap min-h-0 flex-1 overflow-y-auto pb-4 md:min-h-[45vh]"
         >
           {/* key={currentStep} monta una región nueva por paso -- el
               slide-in/fade-in de abajo se dispara en cada cambio, con la
@@ -394,7 +394,7 @@ export function CartDrawer({
                   <DrawerClose asChild>
                     <button
                       type="button"
-                      className="mt-3 font-body text-xs text-[var(--muted-foreground)] underline underline-offset-2 transition-colors hover:text-[var(--foreground)]"
+                      className="mt-3 inline-flex min-h-10 items-center font-body text-xs text-[var(--muted-foreground)] underline underline-offset-2 transition-colors hover:text-[var(--foreground)]"
                     >
                       Seguir eligiendo
                     </button>
@@ -487,7 +487,7 @@ export function CartDrawer({
                 por paso: es lo que le da a vaul/Radix el aria-describedby
                 del diálogo entero, y la frase es igual de cierta en los
                 dos pasos. */}
-            <DrawerDescription className="text-center font-body text-[11px] text-[var(--muted-foreground)] md:text-right">
+            <DrawerDescription className="text-center font-body text-xs text-[var(--muted-foreground)] md:text-right">
               Este total es orientativo — se confirma al enviar el pedido.
             </DrawerDescription>
           </div>

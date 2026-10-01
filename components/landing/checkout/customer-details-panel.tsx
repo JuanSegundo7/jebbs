@@ -146,7 +146,7 @@ export function CustomerDetailsPanel({
             </div>
             <DeliveryFeeLine deliveryFeeArs={deliveryFeeArs} pending={deliveryFeePending} />
             {deliveryFeePending && (
-              <p className="font-body text-[11px] text-[var(--muted-foreground)]">
+              <p className="font-body text-xs text-[var(--muted-foreground)]">
                 Te confirmamos el costo de envío por WhatsApp antes de preparar el pedido.
               </p>
             )}

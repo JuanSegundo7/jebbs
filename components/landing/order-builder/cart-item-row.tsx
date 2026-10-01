@@ -23,7 +23,7 @@ interface CartItemRowProps {
 }
 
 const STEPPER_BUTTON_CLASS =
-  "inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-full border border-[var(--hairline-strong)] bg-[var(--surface-2)] text-[var(--accent-brand)] transition-[border-color,transform] duration-150 hover:border-[var(--accent-brand)] active:scale-[0.92] [&_svg]:h-3.5 [&_svg]:w-3.5";
+  "inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-[var(--hairline-strong)] bg-[var(--surface-2)] text-[var(--accent-brand)] transition-[border-color,transform] duration-150 hover:border-[var(--accent-brand)] active:scale-[0.92] md:h-7 md:w-7 [&_svg]:h-3.5 [&_svg]:w-3.5";
 
 // Read-only in the cart until now (see the old CartLine this replaces,
 // inlined in cart-drawer.tsx) -- keeps that row's visual identity (icon,
@@ -50,12 +50,13 @@ export function CartItemRow({
     <div className="flex items-start gap-3">
       <Icon className="mt-1 size-4 shrink-0 text-[var(--accent-brand)]" aria-hidden />
       <div className="min-w-0 flex-1">
-        <div className="flex items-baseline">
-          <span className="font-condensed text-[1.05rem] font-bold tracking-[.03em] text-[var(--foreground)] uppercase">
-            {quantity}x {name}
+        {/* Two lines on mobile (name wraps, then price + controls); one line from md up. */}
+        <div className="flex flex-wrap items-center md:flex-nowrap md:items-baseline">
+          <span className="basis-full font-condensed text-[1.05rem] font-bold tracking-[.03em] break-words text-[var(--foreground)] uppercase md:basis-auto">
+            {name}
           </span>
           <span
-            className="min-w-[1rem] flex-1"
+            className="hidden min-w-[1rem] flex-1 md:block"
             aria-hidden
           />
           <span className="numeric shrink-0 font-condensed text-[1.05rem] font-bold text-[var(--accent-brand)]">
@@ -64,7 +65,7 @@ export function CartItemRow({
 
           {/* Stepper + borrar, al lado del precio -- son la misma acción
               (cuánto de esto llevo), no un renglón aparte (feedback real). */}
-          <div className="ml-2 flex shrink-0 items-center gap-1">
+          <div className="ml-auto flex shrink-0 items-center gap-1 md:ml-2">
             <button
               type="button"
               className={STEPPER_BUTTON_CLASS}
@@ -73,9 +74,10 @@ export function CartItemRow({
             >
               <Minus />
             </button>
-            <span className="numeric w-6 text-center text-sm text-[var(--foreground)]">
+            <span className="numeric w-6 text-center text-sm text-[var(--foreground)]" aria-hidden>
               {quantity}
             </span>
+            <span className="sr-only">{`${quantity} de ${name}`}</span>
             <button
               type="button"
               className={STEPPER_BUTTON_CLASS}
@@ -86,7 +88,7 @@ export function CartItemRow({
             </button>
             <button
               type="button"
-              className="inline-flex size-7 items-center justify-center rounded-full text-[var(--accent-brand)] transition-colors hover:bg-[var(--surface-0)]"
+              className="inline-flex size-10 items-center justify-center rounded-full text-[var(--accent-brand)] transition-colors hover:bg-[var(--surface-0)] md:size-7"
               onClick={onRemove}
               aria-label={`Eliminar ${name}`}
             >
@@ -111,7 +113,7 @@ export function CartItemRow({
         {expandable && (
           <button
             type="button"
-            className="mt-1 flex items-center gap-1 font-condensed text-[11px] font-bold tracking-[.08em] text-[var(--accent-brand)] uppercase"
+            className="mt-1 flex min-h-10 items-center gap-1 font-condensed text-xs font-bold tracking-[.08em] text-[var(--accent-brand)] uppercase md:min-h-0 md:text-[11px]"
             onClick={onToggleExpanded}
             aria-expanded={expanded}
           >

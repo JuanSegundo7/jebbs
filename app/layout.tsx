@@ -1,5 +1,5 @@
 import type React from "react";
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { archivoBlack, barlow, barlowCondensed, courierPrime } from "@/lib/fonts";
 import { BRAND_NAME } from "@/lib/brand";
 import "./globals.css";
@@ -11,6 +11,11 @@ export const metadata: Metadata = {
     icon: "/favicon.png?v=4",
     apple: "/favicon.png?v=4",
   },
+};
+
+export const viewport: Viewport = {
+  viewportFit: "cover",
+  themeColor: "#08090c",
 };
 
 export default function RootLayout({

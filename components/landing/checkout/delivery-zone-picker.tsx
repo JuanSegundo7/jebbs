@@ -14,7 +14,7 @@ interface DeliveryZonePickerProps {
 }
 
 const FIELD_CLASS =
-  "w-full rounded-lg border border-[var(--hairline)] bg-[var(--surface-1)] px-[10px] py-[11px] font-body text-[0.95rem] leading-[1.3] text-[var(--foreground)] outline-none focus-visible:border-[var(--accent-brand)] focus-visible:shadow-[inset_0_0_0_1px_var(--accent-brand)]";
+  "w-full rounded-lg border border-[var(--hairline)] bg-[var(--surface-1)] px-[10px] py-[11px] font-body text-base md:text-[0.95rem] leading-[1.3] text-[var(--foreground)] outline-none focus-visible:border-[var(--accent-brand)] focus-visible:shadow-[inset_0_0_0_1px_var(--accent-brand)]";
 const FIELD_INVALID_CLASS = "border-[var(--destructive)] shadow-[inset_0_0_0_1px_var(--destructive)]";
 
 // Sentinel option value for "no encuentro mi zona" -- kept out of the uuid
@@ -79,7 +79,7 @@ export function DeliveryZonePicker({
         <p
           id="checkout-delivery-zone-error"
           role="alert"
-          className="mt-1 font-body text-[11px] text-[var(--destructive)]"
+          className="mt-1 font-body text-xs text-[var(--destructive)]"
         >
           Elegí tu zona de envío
         </p>

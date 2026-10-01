@@ -160,7 +160,7 @@ export function BurgerCustomizePanel({
               <div
                 key={extra.id}
                 className={cn(
-                  "-mx-3 flex items-center gap-[10px] border-b border-dashed border-[var(--hairline-strong)] px-3 py-2 transition-[border-color,background-color,transform] duration-200 ease-[cubic-bezier(0.16,1,0.3,1)] last:border-b-0 hover:border-[var(--foreground)] hover:bg-[color-mix(in_srgb,var(--foreground)_3%,transparent)] active:scale-[0.99]",
+                  "flex items-center gap-[10px] border-b border-dashed border-[var(--hairline-strong)] px-0 py-2 md:-mx-3 md:px-3 transition-[border-color,background-color,transform] duration-200 ease-[cubic-bezier(0.16,1,0.3,1)] last:border-b-0 hover:border-[var(--foreground)] hover:bg-[color-mix(in_srgb,var(--foreground)_3%,transparent)] active:scale-[0.99]",
                   qty > 0 && "bg-[linear-gradient(90deg,var(--accent-tint-16),transparent_60%)]",
                 )}
               >

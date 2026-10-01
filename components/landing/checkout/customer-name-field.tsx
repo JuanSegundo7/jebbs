@@ -44,7 +44,7 @@ export function CustomerNameField({ value, onChange, invalid = false }: Customer
         aria-invalid={invalid}
         aria-describedby={invalid ? "checkout-customer-name-error" : undefined}
         className={cn(
-          "w-full rounded-lg border border-[var(--hairline)] bg-[var(--surface-1)] px-[10px] py-[11px] font-body text-[0.95rem] leading-[1.3] text-[var(--foreground)] outline-none placeholder:text-[var(--muted-foreground-dim)] focus-visible:border-[var(--accent-brand)] focus-visible:shadow-[inset_0_0_0_1px_var(--accent-brand)]",
+          "w-full rounded-lg border border-[var(--hairline)] bg-[var(--surface-1)] px-[10px] py-[11px] font-body text-base md:text-[0.95rem] leading-[1.3] text-[var(--foreground)] outline-none placeholder:text-[var(--muted-foreground-dim)] focus-visible:border-[var(--accent-brand)] focus-visible:shadow-[inset_0_0_0_1px_var(--accent-brand)]",
           invalid && "border-[var(--destructive)] shadow-[inset_0_0_0_1px_var(--destructive)]",
         )}
       />
@@ -52,7 +52,7 @@ export function CustomerNameField({ value, onChange, invalid = false }: Customer
         <p
           id="checkout-customer-name-error"
           role="alert"
-          className="mt-1 font-body text-[11px] text-[var(--destructive)]"
+          className="mt-1 font-body text-xs text-[var(--destructive)]"
         >
           Falta tu nombre
         </p>

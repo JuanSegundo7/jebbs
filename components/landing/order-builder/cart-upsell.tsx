@@ -27,7 +27,7 @@ export function CartUpsell({ extras, onAdd }: CartUpsellProps) {
       <p className="mb-2 font-condensed text-xs font-bold tracking-[.16em] text-[var(--muted-foreground)] uppercase">
         ¿Le sumás algo?
       </p>
-      <div className="-mx-4 flex snap-x gap-2 overflow-x-auto px-4 md:mx-0 md:grid md:grid-cols-2 md:overflow-visible md:px-0">
+      <div className="flex snap-x gap-2 overflow-x-auto md:grid md:grid-cols-2 md:overflow-visible">
         {candidates.map((extra) => (
           <button
             key={extra.id}

@@ -127,7 +127,7 @@ describe("CartDrawer -- editing items (step 1)", () => {
 
     fireEvent.click(screen.getByRole("button", { name: "Agregar uno de Clásica" }));
 
-    expect(screen.getByText(/2x Clásica/i)).not.toBeNull();
+    expect(screen.getByText("2 de Clásica")).not.toBeNull();
   });
 
   it("removes a side from the cart and returns to the empty state once it's the last item", () => {

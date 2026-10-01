@@ -401,6 +401,11 @@
   * {
     @apply border-border outline-ring/50;
   }
+  /* Safety net: nothing should scroll the page sideways on mobile. */
+  html,
+  body {
+    overflow-x: clip;
+  }
   body {
     @apply bg-background text-foreground text-body;
     font-optical-sizing: auto;
@@ -1039,7 +1044,10 @@
   width: 100%;
   padding: 11px 10px;
   font-family: var(--font-body);
-  font-size: 0.95rem;
+  font-size: 1rem; /* >=16px: iOS Safari zooms the page on focus below that */
+  @media (min-width: 768px) {
+    font-size: 0.95rem;
+  }
   line-height: 1.3;
   color: var(--cream);
   background: var(--coal);
@@ -1181,7 +1189,7 @@
 @utility diner-body {
   background-color: var(--surface-0);
   background-image: radial-gradient(120% 70% at 50% -10%, var(--surface-2) 0%, var(--surface-0) 62%);
-  padding-bottom: calc(var(--rail-h) + 8px);
+  padding-bottom: calc(var(--rail-h) + 8px + env(safe-area-inset-bottom));
 }
 
 /* .wrap (ref-style.css:31) -- ancho real del contenedor central. NO es

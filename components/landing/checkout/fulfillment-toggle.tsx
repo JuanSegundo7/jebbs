@@ -50,26 +50,26 @@ export function FulfillmentToggle({ value, onChange, minDeliveryFeeArs }: Fulfil
           // items-center + flex-col en el contenido (no en el trigger, que
           // ya trae su propio layout base) para que las dos líneas queden
           // centradas igual que antes tenía centrado el texto simple.
-          className="h-auto flex-col gap-0.5 rounded-md px-2 py-[8px] font-condensed text-[.8rem] tracking-[.08em] text-[var(--muted-foreground)] uppercase [transition-timing-function:cubic-bezier(0.16,1,0.3,1)] data-[state=active]:border-transparent data-[state=active]:bg-[var(--accent-brand)] data-[state=active]:text-[var(--accent-contrast)] data-[state=active]:shadow-none focus-visible:ring-0 focus-visible:outline-[var(--accent-brand)] dark:text-[var(--muted-foreground)] dark:data-[state=active]:border-transparent dark:data-[state=active]:bg-[var(--accent-brand)] dark:data-[state=active]:text-[var(--accent-contrast)]"
+          className="h-auto min-h-12 flex-col gap-0.5 md:min-h-0 rounded-md px-2 py-[8px] font-condensed text-[.8rem] whitespace-normal tracking-[.08em] text-[var(--muted-foreground)] uppercase [transition-timing-function:cubic-bezier(0.16,1,0.3,1)] data-[state=active]:border-transparent data-[state=active]:bg-[var(--accent-brand)] data-[state=active]:text-[var(--accent-contrast)] data-[state=active]:shadow-none focus-visible:ring-0 focus-visible:outline-[var(--accent-brand)] dark:text-[var(--muted-foreground)] dark:data-[state=active]:border-transparent dark:data-[state=active]:bg-[var(--accent-brand)] dark:data-[state=active]:text-[var(--accent-contrast)]"
         >
           <span className="flex items-center gap-1.5">
             <Store className="size-3.5" aria-hidden />
             Retiro en el local
           </span>
-          <span className="numeric text-[.68rem] font-normal tracking-[.04em] opacity-70 normal-case">
+          <span className="numeric text-xs font-normal tracking-[.04em] opacity-70 normal-case md:text-[.68rem]">
             Sin cargo
           </span>
         </TabsTrigger>
         <TabsTrigger
           value="delivery"
           disabled={deliveryDisabled}
-          className="h-auto flex-col gap-0.5 rounded-md px-2 py-[8px] font-condensed text-[.8rem] tracking-[.08em] text-[var(--muted-foreground)] uppercase [transition-timing-function:cubic-bezier(0.16,1,0.3,1)] data-[state=active]:border-transparent data-[state=active]:bg-[var(--accent-brand)] data-[state=active]:text-[var(--accent-contrast)] data-[state=active]:shadow-none focus-visible:ring-0 focus-visible:outline-[var(--accent-brand)] disabled:pointer-events-none disabled:opacity-40 dark:text-[var(--muted-foreground)] dark:data-[state=active]:border-transparent dark:data-[state=active]:bg-[var(--accent-brand)] dark:data-[state=active]:text-[var(--accent-contrast)]"
+          className="h-auto min-h-12 flex-col gap-0.5 md:min-h-0 rounded-md px-2 py-[8px] font-condensed text-[.8rem] whitespace-normal tracking-[.08em] text-[var(--muted-foreground)] uppercase [transition-timing-function:cubic-bezier(0.16,1,0.3,1)] data-[state=active]:border-transparent data-[state=active]:bg-[var(--accent-brand)] data-[state=active]:text-[var(--accent-contrast)] data-[state=active]:shadow-none focus-visible:ring-0 focus-visible:outline-[var(--accent-brand)] disabled:pointer-events-none disabled:opacity-40 dark:text-[var(--muted-foreground)] dark:data-[state=active]:border-transparent dark:data-[state=active]:bg-[var(--accent-brand)] dark:data-[state=active]:text-[var(--accent-contrast)]"
         >
           <span className="flex items-center gap-1.5">
             <Truck className="size-3.5" aria-hidden />
             Envío a domicilio
           </span>
-          <span className="numeric text-[.68rem] font-normal tracking-[.04em] opacity-70 normal-case">
+          <span className="numeric text-xs font-normal tracking-[.04em] opacity-70 normal-case md:text-[.68rem]">
             {minDeliveryFeeArs === null ? "No disponible" : `desde ${formatArs(minDeliveryFeeArs)}`}
           </span>
         </TabsTrigger>
