@@ -133,6 +133,32 @@ export function CartDrawer({
     setStep(next);
   };
 
+  // El footer (Total + acción) vive FUERA de la región con scroll, pero
+  // DrawerFooter (drawer.tsx) no es forwardRef -- medimos este div interno
+  // en cambio, y sumamos el safe-area-inset-bottom a mano en el cálculo de
+  // abajo porque ese padding vive en el DrawerFooter de afuera, no acá.
+  // Sin esto el padding-bottom de la región scrolleable era un pb-4 fijo
+  // (1rem): cuando el footer medía más que eso -- el texto de "Este total
+  // es orientativo..." puede ocupar 1 o 2 líneas según el ancho, y el botón
+  // "Continuar" vs ConfirmButton no son iguales de alto -- el último ítem
+  // de la lista (o el botón "Ver los N extras") quedaba realmente tapado
+  // detrás del footer, no solo un matiz borroso del material-thick (bug
+  // real, reportado con captura). ResizeObserver en vez de una medición
+  // única: el footer cambia de alto al pasar de paso 1 a paso 2 (botón
+  // distinto) sin que este componente se desmonte.
+  const [footerHeight, setFooterHeight] = useState(0);
+  const footerContentRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const el = footerContentRef.current;
+    if (!el || typeof ResizeObserver === "undefined") return;
+    const observer = new ResizeObserver(([entry]) => {
+      setFooterHeight(entry.borderBoxSize?.[0]?.blockSize ?? entry.contentRect.height);
+    });
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, []);
+
   // Al cambiar de paso: la región de scroll (compartida entre los dos
   // pasos) vuelve arriba -- si no, se podría llegar al paso 2 a mitad de
   // un scroll largo de la lista -- y el foco se mueve a la región del
@@ -260,6 +286,11 @@ export function CartDrawer({
         <div
           ref={scrollRef}
           className="diner-wrap min-h-0 flex-1 overflow-x-clip overflow-y-auto pb-4 md:min-h-[45vh]"
+          style={
+            footerHeight > 0
+              ? { paddingBottom: `calc(${footerHeight}px + env(safe-area-inset-bottom) + 1rem)` }
+              : undefined
+          }
         >
           {/* key={currentStep} monta una región nueva por paso -- el
               slide-in/fade-in de abajo se dispara en cada cambio, con la
@@ -438,7 +469,7 @@ export function CartDrawer({
             contenido respire al mismo ancho de lectura que el resto de la
             página sin recortar el fondo. */}
         <DrawerFooter className="material-thick gap-0 border-t border-[var(--hairline)] p-0 pb-[env(safe-area-inset-bottom)]">
-          <div className="diner-wrap flex flex-col gap-3 py-4">
+          <div ref={footerContentRef} className="diner-wrap flex flex-col gap-3 py-4">
             <div className="flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
               <span className="numeric font-condensed text-[1.15rem] font-bold tracking-[.04em] text-[var(--accent-brand)] uppercase">
                 Total {formatArs(total)}

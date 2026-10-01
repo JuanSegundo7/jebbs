@@ -125,7 +125,17 @@ export function CartItemRow({
           </button>
         )}
 
-        {expanded && children && <div className="mt-2">{children}</div>}
+        {/* max-w-sm mx-auto solo en mobile: cada fila de adentro (Carne,
+            Papas) usa justify-between a todo el ancho, así que en un
+            drawer angosto-pero-no-tan-angosto (diner-wrap ya da ~92vw) la
+            etiqueta termina pegada a un borde y los steppers al otro,
+            bastante separados (feedback real, con captura). Un panel más
+            angosto y centrado agrupa visualmente etiqueta+control sin
+            tocar el layout de cada fila. En desktop (md:) el drawer ya usa
+            dos columnas -- no hace falta, md:max-w-none/mx-0 lo revierte. */}
+        {expanded && children && (
+          <div className="mt-2 max-w-sm mx-auto md:max-w-none md:mx-0">{children}</div>
+        )}
       </div>
     </div>
   );

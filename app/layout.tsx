@@ -16,6 +16,19 @@ export const metadata: Metadata = {
 export const viewport: Viewport = {
   viewportFit: "cover",
   themeColor: "#08090c",
+  // Sin esto, iOS Safari (y Chrome Android) solo encogen el "visual
+  // viewport" al abrir el teclado, no el "layout viewport" -- entonces
+  // 100dvh/max-h-[85dvh] (drawer.tsx) y el footer `position: fixed` del
+  // carrito (cart-drawer.tsx, Total + Enviar pedido) siguen calculados
+  // contra el alto SIN teclado, y el input enfocado termina scrolleado
+  // fuera de vista detrás del header mientras el footer queda flotando en
+  // el medio de la pantalla (bug real: paso 2 "Tus datos", reportado en
+  // iPhone 15). resizes-content fuerza al browser a tratar el teclado como
+  // si redujera el viewport de verdad, así que dvh/fixed se recalculan
+  // contra el alto visible real. Soportado desde Safari 17.4 / Chrome 108;
+  // en versiones más viejas simplemente no hace nada (no hay regresión,
+  // solo no arregla el bug ahí).
+  interactiveWidget: "resizes-content",
 };
 
 export default function RootLayout({
