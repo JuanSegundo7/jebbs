@@ -66,7 +66,7 @@ export function BurgerUnitCard({
         <div className="flex items-center gap-1">
           <button
             type="button"
-            className="inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-full border border-[var(--hairline-strong)] bg-[var(--surface-2)] text-[var(--accent-brand)] transition-[border-color,transform] duration-150 hover:border-[var(--accent-brand)] active:scale-[0.92] [&_svg]:h-3.5 [&_svg]:w-3.5"
+            className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-full md:h-7 md:w-7 border border-[var(--hairline-strong)] bg-[var(--surface-2)] text-[var(--accent-brand)] transition-[border-color,transform] duration-150 hover:border-[var(--accent-brand)] active:scale-[0.92] [&_svg]:h-3.5 [&_svg]:w-3.5"
             onClick={() => onQuantityChange(-1)}
             aria-label="Quitar uno"
           >
@@ -77,7 +77,7 @@ export function BurgerUnitCard({
           </span>
           <button
             type="button"
-            className="inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-full border border-[var(--hairline-strong)] bg-[var(--surface-2)] text-[var(--accent-brand)] transition-[border-color,transform] duration-150 hover:border-[var(--accent-brand)] active:scale-[0.92] [&_svg]:h-3.5 [&_svg]:w-3.5"
+            className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-full md:h-7 md:w-7 border border-[var(--hairline-strong)] bg-[var(--surface-2)] text-[var(--accent-brand)] transition-[border-color,transform] duration-150 hover:border-[var(--accent-brand)] active:scale-[0.92] [&_svg]:h-3.5 [&_svg]:w-3.5"
             onClick={() => onQuantityChange(1)}
             aria-label="Agregar uno"
           >
@@ -85,7 +85,7 @@ export function BurgerUnitCard({
           </button>
           <button
             type="button"
-            className="inline-flex size-7 items-center justify-center rounded-full text-[var(--accent-brand)] transition-colors hover:bg-[var(--surface-0)]"
+            className="inline-flex size-9 items-center justify-center rounded-full md:size-7 text-[var(--accent-brand)] transition-colors hover:bg-[var(--surface-0)]"
             onClick={onRemove}
             aria-label="Eliminar"
           >

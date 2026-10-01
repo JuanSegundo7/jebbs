@@ -91,7 +91,7 @@ export function BurgerPicker({
                     onClick={() => showDetail(burger)}
                     aria-haspopup="dialog"
                   >
-                    <div className="relative h-[60px] w-[60px] shrink-0 overflow-hidden rounded-[3px] border border-[var(--hairline)] bg-[var(--surface-2)]">
+                    <div className="relative h-[52px] w-[52px] shrink-0 sm:h-[60px] sm:w-[60px] overflow-hidden rounded-[3px] border border-[var(--hairline)] bg-[var(--surface-2)]">
                       {burger.image_url ? (
                         <FallbackImage
                           src={burger.image_url}
@@ -106,20 +106,21 @@ export function BurgerPicker({
                       )}
                     </div>
 
-                    <div className="min-w-0 flex-1">
-                      <span className="font-condensed text-[1.22rem] font-bold tracking-[.04em] text-[var(--foreground)] uppercase">
-                          {burger.name}
-                        </span>
+                    {/* Grid: below sm the price sits under the name; from sm up it
+                        spans both rows in its own right-hand column. */}
+                    <div className="grid min-w-0 flex-1 grid-cols-1 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-center sm:gap-x-[15px]">
+                      <span className="min-w-0 break-words font-condensed text-[1.22rem] font-bold tracking-[.04em] text-[var(--foreground)] uppercase sm:col-start-1 sm:row-start-1">
+                        {burger.name}
+                      </span>
+                      <span className="numeric font-condensed text-[1.22rem] font-bold text-[var(--accent-brand)] sm:col-start-2 sm:row-start-1 sm:row-span-2 sm:self-center">
+                        {formatArs(burger.base_price)}
+                      </span>
                       {description && (
-                        <p className="mt-1 line-clamp-2 font-body text-[0.94rem] leading-[1.45] tracking-[0.005em] text-[var(--muted-foreground)]">
+                        <p className="mt-1 line-clamp-2 min-w-0 break-words font-body text-[0.94rem] leading-[1.45] tracking-[0.005em] text-[var(--muted-foreground)] sm:col-start-1 sm:row-start-2">
                           {description}
                         </p>
                       )}
                     </div>
-
-                    <span className="numeric shrink-0 font-condensed text-[1.22rem] font-bold text-[var(--accent-brand)]">
-                      {formatArs(burger.base_price)}
-                    </span>
                   </button>
 
                   <div className="flex shrink-0 items-center gap-0.5 rounded-[3px] border border-[var(--hairline)] bg-[var(--surface-2)]">

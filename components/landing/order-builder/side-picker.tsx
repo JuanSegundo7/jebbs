@@ -46,15 +46,16 @@ function SidesGroup({ title, items, countFor, onAdd, onRemove }: SidesGroupProps
                 count > 0 && "bg-[linear-gradient(90deg,var(--accent-tint-16),transparent_60%)] pl-3",
               )}
             >
-              <div className="min-w-0 flex-1">
-                <span className="font-condensed text-[1.22rem] font-bold tracking-[.04em] text-[var(--foreground)] uppercase">
-                    {extra.name}
-                  </span>
+              {/* Below sm the price stacks under the name; from sm up it is
+                  its own right-hand column. */}
+              <div className="flex min-w-0 flex-1 flex-col sm:flex-row sm:items-center sm:gap-[15px]">
+                <span className="min-w-0 break-words font-condensed text-[1.22rem] font-bold tracking-[.04em] text-[var(--foreground)] uppercase sm:flex-1">
+                  {extra.name}
+                </span>
+                <span className="numeric shrink-0 font-condensed text-[1.22rem] font-bold text-[var(--accent-brand)]">
+                  {formatArs(extra.price)}
+                </span>
               </div>
-
-              <span className="numeric shrink-0 font-condensed text-[1.22rem] font-bold text-[var(--accent-brand)]">
-                {formatArs(extra.price)}
-              </span>
 
               <div className="flex shrink-0 items-center gap-0.5 rounded-[3px] border border-[var(--hairline)] bg-[var(--surface-2)]">
                 <button
@@ -127,13 +128,13 @@ export function SidePicker({ sides, selection }: SidePickerProps) {
               key={side.id}
               className="flex items-center justify-between gap-2 rounded-xl border border-[var(--hairline)] bg-[var(--surface-2)] p-3"
             >
-              <span className="font-condensed text-sm font-bold tracking-[.03em] text-[var(--foreground)] uppercase">
+              <span className="min-w-0 break-words font-condensed text-sm font-bold tracking-[.03em] text-[var(--foreground)] uppercase">
                 {side.extra.name}
               </span>
               <div className="flex items-center gap-1">
                 <button
                   type="button"
-                  className="inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-full border border-[var(--hairline-strong)] bg-[var(--surface-1)] text-[var(--accent-brand)] transition-[border-color,transform] duration-150 hover:border-[var(--accent-brand)] active:scale-[0.92] [&_svg]:h-3.5 [&_svg]:w-3.5"
+                  className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-full md:h-7 md:w-7 border border-[var(--hairline-strong)] bg-[var(--surface-1)] text-[var(--accent-brand)] transition-[border-color,transform] duration-150 hover:border-[var(--accent-brand)] active:scale-[0.92] [&_svg]:h-3.5 [&_svg]:w-3.5"
                   onClick={() => updateQuantity(side.id, -1)}
                   aria-label="Quitar uno"
                 >
@@ -144,7 +145,7 @@ export function SidePicker({ sides, selection }: SidePickerProps) {
                 </span>
                 <button
                   type="button"
-                  className="inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-full border border-[var(--hairline-strong)] bg-[var(--surface-1)] text-[var(--accent-brand)] transition-[border-color,transform] duration-150 hover:border-[var(--accent-brand)] active:scale-[0.92] [&_svg]:h-3.5 [&_svg]:w-3.5"
+                  className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-full md:h-7 md:w-7 border border-[var(--hairline-strong)] bg-[var(--surface-1)] text-[var(--accent-brand)] transition-[border-color,transform] duration-150 hover:border-[var(--accent-brand)] active:scale-[0.92] [&_svg]:h-3.5 [&_svg]:w-3.5"
                   onClick={() => updateQuantity(side.id, 1)}
                   aria-label="Agregar uno"
                 >
@@ -152,7 +153,7 @@ export function SidePicker({ sides, selection }: SidePickerProps) {
                 </button>
                 <button
                   type="button"
-                  className="inline-flex size-7 items-center justify-center rounded-full text-[var(--accent-brand)] transition-colors hover:bg-[var(--surface-0)]"
+                  className="inline-flex size-9 items-center justify-center rounded-full md:size-7 text-[var(--accent-brand)] transition-colors hover:bg-[var(--surface-0)]"
                   onClick={() => removeSide(side.id)}
                   aria-label="Eliminar"
                 >

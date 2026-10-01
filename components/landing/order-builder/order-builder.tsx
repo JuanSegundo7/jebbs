@@ -84,12 +84,12 @@ export function OrderBuilder({ catalog, deliveryZones, minDeliveryFeeArs }: Orde
   // sin timing-function propio (ease del navegador); esto solo agrega la
   // curva, no pelea con transition-property.
   const tabTriggerClass =
-    "rounded-full px-4 py-1.5 font-condensed text-[12px] font-bold tracking-[.08em] text-[var(--muted-foreground)] uppercase [transition-timing-function:cubic-bezier(0.16,1,0.3,1)] data-[state=active]:bg-[var(--accent-brand)] data-[state=active]:text-[var(--accent-contrast)] data-[state=active]:shadow-none dark:text-[var(--muted-foreground)] dark:data-[state=active]:bg-[var(--accent-brand)] dark:data-[state=active]:text-[var(--accent-contrast)]";
+    "min-h-10 shrink-0 rounded-full sm:min-h-0 px-4 py-1.5 font-condensed text-[12px] font-bold tracking-[.08em] text-[var(--muted-foreground)] uppercase [transition-timing-function:cubic-bezier(0.16,1,0.3,1)] data-[state=active]:bg-[var(--accent-brand)] data-[state=active]:text-[var(--accent-contrast)] data-[state=active]:shadow-none dark:text-[var(--muted-foreground)] dark:data-[state=active]:bg-[var(--accent-brand)] dark:data-[state=active]:text-[var(--accent-contrast)]";
 
   return (
     <div className="space-y-6">
       <Tabs defaultValue="burgers">
-        <TabsList className="h-auto w-full flex-wrap justify-start gap-1 border border-[var(--hairline)] bg-[var(--surface-1)] p-1 sm:w-fit">
+        <TabsList className="h-auto w-full flex-nowrap justify-start gap-1 overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden border border-[var(--hairline)] bg-[var(--surface-1)] p-1 sm:w-fit">
           <TabsTrigger value="burgers" className={tabTriggerClass}>
             Hamburguesas
           </TabsTrigger>
@@ -97,7 +97,9 @@ export function OrderBuilder({ catalog, deliveryZones, minDeliveryFeeArs }: Orde
             Promos
           </TabsTrigger>
           <TabsTrigger value="sides" className={tabTriggerClass}>
-            Bebidas y acompañamientos
+            Bebidas y{" "}
+            <span className="sm:hidden">más</span>
+            <span className="hidden sm:inline">acompañamientos</span>
           </TabsTrigger>
         </TabsList>
 

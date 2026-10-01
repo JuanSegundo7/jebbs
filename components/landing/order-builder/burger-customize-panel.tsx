@@ -73,7 +73,7 @@ export function BurgerCustomizePanel({
           <div className="flex items-center gap-1">
             <button
               type="button"
-              className="inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-full border border-[var(--hairline-strong)] bg-[var(--surface-2)] text-[var(--accent-brand)] transition-[border-color,transform] duration-150 hover:border-[var(--accent-brand)] active:scale-[0.92] [&_svg]:h-3.5 [&_svg]:w-3.5"
+              className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-full md:h-7 md:w-7 border border-[var(--hairline-strong)] bg-[var(--surface-2)] text-[var(--accent-brand)] transition-[border-color,transform] duration-150 hover:border-[var(--accent-brand)] active:scale-[0.92] [&_svg]:h-3.5 [&_svg]:w-3.5"
               onClick={() => onMeatChange?.(-1)}
               aria-label="Menos carne"
             >
@@ -84,7 +84,7 @@ export function BurgerCustomizePanel({
             </span>
             <button
               type="button"
-              className="inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-full border border-[var(--hairline-strong)] bg-[var(--surface-2)] text-[var(--accent-brand)] transition-[border-color,transform] duration-150 hover:border-[var(--accent-brand)] active:scale-[0.92] [&_svg]:h-3.5 [&_svg]:w-3.5"
+              className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-full md:h-7 md:w-7 border border-[var(--hairline-strong)] bg-[var(--surface-2)] text-[var(--accent-brand)] transition-[border-color,transform] duration-150 hover:border-[var(--accent-brand)] active:scale-[0.92] [&_svg]:h-3.5 [&_svg]:w-3.5"
               onClick={() => onMeatChange?.(1)}
               aria-label="Más carne"
             >
@@ -102,7 +102,7 @@ export function BurgerCustomizePanel({
         onClick={onToggleVeggie}
         // Same pill as the dashboard order wizard: green when active.
         className={cn(
-          "inline-flex cursor-pointer items-center gap-1 rounded-full border px-3 py-1 font-condensed text-[0.8rem] font-bold tracking-[.06em] uppercase transition-[background-color,border-color,color,transform] duration-150 active:scale-[0.96]",
+          "inline-flex min-h-9 cursor-pointer items-center gap-1 rounded-full border px-3 py-1 font-condensed text-[0.8rem] md:min-h-0 font-bold tracking-[.06em] uppercase transition-[background-color,border-color,color,transform] duration-150 active:scale-[0.96]",
           item.isVeggie
             ? "border-[var(--status-paid)]/30 bg-[var(--status-paid-tint)] text-[var(--status-paid)]"
             : "border-[var(--hairline-strong)] bg-[var(--surface-2)] text-[var(--muted-foreground)] hover:border-[var(--accent-brand)] hover:text-[var(--foreground)]",
@@ -120,7 +120,7 @@ export function BurgerCustomizePanel({
           <div className="flex items-center gap-1">
             <button
               type="button"
-              className="inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-full border border-[var(--hairline-strong)] bg-[var(--surface-2)] text-[var(--accent-brand)] transition-[border-color,transform] duration-150 hover:border-[var(--accent-brand)] active:scale-[0.92] [&_svg]:h-3.5 [&_svg]:w-3.5"
+              className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-full md:h-7 md:w-7 border border-[var(--hairline-strong)] bg-[var(--surface-2)] text-[var(--accent-brand)] transition-[border-color,transform] duration-150 hover:border-[var(--accent-brand)] active:scale-[0.92] [&_svg]:h-3.5 [&_svg]:w-3.5"
               onClick={() => onFriesChange?.(-1)}
               aria-label="Menos papas"
             >
@@ -131,7 +131,7 @@ export function BurgerCustomizePanel({
             </span>
             <button
               type="button"
-              className="inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-full border border-[var(--hairline-strong)] bg-[var(--surface-2)] text-[var(--accent-brand)] transition-[border-color,transform] duration-150 hover:border-[var(--accent-brand)] active:scale-[0.92] [&_svg]:h-3.5 [&_svg]:w-3.5"
+              className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-full md:h-7 md:w-7 border border-[var(--hairline-strong)] bg-[var(--surface-2)] text-[var(--accent-brand)] transition-[border-color,transform] duration-150 hover:border-[var(--accent-brand)] active:scale-[0.92] [&_svg]:h-3.5 [&_svg]:w-3.5"
               onClick={() => onFriesChange?.(1)}
               aria-label="Más papas"
             >
@@ -210,7 +210,7 @@ export function BurgerCustomizePanel({
               type="button"
               aria-expanded={showAllExtras}
               onClick={() => setShowAllExtras((v) => !v)}
-              className="w-full py-2 text-center font-condensed text-xs font-bold tracking-[.08em] text-[var(--accent-brand)] uppercase"
+              className="min-h-10 w-full py-2 md:min-h-0 text-center font-condensed text-xs font-bold tracking-[.08em] text-[var(--accent-brand)] uppercase"
             >
               {showAllExtras ? "Ver menos" : `Ver los ${toppingExtras.length} extras`}
             </button>

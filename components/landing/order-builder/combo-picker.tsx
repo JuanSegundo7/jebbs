@@ -100,20 +100,21 @@ export function ComboPicker({
                     onClick={() => showDetail(combo)}
                     aria-haspopup="dialog"
                   >
-                    <div className="min-w-0 flex-1">
-                      <span className="font-condensed text-[1.22rem] font-bold tracking-[.04em] text-[var(--foreground)] uppercase">
-                          {combo.name}
-                        </span>
+                    {/* Grid: below sm the price sits under the name; from sm up it
+                        spans both rows in its own right-hand column. */}
+                    <div className="grid min-w-0 flex-1 grid-cols-1 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-center sm:gap-x-[15px]">
+                      <span className="min-w-0 break-words font-condensed text-[1.22rem] font-bold tracking-[.04em] text-[var(--foreground)] uppercase sm:col-start-1 sm:row-start-1">
+                        {combo.name}
+                      </span>
+                      <span className="numeric font-condensed text-[1.22rem] font-bold text-[var(--accent-brand)] sm:col-start-2 sm:row-start-1 sm:row-span-2 sm:self-center">
+                        {formatArs(combo.price)}
+                      </span>
                       {description && (
-                        <p className="mt-1 line-clamp-2 font-body text-[0.94rem] leading-[1.45] tracking-[0.005em] text-[var(--muted-foreground)]">
+                        <p className="mt-1 line-clamp-2 min-w-0 break-words font-body text-[0.94rem] leading-[1.45] tracking-[0.005em] text-[var(--muted-foreground)] sm:col-start-1 sm:row-start-2">
                           {description}
                         </p>
                       )}
                     </div>
-
-                    <span className="numeric shrink-0 font-condensed text-[1.22rem] font-bold text-[var(--accent-brand)]">
-                      {formatArs(combo.price)}
-                    </span>
                   </button>
 
                   <div className="flex shrink-0 items-center gap-0.5 rounded-[3px] border border-[var(--hairline)] bg-[var(--surface-2)]">
@@ -259,7 +260,7 @@ function ComboUnitList({
               </span>
               <button
                 type="button"
-                className="inline-flex size-7 items-center justify-center rounded-full text-[var(--accent-brand)] transition-colors hover:bg-[var(--surface-0)]"
+                className="inline-flex size-9 items-center justify-center rounded-full md:size-7 text-[var(--accent-brand)] transition-colors hover:bg-[var(--surface-0)]"
                 onClick={() => removeCombo(instance.id)}
                 aria-label="Eliminar combo"
               >
@@ -341,7 +342,7 @@ function ComboUnitList({
                             <button
                               key={burger.id}
                               type="button"
-                              className="rounded-full border border-[var(--hairline-strong)] px-3 py-1 font-condensed text-[11px] font-bold tracking-[.04em] text-[var(--muted-foreground)] uppercase transition-colors hover:border-[var(--accent-brand)] hover:text-[var(--accent-brand)]"
+                              className="min-h-9 rounded-full border border-[var(--hairline-strong)] px-3 py-1 font-condensed text-xs md:min-h-0 font-bold tracking-[.04em] text-[var(--muted-foreground)] uppercase transition-colors hover:border-[var(--accent-brand)] hover:text-[var(--accent-brand)]"
                               onClick={() =>
                                 addBurgerToSlot(
                                   instance.id,
@@ -404,7 +405,7 @@ function ComboUnitList({
                             key={extra.id}
                             type="button"
                             className={cn(
-                              "rounded-full border px-3 py-1 font-condensed text-[11px] font-bold tracking-[.04em] uppercase",
+                              "min-h-9 rounded-full border px-3 py-1 font-condensed text-xs md:min-h-0 font-bold tracking-[.04em] uppercase",
                               timesSelected > 0
                                 ? "border-[var(--accent-brand)] bg-[var(--accent-brand)] text-[var(--accent-contrast)]"
                                 : "border-[var(--hairline-strong)] text-[var(--muted-foreground)]",
@@ -502,13 +503,13 @@ function ComboBurgerRow({
           </span>
         </button>
         {item.locked ? (
-          <span className="font-condensed text-[11px] font-bold tracking-[.08em] text-[var(--muted-foreground)] uppercase">
+          <span className="font-condensed text-xs font-bold tracking-[.08em] text-[var(--muted-foreground)] uppercase">
             Incluida
           </span>
         ) : (
           <button
             type="button"
-            className="inline-flex size-7 shrink-0 items-center justify-center rounded-full text-[var(--accent-brand)] transition-colors hover:bg-[var(--surface-0)]"
+            className="inline-flex size-9 shrink-0 items-center justify-center rounded-full md:size-7 text-[var(--accent-brand)] transition-colors hover:bg-[var(--surface-0)]"
             onClick={onRemove}
             aria-label="Quitar hamburguesa del combo"
           >
