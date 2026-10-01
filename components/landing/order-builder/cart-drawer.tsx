@@ -244,10 +244,22 @@ export function CartDrawer({
             md: en mobile un min-h empuja el footer fuera de pantalla). DrawerContent es flex-col con max-h-[85dvh]; flex-1
             min-h-0 acá deja header y footer fijos y todo lo del medio
             scrolleable. diner-wrap porque el resto de la página entera
-            usa ese mismo ancho centrado (min(1080px,92vw)). */}
+            usa ese mismo ancho centrado (min(1080px,92vw)).
+            overflow-x-clip explícito (mismo patrón que html/body más abajo
+            en globals.css): sin esto, declarar solo overflow-y-auto hace
+            que la spec de CSS fuerce el eje X a "auto" también (la regla
+            es que un eje "visible" se vuelve "auto" apenas el otro eje no
+            lo es), convirtiendo este div en un scroll horizontal fantasma
+            cuando algo adentro es más ancho que diner-wrap -- el carrusel
+            "¿Le sumás algo?" (cart-upsell.tsx, 6 tarjetas de 9.5rem) mide
+            952px y filtraba ese ancho como scroll lateral de TODO el
+            carrito (bug real, reportado con el carrito "roto" de costado
+            al testear en un emulador mobile). El carrusel conserva su
+            propio overflow-x-auto interno -- este clip no lo toca, solo
+            evita que ESTE contenedor se vuelva scrolleable en X. */}
         <div
           ref={scrollRef}
-          className="diner-wrap min-h-0 flex-1 overflow-y-auto pb-4 md:min-h-[45vh]"
+          className="diner-wrap min-h-0 flex-1 overflow-x-clip overflow-y-auto pb-4 md:min-h-[45vh]"
         >
           {/* key={currentStep} monta una región nueva por paso -- el
               slide-in/fade-in de abajo se dispara en cada cambio, con la
