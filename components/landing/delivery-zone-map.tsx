@@ -93,6 +93,7 @@ function getZoneMapColor(zone: DeliveryZone, mappedZones: DeliveryZone[]): strin
 
 export function DeliveryZoneMap({ zones }: DeliveryZoneMapProps) {
   const mapRef = useRef<HTMLDivElement>(null);
+  const frameRef = useRef<HTMLDivElement>(null);
   const [svgMarkup, setSvgMarkup] = useState<string | null>(null);
   // Tracked by zone id (not map_zone_key) -- a zone without a map location
   // (map_zone_key === null) still needs its own stable hover identity, and
@@ -124,6 +125,43 @@ export function DeliveryZoneMap({ zones }: DeliveryZoneMapProps) {
     };
   }, []);
 
+  // On narrow screens the SVG is wider than the frame: start scrolled to the
+  // covered area (bbox of the mapped zones) instead of the left edge.
+  useEffect(() => {
+    const frame = frameRef.current;
+    if (!frame || !svgMarkup || frame.scrollWidth <= frame.clientWidth) return;
+    const polygonPoints = polygonZones.flatMap((z) => z.map_polygon);
+    let centerRatio = 0.5;
+    if (polygonPoints.length > 0) {
+      const xs = polygonPoints.map(([x]) => x);
+      centerRatio = (Math.min(...xs) + Math.max(...xs)) / 2 / 1654;
+    } else {
+      const keys = new Set(zones.map((z) => z.map_zone_key).filter(Boolean));
+      const svg = mapRef.current?.querySelector("svg");
+      const els = Array.from(
+        mapRef.current?.querySelectorAll<SVGGraphicsElement>("[data-zone]") ?? [],
+      ).filter((el) => keys.has(el.getAttribute("data-zone")));
+      const vb = svg?.viewBox.baseVal;
+      if (els.length > 0 && vb && vb.width > 0) {
+        let min = Infinity;
+        let max = -Infinity;
+        for (const el of els) {
+          try {
+            const b = el.getBBox();
+            min = Math.min(min, b.x);
+            max = Math.max(max, b.x + b.width);
+          } catch {
+            // getBBox can throw on non-rendered nodes; fall back to center.
+          }
+        }
+        if (Number.isFinite(min)) centerRatio = (min + max) / 2 / vb.width;
+      }
+    }
+    frame.scrollLeft = Math.max(0, centerRatio * frame.scrollWidth - frame.clientWidth / 2);
+    // Only on first load of the markup, not on every zones change.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [svgMarkup]);
+
   // Delegación de eventos sobre el contenedor: los <path data-zone="z1">
   // etc. ya vienen con ese atributo desde el SVG original (ref-zonemap.svg),
   // no hace falta parsear los ~560KB de paths, solo escuchar bubbling.
@@ -134,18 +172,33 @@ export function DeliveryZoneMap({ zones }: DeliveryZoneMapProps) {
     if (!container || !svgMarkup) return;
 
     const handleOver = (e: Event) => {
+      // Touch fires pointerover right before pointerup; leave it to handleTap
+      // or the tap would highlight and clear the zone in one gesture.
+      if ((e as PointerEvent).pointerType === "touch") return;
       const target = (e.target as Element).closest("[data-zone]");
       const mapKey = target?.getAttribute("data-zone");
       const zone = mapKey ? zones.find((z) => z.map_zone_key === mapKey) : null;
       if (zone) setHoveredZoneId(zone.id);
     };
-    const handleLeave = () => setHoveredZoneId(null);
+    const handleLeave = (e: Event) => {
+      // Touch has no hover: the highlight is toggled by tap instead.
+      if ((e as PointerEvent).pointerType === "touch") return;
+      setHoveredZoneId(null);
+    };
+    const handleTap = (e: Event) => {
+      if ((e as PointerEvent).pointerType !== "touch") return;
+      const mapKey = (e.target as Element).closest("[data-zone]")?.getAttribute("data-zone");
+      const zone = mapKey ? zones.find((z) => z.map_zone_key === mapKey) : null;
+      setHoveredZoneId((current) => (zone && current !== zone.id ? zone.id : null));
+    };
 
     container.addEventListener("pointerover", handleOver);
     container.addEventListener("pointerleave", handleLeave);
+    container.addEventListener("pointerup", handleTap);
     return () => {
       container.removeEventListener("pointerover", handleOver);
       container.removeEventListener("pointerleave", handleLeave);
+      container.removeEventListener("pointerup", handleTap);
     };
   }, [svgMarkup, zones]);
 
@@ -192,7 +245,10 @@ export function DeliveryZoneMap({ zones }: DeliveryZoneMapProps) {
         </div>
 
         <div className="flex flex-col gap-[22px]">
-          <div className="diner-zonemap-frame overflow-x-auto">
+          <p className="-mb-3 text-right text-xs text-[var(--muted-foreground)] sm:hidden">
+            Deslizá →
+          </p>
+          <div ref={frameRef} className="diner-zonemap-frame overflow-x-auto">
             {/* relative: ancla el overlay de polígonos (position: absolute,
                 inset-0) al mismo cuadro que ocupa el SVG de fondo, incluyendo
                 el min-width de abajo cuando el fondo desborda en mobile. */}
@@ -230,8 +286,16 @@ export function DeliveryZoneMap({ zones }: DeliveryZoneMapProps) {
                         stroke={color}
                         strokeWidth={isHovered ? 3 : 1.5}
                         className="pointer-events-auto cursor-pointer transition-[fill-opacity,stroke-width] duration-150"
-                        onPointerEnter={() => setHoveredZoneId(zone.id)}
-                        onPointerLeave={() => setHoveredZoneId(null)}
+                        onPointerEnter={(e) => {
+                          if (e.pointerType !== "touch") setHoveredZoneId(zone.id);
+                        }}
+                        onPointerLeave={(e) => {
+                          if (e.pointerType !== "touch") setHoveredZoneId(null);
+                        }}
+                        onPointerUp={(e) => {
+                          if (e.pointerType === "touch")
+                            setHoveredZoneId((c) => (c === zone.id ? null : zone.id));
+                        }}
                       />
                     );
                   })}
@@ -259,8 +323,16 @@ export function DeliveryZoneMap({ zones }: DeliveryZoneMapProps) {
                 data-dim={
                   hoveredZoneId !== null && hoveredZoneId !== zone.id ? "true" : undefined
                 }
-                onPointerEnter={() => setHoveredZoneId(zone.id)}
-                onPointerLeave={() => setHoveredZoneId(null)}
+                onPointerEnter={(e) => {
+                  if (e.pointerType !== "touch") setHoveredZoneId(zone.id);
+                }}
+                onPointerLeave={(e) => {
+                  if (e.pointerType !== "touch") setHoveredZoneId(null);
+                }}
+                onPointerUp={(e) => {
+                  if (e.pointerType === "touch")
+                    setHoveredZoneId((c) => (c === zone.id ? null : zone.id));
+                }}
               >
                 <span className="diner-zname">{zone.name}</span>
                 {zone.description && <span className="diner-zhoods">{zone.description}</span>}

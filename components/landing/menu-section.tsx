@@ -30,7 +30,7 @@ export function MenuSection({ catalog, deliveryZones, minDeliveryFeeArs }: MenuS
               el ticket.
             </p>
           </div>
-          <span className="rounded-full border border-[var(--accent-brand)]/50 px-2.5 py-0.5 font-condensed text-[0.72rem] font-bold tracking-[0.14em] text-[var(--accent-brand)] uppercase">
+          <span className="rounded-full border border-[var(--accent-brand)]/50 px-2.5 py-0.5 font-condensed text-xs font-bold tracking-[0.14em] text-[var(--accent-brand)] uppercase">
             Precios a confirmar
           </span>
         </div>

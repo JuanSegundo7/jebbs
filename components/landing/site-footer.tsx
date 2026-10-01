@@ -34,7 +34,7 @@ export function SiteFooter({ coverage = COVERAGE_FALLBACK }: { coverage?: string
             href={whatsappHref}
             target="_blank"
             rel="noopener noreferrer"
-            className="flex items-center gap-2 transition-colors hover:text-[var(--foreground)]"
+            className="flex items-center gap-2 py-2 transition-colors hover:text-[var(--foreground)]"
           >
             <MessageCircle className="size-4" aria-hidden />
             WhatsApp
@@ -49,7 +49,7 @@ export function SiteFooter({ coverage = COVERAGE_FALLBACK }: { coverage?: string
             href={INSTAGRAM_URL}
             target="_blank"
             rel="noopener noreferrer"
-            className="flex items-center gap-2 transition-colors hover:text-[var(--foreground)]"
+            className="flex items-center gap-2 py-2 transition-colors hover:text-[var(--foreground)]"
           >
             <Instagram className="size-4" aria-hidden />
             @jebbsburgers
@@ -68,7 +68,7 @@ export function SiteFooter({ coverage = COVERAGE_FALLBACK }: { coverage?: string
         </div>
       </div>
 
-      <p className="diner-wrap mt-10 font-condensed text-[11px] tracking-[.08em] text-[var(--muted-foreground-dim)] uppercase">
+      <p className="diner-wrap mt-10 font-condensed text-xs tracking-[.08em] text-[var(--muted-foreground-dim)] uppercase">
         © {new Date().getFullYear()} {BRAND_NAME}
       </p>
     </footer>

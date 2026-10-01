@@ -21,7 +21,7 @@ export function SiteHeader() {
   const whatsappHref = `https://wa.me/${env.NEXT_PUBLIC_WHATSAPP_NUMBER}`;
   return (
     <header className="material-regular sticky top-0 z-40 border-b border-[var(--hairline)]">
-      <div className="diner-wrap flex items-center gap-[18px] py-[11px]">
+      <div className="diner-wrap flex items-center gap-3 py-[11px] sm:gap-[18px]">
         <a href="#top" className="flex items-center gap-2.5">
           <Image
             src="/jebbs.png"
@@ -32,7 +32,7 @@ export function SiteHeader() {
             className="size-10 shrink-0 object-contain"
             priority
           />
-          <span className="font-display text-base tracking-[.02em] text-[var(--foreground)]">
+          <span className="font-display text-base whitespace-nowrap tracking-[.02em] text-[var(--foreground)]">
             {BRAND_NAME}
           </span>
         </a>
@@ -69,7 +69,7 @@ export function SiteHeader() {
             href={whatsappHref}
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex items-center gap-1.5 rounded-lg bg-[var(--accent-brand)] px-4 py-2 font-condensed text-[12px] font-bold tracking-[.08em] text-[var(--accent-contrast)] uppercase shadow-[var(--shadow-sm)] transition-[background-color,box-shadow,transform] duration-150 hover:bg-[var(--accent-hover)] hover:shadow-[var(--shadow-md)] active:scale-[0.97] sm:hidden"
+            className="inline-flex min-h-10 items-center gap-1.5 rounded-lg bg-[var(--accent-brand)] px-4 py-2 font-condensed text-[12px] font-bold tracking-[.08em] text-[var(--accent-contrast)] uppercase shadow-[var(--shadow-sm)] transition-[background-color,box-shadow,transform] duration-150 hover:bg-[var(--accent-hover)] hover:shadow-[var(--shadow-md)] active:scale-[0.97] sm:hidden"
           >
             <WhatsappGlyph className="size-3.5" />
             WhatsApp
