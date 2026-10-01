@@ -98,31 +98,18 @@ export function BurgerCustomizePanel({
         type="button"
         role="switch"
         aria-checked={item.isVeggie ?? false}
+        aria-label="Versión veggie"
         onClick={onToggleVeggie}
-        // El único uso interactivo real del chip (el resto son badges, sin
-        // hover) -- se le suma el movimiento de diner-interactive en
-        // valores sueltos (no la clase, para no pelear el `transition`
-        // shorthand que ya trae la fila): acá se anima solo transform/
-        // box-shadow, dejando intacta la transición de borde/fondo propia.
-        className="flex w-full items-center gap-[10px] py-2 text-left transition-[transform,box-shadow] duration-200 [transition-timing-function:cubic-bezier(0.16,1,0.3,1)] hover:-translate-y-0.5 hover:shadow-[var(--shadow-md)] active:scale-[0.985] active:bg-[color-mix(in_srgb,var(--foreground)_3%,transparent)] active:shadow-[var(--shadow-sm)]"
+        // Same pill as the dashboard order wizard: green when active.
+        className={cn(
+          "inline-flex cursor-pointer items-center gap-1 rounded-full border px-3 py-1 font-condensed text-[0.8rem] font-bold tracking-[.06em] uppercase transition-[background-color,border-color,color,transform] duration-150 active:scale-[0.96]",
+          item.isVeggie
+            ? "border-[var(--status-paid)]/30 bg-[var(--status-paid-tint)] text-[var(--status-paid)]"
+            : "border-[var(--hairline-strong)] bg-[var(--surface-2)] text-[var(--muted-foreground)] hover:border-[var(--accent-brand)] hover:text-[var(--foreground)]",
+        )}
       >
-        <span className="font-condensed text-[0.98rem] font-bold tracking-[.03em] text-[var(--foreground)] uppercase">
-          Versión veggie
-        </span>
-        <span
-          className="min-w-[1rem] flex-1"
-          aria-hidden
-        />
-        <span
-          className={cn(
-            "shrink-0 rounded-full px-2.5 py-0.5 font-condensed text-[0.72rem] font-bold tracking-[0.14em] uppercase",
-            item.isVeggie
-              ? "bg-[var(--accent-brand)] text-[var(--accent-contrast)]"
-              : "border border-[var(--accent-brand)]/50 text-[var(--accent-brand)]",
-          )}
-        >
-          {item.isVeggie ? "Sí" : "No"}
-        </span>
+        <span aria-hidden>🌱</span>
+        Veggie
       </button>
 
       {showFries && (

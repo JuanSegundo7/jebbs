@@ -148,13 +148,13 @@ describe("CartDrawer -- editing items (step 1)", () => {
 
     // addBurger auto-expands the newly added item (same as the picker's
     // "Personalizá tu pedido" list), so the panel starts open here.
-    expect(screen.getByText(/versión veggie/i)).not.toBeNull();
+    expect(screen.getByRole("switch", { name: /veggie/i })).not.toBeNull();
 
     fireEvent.click(screen.getByRole("button", { name: /editar/i }));
-    expect(screen.queryByText(/versión veggie/i)).toBeNull();
+    expect(screen.queryByRole("switch", { name: /veggie/i })).toBeNull();
 
     fireEvent.click(screen.getByRole("button", { name: /editar/i }));
-    expect(screen.getByText(/versión veggie/i)).not.toBeNull();
+    expect(screen.getByRole("switch", { name: /veggie/i })).not.toBeNull();
   });
 
   it("sides have no 'Editar' affordance (no customization panel exists for them yet)", () => {
