@@ -159,6 +159,34 @@ export function CartDrawer({
     return () => observer.disconnect();
   }, []);
 
+  // Oculta el footer (Total + acción) mientras el teclado on-screen está
+  // abierto, en vez de perseguir su reposicionamiento correcto en cada
+  // combinación de iOS/Android/versión -- bug real reportado en iPhone 15
+  // (interactiveWidget=resizes-content en layout.tsx ayuda desde Safari
+  // 17.4 / Chrome 108, pero no cubre versiones viejas, y el reporte siguió
+  // apareciendo tal cual). window.visualViewport.height se achica cuando el
+  // teclado tapa parte de la pantalla; window.innerHeight no cambia --
+  // comparando los dos detectamos el teclado sin depender de ninguna
+  // versión de navegador en particular. Umbral de 150px: un teclado real
+  // mide 250-350px; el toolbar dinámico de iOS Safari al scrollear cambia
+  // la altura visible unos 50-100px nomás, el umbral evita falsos
+  // positivos por eso. Solo corre con el drawer abierto -- visualViewport
+  // es un singleton global, no tiene sentido escuchar resize con el carrito
+  // cerrado.
+  const [keyboardOpen, setKeyboardOpen] = useState(false);
+
+  useEffect(() => {
+    if (!open || typeof window === "undefined" || !window.visualViewport) return;
+    const vv = window.visualViewport;
+    const check = () => setKeyboardOpen(window.innerHeight - vv.height > 150);
+    check();
+    vv.addEventListener("resize", check);
+    return () => {
+      vv.removeEventListener("resize", check);
+      setKeyboardOpen(false);
+    };
+  }, [open]);
+
   // Al cambiar de paso: la región de scroll (compartida entre los dos
   // pasos) vuelve arriba -- si no, se podría llegar al paso 2 a mitad de
   // un scroll largo de la lista -- y el foco se mueve a la región del
@@ -287,9 +315,14 @@ export function CartDrawer({
           ref={scrollRef}
           className="diner-wrap min-h-0 flex-1 overflow-x-clip overflow-y-auto pb-4 md:min-h-[45vh]"
           style={
-            footerHeight > 0
-              ? { paddingBottom: `calc(${footerHeight}px + env(safe-area-inset-bottom) + 1rem)` }
-              : undefined
+            // Con el footer oculto por el teclado no hace falta reservarle
+            // espacio -- 1rem de respiro alcanza y libera pantalla real
+            // para el form mientras el teclado ocupa la mitad de abajo.
+            keyboardOpen
+              ? undefined
+              : footerHeight > 0
+                ? { paddingBottom: `calc(${footerHeight}px + env(safe-area-inset-bottom) + 1rem)` }
+                : undefined
           }
         >
           {/* key={currentStep} monta una región nueva por paso -- el
@@ -468,7 +501,18 @@ export function CartDrawer({
             del drawer) -- diner-wrap va en el div de adentro, para que el
             contenido respire al mismo ancho de lectura que el resto de la
             página sin recortar el fondo. */}
-        <DrawerFooter className="material-thick gap-0 border-t border-[var(--hairline)] p-0 pb-[env(safe-area-inset-bottom)]">
+        {/* hidden (display:none), no desmontar condicionalmente: así el
+            ResizeObserver de footerContentRef sigue apuntando al mismo nodo
+            del DOM cuando el teclado se cierra y el footer vuelve a
+            aparecer -- desmontar/remontar perdería esa referencia y las
+            mediciones de footerHeight quedarían congeladas en el valor de
+            la primera vez. */}
+        <DrawerFooter
+          className={cn(
+            "material-thick gap-0 border-t border-[var(--hairline)] p-0 pb-[env(safe-area-inset-bottom)]",
+            keyboardOpen && "hidden",
+          )}
+        >
           <div ref={footerContentRef} className="diner-wrap flex flex-col gap-3 py-4">
             <div className="flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
               <span className="numeric font-condensed text-[1.15rem] font-bold tracking-[.04em] text-[var(--accent-brand)] uppercase">
